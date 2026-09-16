@@ -1,6 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            background: #FFF8FA;
+            font-family: Inter, Arial, sans-serif;
+        }
+
+        body {
+            display: block;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        body > div {
+            width: 390px !important;
+            height: 844px !important;
+            position: relative !important;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .login-input {
+            width: 340px;
+            height: 48px;
+            border: 1px solid #EEDDE3;
+            background: white;
+            padding: 0 16px;
+            font-size: 12px;
+            color: #3A2930;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .login-button {
+            width: 340px;
+            height: 50px;
+            border: none;
+            background: #D96B8B;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
 <!--tela de login-->
 
-<div style="width: 100%; height: 100%; position: relative; overflow: hidden">
+<div id="login-screen" class="screen active" style="width: 100%; height: 100%; position: relative; overflow: hidden">
     <div style="width: 390px; height: 844px; left: 0px; top: 0px; position: absolute; background: #FFF8FA"></div>
     <div style="width: 36px; height: 36px; left: 330px; top: 22px; position: absolute; background: #F7DDE6"></div>
     <div style="left: 343px; top: 32px; position: absolute; text-align: center; color: #6E2945; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">K</div>
@@ -11,20 +72,17 @@
     <div style="left: 152.50px; top: 193px; position: absolute; text-align: center; color: #6E2945; font-size: 25px; font-family: Inter; font-weight: 700; word-wrap: break-word">Estrela</div>
     <div style="left: 174.50px; top: 231px; position: absolute; text-align: center; color: #6E2945; font-size: 11px; font-family: Inter; font-weight: 400; word-wrap: break-word">MODAS</div>
     <div style="left: 25px; top: 291px; position: absolute; color: #8B777F; font-size: 11px; font-family: Inter; font-weight: 400; word-wrap: break-word">Usuário</div>
-    <div style="width: 340px; height: 48px; left: 25px; top: 311px; position: absolute; background: white; outline: 1px #EEDDE3 solid; outline-offset: -0.50px"></div>
-    <div style="left: 41px; top: 329px; position: absolute; color: #8B777F; font-size: 12px; font-family: Inter; font-weight: 400; word-wrap: break-word">Digite seu usuário</div>
+    <input id="usuario" class="login-input" type="text" placeholder="Digite seu usuário" style="left: 25px; top: 311px; position: absolute;">
     <div style="left: 25px; top: 375px; position: absolute; color: #8B777F; font-size: 11px; font-family: Inter; font-weight: 400; word-wrap: break-word">Senha</div>
-    <div style="width: 340px; height: 48px; left: 25px; top: 395px; position: absolute; background: white; outline: 1px #EEDDE3 solid; outline-offset: -0.50px"></div>
-    <div style="left: 41px; top: 413px; position: absolute; color: #8B777F; font-size: 12px; font-family: Inter; font-weight: 400; word-wrap: break-word">Digite sua senha</div>
+    <input id="senha" class="login-input" type="password" placeholder="Digite sua senha" style="left: 25px; top: 395px; position: absolute;">
     <div style="left: 354px; top: 413px; position: absolute; text-align: right; color: #D96B8B; font-size: 12px; font-family: Inter; font-weight: 400; word-wrap: break-word">◉</div>
-    <div style="width: 340px; height: 50px; left: 25px; top: 466px; position: absolute; background: #D96B8B"></div>
-    <div style="left: 175px; top: 485px; position: absolute; text-align: center; color: white; font-size: 13px; font-family: Inter; font-weight: 700; word-wrap: break-word">Entrar</div>
+    <button id="btnEntrar" class="login-button" type="button" style="left: 25px; top: 466px; position: absolute;">Entrar</button>
     <div style="left: 88px; top: 537px; position: absolute; text-align: center; color: #8B777F; font-size: 11px; font-family: Inter; font-weight: 400; word-wrap: break-word">Acesso protegido por perfil e permissões</div>
 </div>
 
 <!--tela de dashboard-->
 
-<div style="width: 100%; height: 100%; position: relative; overflow: hidden">
+<div id="dashboard-screen" class="screen" style="width: 100%; height: 100%; position: relative; overflow: hidden">
     <div style="width: 390px; height: 844px; left: 0px; top: 0px; position: absolute; background: #FFF8FA"></div>
     <div style="width: 36px; height: 36px; left: 330px; top: 22px; position: absolute; background: #F7DDE6"></div>
     <div style="left: 343px; top: 32px; position: absolute; text-align: center; color: #6E2945; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">K</div>
@@ -463,3 +521,8 @@
     <div style="left: 339px; top: 778px; position: absolute; text-align: center; color: #D96B8B; font-size: 19px; font-family: Inter; font-weight: 400; word-wrap: break-word">☰</div>
     <div style="left: 338px; top: 808px; position: absolute; text-align: center; color: #D96B8B; font-size: 9px; font-family: Inter; font-weight: 400; word-wrap: break-word">Mais</div>
 </div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
