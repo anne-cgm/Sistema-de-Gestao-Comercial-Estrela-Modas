@@ -10,6 +10,17 @@ const {
   inicializarApp
 } = require('../script.js');
 
+const originalDocument = global.document;
+
+test.afterEach(() => {
+  if (typeof originalDocument === 'undefined') {
+    delete global.document;
+    return;
+  }
+
+  global.document = originalDocument;
+});
+
 test('validarLogin aceita usuário e senha preenchidos', () => {
   assert.equal(validarLogin('kamila', '123456'), true);
 });
@@ -81,22 +92,12 @@ test('mostrarTela ativa a tela correta quando existe DOM', () => {
 
   assert.equal(login.classList.contains('active'), false);
   assert.equal(dashboard.classList.contains('active'), true);
-
-  delete global.document;
 });
 
 test('inicializarApp não quebra quando o formulário não existe', () => {
-  const originalDocument = global.document;
-
   global.document = {
     getElementById: () => null
   };
 
   assert.doesNotThrow(() => inicializarApp());
-
-  if (originalDocument) {
-    global.document = originalDocument;
-  } else {
-    delete global.document;
-  }
 });
