@@ -23,6 +23,10 @@ function buscarProduto(produtos, termo) {
 }
 
 function mostrarTela(telaId) {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
     const telas = document.querySelectorAll('.screen');
     telas.forEach(tela => {
         tela.classList.toggle('active', tela.id === telaId);
@@ -30,6 +34,10 @@ function mostrarTela(telaId) {
 }
 
 function inicializarApp() {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
     const usuarioInput = document.getElementById('usuario');
     const senhaInput = document.getElementById('senha');
     const btnEntrar = document.getElementById('btnEntrar');
@@ -63,7 +71,9 @@ function inicializarApp() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', inicializarApp);
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', inicializarApp);
+}
 
 if (typeof module !== 'undefined') {
     module.exports = {
