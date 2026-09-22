@@ -1,0 +1,14 @@
+# Ignorar arquivos de ambiente com senhas
+backend/.env
+.env
+
+# Ignorar dependências do Node/Front-end
+node_modules/
+frontend/node_modules/
+
+# Ignorar ambiente virtual e arquivos temporários do Python/Django
+*.pyc
+__pycache__/
+.venv/
+venv/
+db.sqlite3
