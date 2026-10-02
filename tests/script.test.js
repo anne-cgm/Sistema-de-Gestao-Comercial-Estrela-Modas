@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import { produtoComEstoqueBaixo } from '../src/screens/estoque.js'
-import { validarLogin } from '../src/screens/login.js'
-import { calcularTotalVenda, formatarMoeda } from '../src/screens/nova-venda.js'
-import { buscarProduto } from '../src/screens/produtos.js'
+import { produtoComEstoqueBaixo } from '../frontend/estoque.js'
+import { validarLogin } from '../frontend/login.js'
+import { calcularTotalVenda, formatarMoeda } from '../frontend/nova_venda.js'
+import { buscarProduto } from '../frontend/produtos.js'
 
 test('validarLogin aceita usuário e senha preenchidos', () => {
   assert.equal(validarLogin('kamila', '123456'), true)
@@ -81,13 +81,13 @@ test('formatarMoeda usa o padrão brasileiro', () => {
 
 test('módulos das telas podem ser importados sem um DOM', async () => {
   const modulos = [
-    '../src/screens/clientes.js',
-    '../src/screens/dashboard.js',
-    '../src/screens/debitos.js',
-    '../src/screens/mais.js',
-    '../src/screens/novo-produto.js',
-    '../src/screens/relatorios.js',
-    '../src/screens/shared.js',
+    '../frontend/clientes.js',
+    '../frontend/dashboard.js',
+    '../frontend/debitos.js',
+    '../frontend/mais_opcoes.js',
+    '../frontend/cadastro_produto.js',
+    '../frontend/relatorios.js',
+    '../frontend/shared.js',
   ]
 
   await assert.doesNotReject(() => Promise.all(modulos.map(modulo => import(modulo))))
