@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/anne-cgm/Sistema-de-Gestao-Comercial-Estrela-Modas/issues"
   },
-  "homepage": "https://github.com/anne-cgm/Sistema-de-Gestao-Comercial-Estrela-Modas#readme"
+  "homepage": "https://github.com/anne-cgm/Sistema-de-Gestao-Comercial-Estrela-Modas#readme",
+  "devDependencies": {
+    "jsdom": "^30.0.1"
+  }
 }
