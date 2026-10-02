@@ -21,7 +21,13 @@ jobs:
           cache: npm
 
       - name: Instalar dependências
+        run: npm install- name: Install frontend dependencies
+        working-directory: ./frontend
         run: npm install
+
+      - name: Run frontend tests
+        working-directory: ./frontend
+        run: npm test
 
       - name: Executar build
         run: npm run build
