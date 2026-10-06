@@ -2,11 +2,17 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from pathlib import Path
 
 
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+
+    # Adiciona a pasta 'apps' ao caminho de pesquisa do Python
+    base_dir = Path(__file__).resolve().parent
+    sys.path.append(str(base_dir / 'apps'))
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
