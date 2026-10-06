@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Estoque | Estrela Modas</title>
+    <title>Novo Produto | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -626,33 +627,41 @@
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Estoque</h1>
-            <p class="subtitle">Entradas, saídas e alertas.</p>
+            <h1 class="title">Novo produto</h1>
+            <p class="subtitle">Cadastre uma peça e suas variações.</p>
           </div>
           <div class="avatar">K</div>
         </header>
-        <div class="content stack">
-          <input class="search" type="search" aria-label="Pesquisar estoque" placeholder="Pesquisar estoque" />
+        <form class="content stack" data-product-form method="post">
+          {% csrf_token %}
+          <p class="count">Dados principais</p>
+          <label><span class="form-label">{{ form.nome_produto.label }}</span>{{ form.nome_produto }}{{ form.nome_produto.errors }}</label>
+          <label><span class="form-label">{{ form.sku.label }}</span>{{ form.sku }}{{ form.sku.errors }}</label>
           <div class="grid-2">
-            <div class="badge">Todos os produtos ▾</div>
-            <div class="select">Ordenar ▾</div>
+            <label><span class="form-label">{{ form.categoria.label }}</span>{{ form.categoria }}{{ form.categoria.errors }}</label>
+            <label><span class="form-label">{{ form.tamanho.label }}</span>{{ form.tamanho }}{{ form.tamanho.errors }}</label>
           </div>
-          <div class="list">
-            <article class="card row" data-item-estoque data-quantidade-estoque="12"><div class="row-main"><p class="row-title">Camiseta Básica</p><p class="row-sub">M · Preto</p></div><div><p class="stat-value wine"><strong>12</strong></p><p class="row-sub">DISPONÍVEL</p></div></article>
-            <article class="card row" data-item-estoque data-quantidade-estoque="1"><div class="row-main"><p class="row-title">Calça Wide Leg</p><p class="row-sub">M · Preto</p></div><div><p class="stat-value wine"><strong>1</strong></p><p class="stat-sub">REPOR</p></div></article>
-            <article class="card row" data-item-estoque data-quantidade-estoque="8"><div class="row-main"><p class="row-title">Vestido Floral</p><p class="row-sub">G · Azul</p></div><div><p class="stat-value wine"><strong>8</strong></p><p class="row-sub">DISPONÍVEL</p></div></article>
-            <article class="card row" data-item-estoque data-quantidade-estoque="4"><div class="row-main"><p class="row-title">Bolsa Mini</p><p class="row-sub">Única · Preto</p></div><div><p class="stat-value wine"><strong>4</strong></p><p class="row-sub">DISPONÍVEL</p></div></article>
+          <label><span class="form-label">{{ form.cor.label }}</span>{{ form.cor }}{{ form.cor.errors }}</label>
+          <p class="count">Precificação</p>
+          <div class="grid-2">
+            <label><span class="form-label">{{ form.preco_custo.label }}</span>{{ form.preco_custo }}{{ form.preco_custo.errors }}</label>
+            <label><span class="form-label">{{ form.preco_venda.label }}</span>{{ form.preco_venda }}{{ form.preco_venda.errors }}</label>
           </div>
-        </div>
+          <div class="grid-2">
+            <label><span class="form-label">{{ form.quantidade_estoque.label }}</span>{{ form.quantidade_estoque }}{{ form.quantidade_estoque.errors }}</label>
+            <label><span class="form-label">{{ form.estoque_minimo.label }}</span>{{ form.estoque_minimo }}{{ form.estoque_minimo.errors }}</label>
+          </div>
+          <button class="button" type="submit">Salvar produto</button>
+        </form>
       </section>
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./estoque.js"></script>
+    <script type="module" src="{% static 'estrela_modas/cadastro_produto.js' %}"></script>
   </body>
 </html>

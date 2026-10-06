@@ -118,37 +118,50 @@ Possui acesso às funcionalidades necessárias para a operação da loja, confor
 sistema-gestao-comercial/
 │
 ├── README.md
+├── manage.py
+├── requirements.txt
+├── config/
+├── estrela_modas/
+├── frontend/
+│   ├── templates/estrela_modas/
+│   └── static/estrela_modas/
 │
 ├── docs/
 │   └── documentação do sistema
-│
-├── backend/
-│   └── código da aplicação
-│
-├── frontend/
-│   └── interface da aplicação
-│
-├── database/
-│   └── scripts e estrutura do banco de dados
 │
 └── tests/
     └── testes automatizados
 ```
 
-> A estrutura poderá ser atualizada conforme o desenvolvimento do projeto.
-
 ## 🛠️ Tecnologias
 
 As tecnologias utilizadas no desenvolvimento serão definidas conforme os requisitos técnicos e as decisões arquiteturais do projeto.
 
-**Em definição/desenvolvimento:**
+**Tecnologias:**
 
-* Backend: [tecnologia]
-* Frontend: [tecnologia]
-* Banco de dados: [tecnologia]
+* Backend: Django;
+* Frontend: Django Templates, HTML, CSS e JavaScript;
+* Banco de dados: PostgreSQL (Neon);
 * Versionamento: Git e GitHub
 * Documentação: Markdown / MkDocs
 * Modelagem: [ferramenta]
+
+### Executar a aplicação Django
+
+O projeto Django fica na raiz: `manage.py` inicia a aplicação, `config/` guarda
+as configurações e rotas globais, e `estrela_modas/` contém os modelos e as
+views. A interface fica separada em `frontend/templates/` e `frontend/static/`;
+o Django lê esses diretórios pela configuração do projeto.
+
+O banco PostgreSQL é configurado por `DATABASE_URL` no ambiente local:
+
+1. Crie e ative o ambiente virtual: `python -m venv backend/venv` e `.\backend\venv\Scripts\Activate.ps1` no PowerShell.
+2. Instale as dependências: `pip install -r requirements.txt`.
+3. Copie `.env.example` para `backend/.env` e configure `SECRET_KEY` e `DATABASE_URL` com os valores privados do seu ambiente.
+4. Na raiz do repositório, execute `python manage.py migrate` e crie a primeira conta com `python manage.py createsuperuser`.
+5. Inicie com `python manage.py runserver` e abra `http://127.0.0.1:8000/`.
+
+O arquivo `backend/.env` não deve ser enviado ao Git. Não coloque credenciais reais no `.env.example`.
 
 ## 📚 Documentação
 

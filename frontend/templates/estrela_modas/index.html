@@ -1,16 +1,17 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <!-- figma:head-start -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="refresh" content="0; url=./src/screens/login.html" />
+    <meta http-equiv="refresh" content="0; url={% url 'login' %}" />
     <title>Estrela Modas</title>
     <!-- figma:head-end -->
   </head>
   <body>
     <!-- figma:body-start -->
-    <p><a href="./src/screens/login.html">Abrir Estrela Modas</a></p>
+    <p><a href="{% url 'login' %}">Abrir Estrela Modas</a></p>
     <!-- figma:body-end -->
   </body>
 </html>
