@@ -1,4 +1,5 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -634,22 +635,23 @@
         <div class="content">
           <p class="count" style="margin-bottom: 14px">Gerencie outras áreas da loja</p>
           <div class="list">
-            <button class="menu-item" data-module="Compras"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Compras</span><span class="row-sub" style="display: block">Registrar mercadorias e entradas</span></span><span class="chevron">›</span></button>
-            <button class="menu-item" data-module="Trocas"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Trocas</span><span class="row-sub" style="display: block">Validar trocas e atualizar estoque</span></span><span class="chevron">›</span></button>
-            <button class="menu-item" data-module="Despesas"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Despesas</span><span class="row-sub" style="display: block">Registrar gastos operacionais</span></span><span class="chevron">›</span></button>
-            <button class="menu-item" data-screen="relatorios"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Relatórios</span><span class="row-sub" style="display: block">Vendas, estoque e financeiro</span></span><span class="chevron">›</span></button>
-            <button class="menu-item" data-module="Usuários"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Usuários</span><span class="row-sub" style="display: block">Perfis e permissões</span></span><span class="chevron">›</span></button>
+            <a class="menu-item" href="{% url 'compras' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Compras</span><span class="row-sub" style="display: block">Registrar mercadorias e entradas</span></span><span class="chevron">›</span></a>
+            <a class="menu-item" href="{% url 'trocas' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Trocas</span><span class="row-sub" style="display: block">Registrar trocas e atualizar estoque</span></span><span class="chevron">›</span></a>
+            <a class="menu-item" href="{% url 'despesas' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Despesas</span><span class="row-sub" style="display: block">Registrar gastos operacionais</span></span><span class="chevron">›</span></a>
+            <a class="menu-item" href="{% url 'relatorios' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Relatórios</span><span class="row-sub" style="display: block">Vendas, estoque e financeiro</span></span><span class="chevron">›</span></a>
+            <a class="menu-item" href="{% url 'admin:index' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Administração</span><span class="row-sub" style="display: block">Gerenciar usuários, produtos e registros</span></span><span class="chevron">›</span></a>
           </div>
+          <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="button button--wine" type="submit">Sair da conta</button></form>
         </div>
       </section>
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./mais.js"></script>
+    <script type="module" src="{% static 'estrela_modas/mais_opcoes.js' %}"></script>
   </body>
 </html>

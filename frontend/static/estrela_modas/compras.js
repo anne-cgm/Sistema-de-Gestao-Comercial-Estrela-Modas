@@ -1,4 +1,4 @@
-import { exibirMensagem, iniciarTela } from './shared.js'
+import { iniciarTela } from './shared.js'
 
 export default function iniciarCompras() {
   iniciarTela('mais')
@@ -14,7 +14,7 @@ export default function iniciarCompras() {
 
 function selecionarProduto(evento) {
   const produtoSelecionado = evento.currentTarget.selectedOptions[0]
-  const campoPrecoCusto = document.querySelector('[name="precoCusto"]')
+  const campoPrecoCusto = document.querySelector('[name="preco_custo_unitario"]')
 
   if (campoPrecoCusto) campoPrecoCusto.value = produtoSelecionado.dataset.precoCusto ?? ''
   atualizarResumoCompra()
@@ -22,8 +22,8 @@ function selecionarProduto(evento) {
 
 function atualizarResumoCompra() {
   const produtoSelecionado = obterProdutoSelecionado()
-  const precoCusto = lerNumeroDoCampo('[name="precoCusto"]')
-  const quantidadeRecebida = lerNumeroDoCampo('[name="quantidadeRecebida"]')
+  const precoCusto = lerNumeroDoCampo('[name="preco_custo_unitario"]')
+  const quantidadeRecebida = lerNumeroDoCampo('[name="quantidade"]')
   const quantidadeEstoque = Number(produtoSelecionado?.dataset.quantidadeEstoque ?? 0)
   const valorTotal = calcularValorCompra(precoCusto, quantidadeRecebida)
   const novoEstoque = calcularNovoEstoque(quantidadeEstoque, quantidadeRecebida)
@@ -42,23 +42,12 @@ function atualizarResumoCompra() {
 }
 
 function registrarCompra(evento) {
-  evento.preventDefault()
   const formularioCompra = evento.currentTarget
 
   if (!formularioCompra.checkValidity()) {
+    evento.preventDefault()
     formularioCompra.reportValidity()
-    return
   }
-
-  const produtoSelecionado = obterProdutoSelecionado()
-  const quantidadeEstoque = Number(produtoSelecionado.dataset.quantidadeEstoque)
-  const quantidadeRecebida = lerNumeroDoCampo('[name="quantidadeRecebida"]')
-  produtoSelecionado.dataset.quantidadeEstoque = calcularNovoEstoque(
-    quantidadeEstoque,
-    quantidadeRecebida,
-  )
-  atualizarResumoCompra()
-  exibirMensagem('Compra registrada e estoque atualizado.')
 }
 
 function obterProdutoSelecionado() {

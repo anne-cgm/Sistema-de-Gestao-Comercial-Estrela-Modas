@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Registrar Compra | Estrela Modas</title>
+    <title>Login | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -622,82 +623,37 @@
   </head>
   <body>
     <main class="phone">
-      <section class="screen">
+      <section class="screen screen--login">
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Registrar compra</h1>
-            <p class="subtitle">Registre a entrada de produtos no estoque.</p>
+            <h1 class="title">Bem-vinda!</h1>
+            <p class="subtitle">Acesse a gestão da sua loja.</p>
           </div>
-          <div class="avatar">K</div>
         </header>
 
-        <form class="content stack" data-formulario-compra>
-          <p class="count">Entrada de produto existente</p>
+        <div class="login-logo">
+          <strong>Estrela</strong>
+          <span>MODAS</span>
+        </div>
+
+        <form class="content stack login-form" method="post" data-login-form>
+          {% csrf_token %}
+          {% if erro_login %}<p class="form-error" role="alert">{{ erro_login }}</p>{% endif %}
           <label>
-            <span class="form-label">Produto e variação</span>
-            <select class="select" name="produtoId" data-seletor-produto required>
-              <option value="">Selecione um produto cadastrado</option>
-              <option value="CAM-MAS-BAS-M-PT" data-nome-produto="Camiseta Básica · M / Preto" data-preco-custo="48" data-quantidade-estoque="12">Camiseta Básica · M / Preto</option>
-              <option value="CAL-WID-PT-M" data-nome-produto="Calça Wide Leg · M / Preto" data-preco-custo="92" data-quantidade-estoque="1">Calça Wide Leg · M / Preto</option>
-              <option value="VES-FLO-AZ-G" data-nome-produto="Vestido Floral · G / Azul" data-preco-custo="110" data-quantidade-estoque="8">Vestido Floral · G / Azul</option>
-              <option value="BOL-MIN-PR" data-nome-produto="Bolsa Mini · Única / Preto" data-preco-custo="70" data-quantidade-estoque="4">Bolsa Mini · Única / Preto</option>
-            </select>
+            <span class="form-label">Usuário</span>
+            <input class="input" id="usuario" name="usuario" placeholder="Digite seu usuário" autocomplete="username" />
           </label>
-
-          <article class="card row">
-            <div class="thumb"></div>
-            <div class="row-main">
-              <p class="row-title" data-nome-produto-selecionado>Nenhum produto selecionado</p>
-              <p class="row-sub">A compra será adicionada ao estoque desta variação.</p>
-            </div>
-          </article>
-
-          <div class="grid-2">
-            <label>
-              <span class="form-label">Quantidade recebida</span>
-              <input class="input" type="number" name="quantidadeRecebida" min="1" step="1" value="1" required />
-            </label>
-            <label>
-              <span class="form-label">Preço de custo por unidade</span>
-              <input class="input" type="number" name="precoCusto" min="0" step="0.01" placeholder="0,00" required />
-            </label>
-          </div>
-
-          <div class="grid-2">
-            <article class="card stat">
-              <p class="stat-label">Estoque atual</p>
-              <p class="stat-value"><strong data-estoque-atual>0</strong></p>
-              <p class="stat-sub">unidades</p>
-            </article>
-            <article class="card stat">
-              <p class="stat-label">Estoque após entrada</p>
-              <p class="stat-value wine"><strong data-novo-estoque>0</strong></p>
-              <p class="stat-sub">unidades</p>
-            </article>
-          </div>
-
-          <article class="card stat total">
-            <div>
-              <p class="stat-label">Valor total da compra</p>
-              <p class="row-sub">Custo unitário × quantidade recebida</p>
-            </div>
-            <strong data-valor-total-compra>R$ 0,00</strong>
-          </article>
-
-          <button class="button" type="submit">Registrar compra</button>
-          <button class="button button--wine" type="button" data-screen="novo-produto">O produto ainda não existe? Cadastrar produto</button>
+          <label>
+            <span class="form-label">Senha</span>
+            <input class="input" id="senha" type="password" name="senha" placeholder="Digite sua senha" autocomplete="current-password" />
+          </label>
+          <p class="form-error" data-erro-login role="alert" hidden></p>
+          <button class="button" id="btnEntrar" type="submit">Entrar</button>
         </form>
+        <p class="login-note">Acesso protegido por perfil e permissões</p>
       </section>
-
-      <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
-      </nav>
     </main>
-    <script type="module" src="./compras.js"></script>
+    <script type="module" src="{% static 'estrela_modas/login.js' %}"></script>
   </body>
 </html>

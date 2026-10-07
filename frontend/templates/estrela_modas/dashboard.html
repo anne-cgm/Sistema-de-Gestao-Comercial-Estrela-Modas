@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login | Estrela Modas</title>
+    <title>Painel | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -622,35 +623,78 @@
   </head>
   <body>
     <main class="phone">
-      <section class="screen screen--login">
+      <section class="screen">
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Bem-vinda!</h1>
-            <p class="subtitle">Acesse a gestão da sua loja.</p>
+            <h1 class="title">Painel</h1>
+            <p class="subtitle">Acompanhe o movimento da loja.</p>
           </div>
+          <div class="avatar" aria-label="Perfil de Kamila">K</div>
         </header>
 
-        <div class="login-logo">
-          <strong>Estrela</strong>
-          <span>MODAS</span>
-        </div>
+        <div class="content">
+          <p class="welcome">Olá, {{ request.user.first_name|default:request.user.username }}</p>
+          <h2 class="summary-title">Resumo de hoje</h2>
+          <div class="grid-2 summary-grid">
+            <article class="card stat">
+              <p class="stat-label">Vendas hoje</p>
+              <p class="stat-value"><strong>R$ {{ total_vendas_hoje|floatformat:2 }}</strong></p>
+              <p class="stat-sub">{{ quantidade_vendas_hoje }} venda{{ quantidade_vendas_hoje|pluralize }}</p>
+            </article>
+            <article class="card stat">
+              <p class="stat-label">Vendas do mês</p>
+              <p class="stat-value"><strong>R$ {{ total_vendas_mes|floatformat:2 }}</strong></p>
+              <p class="stat-sub">total registrado</p>
+            </article>
+            <article class="card stat">
+              <p class="stat-label">Estoque baixo</p>
+              <p class="stat-value wine"><strong>{{ quantidade_estoque_baixo }}</strong></p>
+              <p class="stat-sub">itens</p>
+            </article>
+            <article class="card stat">
+              <p class="stat-label">Produtos</p>
+              <p class="stat-value"><strong>{{ quantidade_produtos }}</strong></p>
+              <p class="stat-sub">ativos</p>
+            </article>
+          </div>
 
-        <form class="content stack login-form" data-login-form>
-          <label>
-            <span class="form-label">Usuário</span>
-            <input class="input" id="usuario" name="usuario" placeholder="Digite seu usuário" autocomplete="username" />
-          </label>
-          <label>
-            <span class="form-label">Senha</span>
-            <input class="input" id="senha" type="password" name="senha" placeholder="Digite sua senha" autocomplete="current-password" />
-          </label>
-          <p class="form-error" data-erro-login role="alert" hidden></p>
-          <button class="button" id="btnEntrar" type="submit">Entrar</button>
-        </form>
-        <p class="login-note">Acesso protegido por perfil e permissões</p>
+          <h2 class="section-title">Mais vendidos</h2>
+          {% for item in mais_vendidos %}
+            <article class="card row">
+              <div class="thumb"></div>
+              <div class="row-main">
+                <p class="row-title">{{ item.produto__nome_produto }}</p>
+                <p class="row-sub">{{ item.unidades }} unidade{{ item.unidades|pluralize }} no mês</p>
+              </div>
+              <p class="row-value">R$ {{ item.produto__preco_venda|floatformat:2 }}</p>
+            </article>
+          {% empty %}
+            <p class="card">As vendas registradas aparecerão aqui.</p>
+          {% endfor %}
+
+          <h2 class="section-title">Estoque acabando</h2>
+          {% for produto in produtos_baixo %}
+            <div class="alert">
+              <div>
+                <p class="row-title">{{ produto.nome_produto }}{% if produto.tamanho %} · {{ produto.tamanho }}{% endif %}{% if produto.cor %} / {{ produto.cor }}{% endif %}</p>
+                <p class="row-sub">{{ produto.quantidade_estoque }} unidade{{ produto.quantidade_estoque|pluralize }} disponível</p>
+              </div>
+              <button class="button button--wine button--small" data-screen="estoque">Ver</button>
+            </div>
+          {% empty %}
+            <p class="card">Nenhum produto abaixo do estoque mínimo.</p>
+          {% endfor %}
+        </div>
       </section>
+      <nav class="nav" aria-label="Navegação principal">
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+      </nav>
     </main>
-    <script type="module" src="./login.js"></script>
+    <script type="module" src="{% static 'estrela_modas/dashboard.js' %}"></script>
   </body>
 </html>

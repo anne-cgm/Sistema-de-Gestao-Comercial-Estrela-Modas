@@ -1,22 +1,17 @@
-import { navegarParaTela } from './shared.js'
-
 export default function iniciarLogin() {
   const formulario = document.querySelector('[data-login-form]')
   formulario?.addEventListener('submit', fazerLogin)
 }
 
 function fazerLogin(evento) {
-  evento.preventDefault()
   const formulario = evento.currentTarget
   const usuario = formulario.elements.usuario.value
   const senha = formulario.elements.senha.value
 
   if (!validarLogin(usuario, senha)) {
+    evento.preventDefault()
     exibirErroLogin(formulario, 'Preencha usuário e senha para continuar.')
-    return
   }
-
-  navegarParaTela('dashboard')
 }
 
 export function validarLogin(usuario, senha) {

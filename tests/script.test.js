@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import { produtoComEstoqueBaixo } from '../frontend/estoque.js'
-import { validarLogin } from '../frontend/login.js'
-import { calcularTotalVenda, formatarMoeda } from '../frontend/nova_venda.js'
-import { buscarProduto } from '../frontend/produtos.js'
+import { calcularNovoEstoque, calcularValorCompra } from '../frontend/static/estrela_modas/compras.js'
+import { produtoComEstoqueBaixo } from '../frontend/static/estrela_modas/estoque.js'
+import { validarLogin } from '../frontend/static/estrela_modas/login.js'
+import { calcularTotalVenda, formatarMoeda } from '../frontend/static/estrela_modas/nova_venda.js'
+import { buscarProduto } from '../frontend/static/estrela_modas/produtos.js'
 
 test('validarLogin aceita usuário e senha preenchidos', () => {
   assert.equal(validarLogin('kamila', '123456'), true)
@@ -48,6 +49,16 @@ test('produtoComEstoqueBaixo identifica itens com estoque crítico', () => {
   assert.equal(produtoComEstoqueBaixo(3, 3), true)
 })
 
+test('calcularValorCompra multiplica custo e quantidade recebida', () => {
+  assert.equal(calcularValorCompra(48.5, 10), 485)
+  assert.equal(calcularValorCompra(19.99, 3), 59.97)
+})
+
+test('calcularNovoEstoque soma a quantidade recebida ao estoque atual', () => {
+  assert.equal(calcularNovoEstoque(12, 8), 20)
+  assert.equal(calcularNovoEstoque(0, 5), 5)
+})
+
 test('buscarProduto ignora diferenças entre maiúsculas e minúsculas', () => {
   const produtos = [
     { nomeProduto: 'Camiseta Básica' },
@@ -81,13 +92,13 @@ test('formatarMoeda usa o padrão brasileiro', () => {
 
 test('módulos das telas podem ser importados sem um DOM', async () => {
   const modulos = [
-    '../frontend/clientes.js',
-    '../frontend/dashboard.js',
-    '../frontend/debitos.js',
-    '../frontend/mais_opcoes.js',
-    '../frontend/cadastro_produto.js',
-    '../frontend/relatorios.js',
-    '../frontend/shared.js',
+    '../frontend/static/estrela_modas/clientes.js',
+    '../frontend/static/estrela_modas/dashboard.js',
+    '../frontend/static/estrela_modas/debitos.js',
+    '../frontend/static/estrela_modas/mais_opcoes.js',
+    '../frontend/static/estrela_modas/cadastro_produto.js',
+    '../frontend/static/estrela_modas/relatorios.js',
+    '../frontend/static/estrela_modas/shared.js',
   ]
 
   await assert.doesNotReject(() => Promise.all(modulos.map(modulo => import(modulo))))

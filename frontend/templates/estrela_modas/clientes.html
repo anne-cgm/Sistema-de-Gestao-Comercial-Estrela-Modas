@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nova Venda | Estrela Modas</title>
+    <title>Clientes | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -626,38 +627,42 @@
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Nova venda</h1>
-            <p class="subtitle">Registre produtos, desconto e pagamento.</p>
+            <h1 class="title">Clientes</h1>
+            <p class="subtitle">Cadastros e histórico de compras.</p>
           </div>
           <div class="avatar">K</div>
         </header>
         <div class="content stack">
-          <div class="select">Cliente: Consumidor não identificado ▾</div>
-          <button class="button button--wine">＋ Adicionar produto</button>
-          <article class="card row" data-item-venda data-preco-venda="79.90" data-quantidade="1"><div class="row-main"><p class="row-title">Camiseta Básica</p><p class="row-sub">1x</p></div><p class="row-value">R$ 79,90</p></article>
-          <article class="card row" data-item-venda data-preco-venda="119.90" data-quantidade="1"><div class="row-main"><p class="row-title">Bolsa Mini</p><p class="row-sub">1x</p></div><p class="row-value">R$ 119,90</p></article>
-          <div class="total" data-desconto-aplicado="5"><span class="muted">Desconto</span><span class="wine">5% · R$ 9,99</span></div>
-          <div class="total"><strong style="color: var(--text); font-size: 13px">Total</strong><strong data-valor-total>R$ 189,81</strong></div>
-          <div>
-            <p class="eyebrow">Pagamento</p>
-            <div class="payment-grid">
-              <button class="payment is-active" data-forma-pagamento>Pix</button>
-              <button class="payment" data-forma-pagamento>Cartão</button>
-              <button class="payment" data-forma-pagamento>Dinheiro</button>
-              <button class="payment" data-forma-pagamento>Fiado</button>
-            </div>
+          {% for message in messages %}<p class="card">{{ message }}</p>{% endfor %}
+          <form method="get">
+            <input class="search" type="search" name="q" value="{{ request.GET.q }}" aria-label="Buscar cliente" placeholder="Nome, telefone ou WhatsApp" />
+          </form>
+          <details class="card">
+            <summary class="button">＋ Novo cliente</summary>
+            <form class="stack" method="post">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button class="button button--wine" type="submit">Salvar cliente</button>
+            </form>
+          </details>
+          <div class="list">
+            {% for cliente in clientes %}
+              <article class="card row"><div class="avatar">{{ cliente.nome_cliente|first|upper }}</div><div class="row-main"><p class="row-title">{{ cliente.nome_cliente }}</p><p class="row-sub">{{ cliente.telefone|default:'Sem telefone' }} · {{ cliente.vendas.count }} compra{{ cliente.vendas.count|pluralize }}</p></div><p class="row-sub">{% if cliente.saldo_devedor %}R$ {{ cliente.saldo_devedor|floatformat:2 }} em aberto{% else %}Sem débito{% endif %}</p></article>
+            {% empty %}
+              <p class="card">Nenhum cliente cadastrado.</p>
+            {% endfor %}
           </div>
-          <button class="button" data-finish-sale>Finalizar venda</button>
+          <a class="button button--wine" href="{% url 'debitos' %}">Clientes com débito</a>
         </div>
       </section>
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./nova-venda.js"></script>
+    <script type="module" src="{% static 'estrela_modas/clientes.js' %}"></script>
   </body>
 </html>

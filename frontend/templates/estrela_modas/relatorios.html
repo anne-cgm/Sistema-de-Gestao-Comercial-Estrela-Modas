@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Novo Produto | Estrela Modas</title>
+    <title>Relatórios | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -626,41 +627,38 @@
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Novo produto</h1>
-            <p class="subtitle">Cadastre uma peça e suas variações.</p>
+            <h1 class="title">Relatórios</h1>
+            <p class="subtitle">Informações consolidadas da loja.</p>
           </div>
           <div class="avatar">K</div>
         </header>
-        <form class="content stack" data-product-form>
-          <p class="count">Dados principais</p>
-          <label><span class="form-label">Nome do produto</span><input class="input" value="Camiseta Masculina Básica" /></label>
-          <label><span class="form-label">SKU Pai</span><input class="input" value="CAM-MAS-BAS" /></label>
-          <div class="grid-2">
-            <label><span class="form-label">Categoria</span><input class="input" value="Masculino" /></label>
-            <label><span class="form-label">Subcategoria</span><input class="input" value="Partes de Cima" /></label>
+        <div class="content">
+          <div class="select" style="margin-bottom: 14px">Período: Este mês ▾</div>
+          <article class="card report-summary">
+            <div>
+              <p class="eyebrow" style="color: var(--text); font-weight: 700">Vendas no período</p>
+              <h2 class="report-value">R$ {{ total_vendas|floatformat:2 }}</h2>
+              <p class="row-sub">{{ quantidade_vendas }} vendas registradas no mês</p>
+            </div>
+            <div class="chart-placeholder" aria-label="Gráfico de vendas"></div>
+          </article>
+          <h2 class="section-title">Relatórios</h2>
+          <div class="list">
+            {% for item in mais_vendidos %}<article class="card row"><div class="row-main"><p class="row-title">{{ item.produto__nome_produto }}</p><p class="row-sub">{{ item.unidades }} unidades vendidas</p></div><span class="chevron">›</span></article>{% empty %}<p class="card">Ainda não há vendas no período.</p>{% endfor %}
+            {% for produto in produtos_baixo %}<article class="card row"><div class="row-main"><p class="row-title">{{ produto.nome_produto }}</p><p class="row-sub">Estoque baixo · {{ produto.quantidade_estoque }} unidades</p></div><span class="chevron">›</span></article>{% empty %}<p class="card">Nenhum produto abaixo do estoque mínimo.</p>{% endfor %}
+            <article class="card row"><div class="row-main"><p class="row-title">Compras do mês</p></div><strong>R$ {{ total_compras|floatformat:2 }}</strong></article>
+            <article class="card row"><div class="row-main"><p class="row-title">Despesas do mês</p></div><strong>R$ {{ total_despesas|floatformat:2 }}</strong></article>
           </div>
-          <div class="grid-2">
-            <label><span class="form-label">Tipo de peça</span><input class="input" value="Camiseta" /></label>
-            <label><span class="form-label">Material</span><input class="input" value="100% Algodão" /></label>
-          </div>
-          <p class="count">Precificação</p>
-          <div class="grid-2">
-            <label><span class="form-label">Custo</span><input class="input" value="R$ 48,00" /></label>
-            <label><span class="form-label">Venda</span><input class="input" value="R$ 79,90" /></label>
-          </div>
-          <p class="count">Variações</p>
-          <div class="badge">M · Preto · SKU CAM-MAS-BAS-M-PT</div>
-          <button class="button" type="button" data-save-product>Salvar produto</button>
-        </form>
+        </div>
       </section>
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./novo-produto.js"></script>
+    <script type="module" src="{% static 'estrela_modas/relatorios.js' %}"></script>
   </body>
 </html>

@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Clientes com Débitos | Estrela Modas</title>
+    <title>Produtos | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -626,33 +627,40 @@
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Clientes com débitos</h1>
-            <p class="subtitle">Acompanhe valores fiados e pagamentos.</p>
+            <h1 class="title">Produtos</h1>
+            <p class="subtitle">Catálogo e variações.</p>
           </div>
           <div class="avatar">K</div>
         </header>
-        <div class="content">
-          <div class="grid-2">
-            <article class="card stat"><p class="stat-label">Total pendente</p><p class="stat-value wine"><strong>R$ 2.840</strong></p></article>
-            <article class="card stat"><p class="stat-label">Clientes</p><p class="stat-value"><strong>14</strong></p></article>
-          </div>
-          <h2 class="section-title">Pagamentos pendentes</h2>
+        <div class="content stack">
+          {% for message in messages %}<p class="card">{{ message }}</p>{% endfor %}
+          <form method="get">
+            <label>
+              <span class="form-label">Buscar produto</span>
+              <input class="search" type="search" name="q" value="{{ termo_busca }}" placeholder="Nome ou SKU..." data-busca-produto />
+            </label>
+          </form>
+          <a class="button" href="{% url 'cadastro_produto' %}">＋ Cadastrar produto</a>
+          <p class="count">{{ produtos|length }} produto{{ produtos|length|pluralize }} cadastrado{{ produtos|length|pluralize }}</p>
           <div class="list">
-            <article class="card row"><div class="row-main"><p class="row-title">Beatriz Santos</p><p class="row-sub">Sem vencimento definido</p></div><p class="row-value">R$ 180,00</p></article>
-            <article class="card row"><div class="row-main"><p class="row-title">Ana Carolina</p><p class="row-sub">Sem vencimento definido</p></div><p class="row-value">R$ 75,00</p></article>
-            <article class="card row"><div class="row-main"><p class="row-title">João Mendes</p><p class="row-sub">Sem vencimento definido</p></div><p class="row-value">R$ 420,00</p></article>
-            <article class="card row"><div class="row-main"><p class="row-title">Carla Souza</p><p class="row-sub">Sem vencimento definido</p></div><p class="row-value">R$ 210,00</p></article>
+            {% for produto in produtos %}
+              <article class="card row{% if produto.estoque_baixo %} card--alert{% endif %}" data-produto data-nome-produto="{{ produto.nome_produto }}">
+                <div class="thumb"></div><div class="row-main"><p class="row-title">{{ produto.nome_produto }}</p><p class="row-sub">{{ produto.sku }}{% if produto.tamanho %} · {{ produto.tamanho }}{% endif %}{% if produto.cor %} · {{ produto.cor }}{% endif %}</p></div><div><p class="row-value">R$ {{ produto.preco_venda|floatformat:2 }}</p><p class="row-sub">{{ produto.quantidade_estoque }} un.</p></div>
+              </article>
+            {% empty %}
+              <p class="card">Nenhum produto encontrado. Cadastre um produto para começar.</p>
+            {% endfor %}
           </div>
         </div>
       </section>
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./debitos.js"></script>
+    <script type="module" src="{% static 'estrela_modas/produtos.js' %}"></script>
   </body>
 </html>

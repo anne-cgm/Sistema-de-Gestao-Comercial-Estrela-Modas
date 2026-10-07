@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Produtos | Estrela Modas</title>
+    <title>Registrar Compra | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -626,42 +627,86 @@
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Produtos</h1>
-            <p class="subtitle">Catálogo e variações.</p>
+            <h1 class="title">Registrar compra</h1>
+            <p class="subtitle">Registre a entrada de produtos no estoque.</p>
           </div>
           <div class="avatar">K</div>
         </header>
-        <div class="content stack">
+
+        <form class="content stack" data-formulario-compra method="post">
+          {% csrf_token %}
+          {% for message in messages %}<p class="card">{{ message }}</p>{% endfor %}
+          <p class="count">Entrada de produto existente</p>
           <label>
-            <span class="form-label">Buscar produto</span>
-            <input class="search" type="search" placeholder="Nome ou SKU..." data-busca-produto />
+            <span class="form-label">Produto e variação</span>
+            <select class="select" name="produto" data-seletor-produto required>
+              <option value="">Selecione um produto cadastrado</option>
+              {% for produto in form.fields.produto.queryset %}
+                <option value="{{ produto.pk }}" data-nome-produto="{{ produto.nome_produto }}{% if produto.tamanho %} · {{ produto.tamanho }}{% endif %}{% if produto.cor %} / {{ produto.cor }}{% endif %}" data-preco-custo="{{ produto.preco_custo }}" data-quantidade-estoque="{{ produto.quantidade_estoque }}"{% if form.data.produto == produto.pk|stringformat:'s' %} selected{% endif %}>{{ produto.nome_produto }} · {{ produto.sku }}</option>
+              {% endfor %}
+            </select>
+            {{ form.produto.errors }}
           </label>
-          <button class="button" data-screen="novo-produto">＋ Cadastrar produto</button>
-          <p class="count">248 produtos cadastrados</p>
-          <div class="list">
-            <article class="card row" data-produto data-nome-produto="Camiseta Básica">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Camiseta Básica</p><p class="row-sub">CAM-MAS-BAS-M</p></div><div><p class="row-value">R$ 79,90</p><p class="row-sub">12 un.</p></div>
+
+          <article class="card row">
+            <div class="thumb"></div>
+            <div class="row-main">
+              <p class="row-title" data-nome-produto-selecionado>Nenhum produto selecionado</p>
+              <p class="row-sub">A compra será adicionada ao estoque desta variação.</p>
+            </div>
+          </article>
+
+          <div class="grid-2">
+            <label>
+              <span class="form-label">Quantidade recebida</span>
+              {{ form.quantidade }}{{ form.quantidade.errors }}
+            </label>
+            <label>
+              <span class="form-label">Preço de custo por unidade</span>
+              {{ form.preco_custo_unitario }}{{ form.preco_custo_unitario.errors }}
+            </label>
+          </div>
+
+          <div class="grid-2">
+            <article class="card stat">
+              <p class="stat-label">Estoque atual</p>
+              <p class="stat-value"><strong data-estoque-atual>0</strong></p>
+              <p class="stat-sub">unidades</p>
             </article>
-            <article class="card card--alert row" data-produto data-nome-produto="Calça Wide Leg">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Calça Wide Leg</p><p class="row-sub">CAL-WID-PT-M</p></div><div><p class="row-value">R$ 149,90</p><p class="row-sub">1 un.</p></div>
-            </article>
-            <article class="card row" data-produto data-nome-produto="Vestido Floral">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Vestido Floral</p><p class="row-sub">VES-FLO-AZ-G</p></div><div><p class="row-value">R$ 189,90</p><p class="row-sub">8 un.</p></div>
-            </article>
-            <article class="card row" data-produto data-nome-produto="Bolsa Mini">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Bolsa Mini</p><p class="row-sub">BOL-MIN-PR</p></div><div><p class="row-value">R$ 119,90</p><p class="row-sub">4 un.</p></div>
+            <article class="card stat">
+              <p class="stat-label">Estoque após entrada</p>
+              <p class="stat-value wine"><strong data-novo-estoque>0</strong></p>
+              <p class="stat-sub">unidades</p>
             </article>
           </div>
-        </div>
+
+          <article class="card stat total">
+            <div>
+              <p class="stat-label">Valor total da compra</p>
+              <p class="row-sub">Custo unitário × quantidade recebida</p>
+            </div>
+            <strong data-valor-total-compra>R$ 0,00</strong>
+          </article>
+
+          <label><span class="form-label">Fornecedor</span>{{ form.fornecedor_nome }}{{ form.fornecedor_nome.errors }}</label>
+          <label><span class="form-label">Nota fiscal (opcional)</span>{{ form.numero_nota_fiscal }}{{ form.numero_nota_fiscal.errors }}</label>
+          <button class="button" type="submit">Registrar compra</button>
+          <button class="button button--wine" type="button" data-screen="novo-produto">O produto ainda não existe? Cadastrar produto</button>
+          <h2 class="section-title">Compras recentes</h2>
+          {% for compra in compras_recentes %}
+            <article class="card row"><div class="row-main"><p class="row-title">{{ compra.fornecedor_nome|default:'Fornecedor não informado' }}</p><p class="row-sub">{{ compra.data_chegada|date:'d/m/Y H:i' }} · {{ compra.itens.count }} item{{ compra.itens.count|pluralize }}</p></div><strong>R$ {{ compra.valor_total|floatformat:2 }}</strong></article>
+          {% empty %}<p class="card">Nenhuma compra registrada.</p>{% endfor %}
+        </form>
       </section>
+
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./produtos.js"></script>
+    <script type="module" src="{% static 'estrela_modas/compras.js' %}"></script>
   </body>
 </html>
