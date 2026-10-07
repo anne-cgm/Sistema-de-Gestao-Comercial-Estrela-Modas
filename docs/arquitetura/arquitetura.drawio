@@ -1,0 +1,34 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Página-1" id="EHGVfavj_FxhPll8ROeB">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cJKP6FScC_LUUT3Ia3qH-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="CAMADA DE APRESENTAÇÃO&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;(FRONTEND)&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;br&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;[ Templates HTML - templates/estrela_modas/ ]&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;• Acesso: login.html, index.html, registro.html&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;• Operacional: nova_venda.html, compras.html, clientes.html&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;• Inventário: produtos.html, cadastro_produto.html, estoque.html&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;• Gestão: dashboard.html, debitos.html, relatorios.html&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;[ Scripts JS - static/estrela_modas/ ]&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;• Scripts de Módulo: nova_venda.js, produtos.js, clientes.js, etc.&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;• Utilitário Global: shared.js&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="200" width="370" x="30" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cJKP6FScC_LUUT3Ia3qH-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="CAMADA DE PERSISTÊNCIA&amp;nbsp;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;•&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt; &lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Banco de Dados Relacional&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;•Desenho/Local:SQLite(db.sqlite3)&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;• Produção: PostgreSQL (Neon)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="200" width="370" x="30" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="cJKP6FScC_LUUT3Ia3qH-8" edge="1" parent="1" source="cJKP6FScC_LUUT3Ia3qH-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="cJKP6FScC_LUUT3Ia3qH-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cJKP6FScC_LUUT3Ia3qH-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="CAMADA DE APLICAÇÃO (BACKEND)&amp;nbsp;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;•&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt; &lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Servidor Django (Python)&amp;nbsp; &amp;nbsp; &amp;nbsp; • Roteamento (urls.py)&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; •Regras de Negócio (views.py)&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; • Mapeamento ORM(models.py)&amp;nbsp;&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="200" width="370" x="30" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="cJKP6FScC_LUUT3Ia3qH-4" edge="1" parent="1" source="cJKP6FScC_LUUT3Ia3qH-1" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="cJKP6FScC_LUUT3Ia3qH-3" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="390" y="360" as="sourcePoint" />
+            <mxPoint x="440" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cJKP6FScC_LUUT3Ia3qH-5" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value=" 1. Requisições HTTP / JSON (Fetch API)" vertex="1">
+          <mxGeometry height="30" width="270" x="200" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="cJKP6FScC_LUUT3Ia3qH-7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="2. Consultas SQL / ORM" vertex="1">
+          <mxGeometry height="30" width="170" x="210" y="540" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
