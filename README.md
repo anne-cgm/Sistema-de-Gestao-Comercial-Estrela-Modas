@@ -192,7 +192,7 @@ O diagrama detalhado da arquitetura e o modelo de entidades encontram-se dispon�
 
 #### Fluxo de Dados:
 
-```text
+  ```text
 [ Utilizador ]
       │
       ▼
@@ -227,13 +227,12 @@ O diagrama detalhado da arquitetura e o modelo de entidades encontram-se dispon�
 | `PUT` | `/api/[recurso]/{id}` | [Ex.: atualizar um registro] |
 | `DELETE` | `/api/[recurso]/{id}` | [Ex.: remover um registro] |
 
-Documentação completa da API: [link para Swagger, Postman ou `docs/api.md`]
+Documentação completa da API: docs/api.md
 
 ---
+```
 
 ## 6. Organização dos diretórios
-
-*Mantenha a árvore alinhada à estrutura real do repositório. Ajuste pastas conforme o tipo de projeto.*
 
 ```text
 .
@@ -269,46 +268,6 @@ Documentação completa da API: [link para Swagger, Postman ou `docs/api.md`]
 | `scripts/` | Automação de ambiente e execução |
 
 ---
-
-## 6. Organização dos diretórios
-
-Abaixo está a estrutura real e mapeada do repositório, organizada pelas camadas de frontend, backend, documentação e automação:
-
-    ```text
-    .
-    ├── .github/
-    │   └── workflows/
-    │       └── ci.yml             # Workflow de Integração Contínua (CI) do GitHub Actions
-    ├── backend/                   # Código-fonte da aplicação Django (API / Regras de negócio)
-    │   ├── config/                # Módulo de configurações centrais da aplicação
-    │   │   ├── settings.py        # Configurações do ambiente, apps instalados e banco de dados
-    │   │   └── urls.py            # Mapeamento e roteamento principal de URLs
-    │   ├── db.sqlite3             # Arquivo do banco de dados relacional local
-    │   └── manage.py              # Utilitário de linha de comando do Django
-    ├── docs/                      # Documentação técnica e artefatos de concepção
-    ├── frontend/                  # Interface do usuário (Páginas HTML e scripts JS)
-    │   ├── login.html / login.js  # Tela e scripts de autenticação
-    │   ├── dashboard.html / .js   # Painel principal do sistema
-    │   ├── customers.html / .js   # Módulo de gestão de clientes
-    │   ├── products.html / .js    # Módulo de gestão de produtos
-    │   ├── sales.html / .js       # Módulo de registro de vendas
-    │   └── users.html / .js       # Módulo de gerenciamento de utilizadores
-    ├── node_modules/              # Dependências instaladas via npm
-    ├── .gitignore                 # Arquivos e pastas ignorados pelo Git
-    ├── package-lock.json          # Mapeamento exato de versões das dependências Node.js
-    └── README.md                  # Documentação principal e guia do projeto
-
- ## Descrição dos Diretórios e Arquivos
- 
- | Diretório / Arquivo | Função |
- | --- | --- |
- | README.md | Apresentação do projeto, arquitetura, tecnologias e guia de execução. |
- |.github/workflows/ | Automação e execução dos testes na esteira de CI. |
- | backend/ |Aplicação servidor em Django (regras de negócio e conexão com o banco). |
- | backend/config/ | Definições de rotas (urls.py) e parâmetros de sistema (settings.py). |
- | backend/db.sqlite3 | Banco de dados SQLite utilitário para desenvolvimento local.docs/Artefatos de análise, diagramas e documentação de concepção do sistema. |
- | frontend/ |Interface com o usuário (HTML5 estático e scripts de dinamização JS). |
- | .package-lock.json | Registro de integridade e versões do gerenciador npm. |
  
 ## 7. Participantes
 
