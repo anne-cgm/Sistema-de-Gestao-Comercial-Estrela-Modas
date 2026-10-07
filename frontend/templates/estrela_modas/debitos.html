@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Clientes | Estrela Modas</title>
+    <title>Clientes com Débitos | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -626,31 +627,43 @@
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Clientes</h1>
-            <p class="subtitle">Cadastros e histórico de compras.</p>
+            <h1 class="title">Clientes com débitos</h1>
+            <p class="subtitle">Acompanhe valores fiados e pagamentos.</p>
           </div>
           <div class="avatar">K</div>
         </header>
-        <div class="content stack">
-          <input class="search" type="search" aria-label="Buscar cliente" placeholder="Nome, telefone ou WhatsApp" />
-          <button class="button" data-new-client>＋ Novo cliente</button>
-          <div class="list">
-            <article class="card row"><div class="avatar">M</div><div class="row-main"><p class="row-title">Mariana Oliveira</p><p class="row-sub">(61) 99999-1234</p></div><p class="row-sub">Sem débito</p></article>
-            <article class="card row"><div class="avatar">B</div><div class="row-main"><p class="row-title">Beatriz Santos</p><p class="row-sub">(61) 98888-4321</p></div><p class="stat-sub">R$ 180,00</p></article>
-            <article class="card row"><div class="avatar">G</div><div class="row-main"><p class="row-title">Gabriela Lima</p><p class="row-sub">(61) 97777-8765</p></div><p class="row-sub">Sem débito</p></article>
-            <article class="card row"><div class="avatar">A</div><div class="row-main"><p class="row-title">Ana Carolina</p><p class="row-sub">(61) 96666-5544</p></div><p class="stat-sub">R$ 75,00</p></article>
+        <div class="content">
+          <div class="grid-2">
+            <article class="card stat"><p class="stat-label">Total pendente</p><p class="stat-value wine"><strong>R$ {{ total_pendente|floatformat:2 }}</strong></p></article>
+            <article class="card stat"><p class="stat-label">Clientes</p><p class="stat-value"><strong>{{ clientes_com_debito|length }}</strong></p></article>
           </div>
-          <button class="button button--wine" data-screen="debitos">Clientes com débito</button>
+          {% for message in messages %}<p class="card">{{ message }}</p>{% endfor %}
+          <h2 class="section-title">Registrar pagamento</h2>
+          <form class="content stack" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="button" type="submit">Registrar recebimento</button>
+          </form>
+          <h2 class="section-title">Pagamentos pendentes</h2>
+          <div class="list">
+            {% for cliente in clientes_com_debito %}
+              <article class="card row"><div class="row-main"><p class="row-title">{{ cliente.nome_cliente }}</p><p class="row-sub">{{ cliente.telefone|default:'Sem telefone' }}</p></div><p class="row-value">R$ {{ cliente.saldo_devedor|floatformat:2 }}</p></article>
+            {% empty %}
+              <p class="card">Nenhum débito pendente.</p>
+            {% endfor %}
+          </div>
+          <h2 class="section-title">Recebimentos recentes</h2>
+          {% for pagamento in pagamentos_recentes %}<article class="card row"><div class="row-main"><p class="row-title">{{ pagamento.cliente.nome_cliente }}</p><p class="row-sub">{{ pagamento.data_pagamento|date:'d/m/Y H:i' }}</p></div><p class="row-value">R$ {{ pagamento.valor|floatformat:2 }}</p></article>{% empty %}<p class="card">Nenhum pagamento registrado.</p>{% endfor %}
         </div>
       </section>
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./clientes.js"></script>
+    <script type="module" src="{% static 'estrela_modas/debitos.js' %}"></script>
   </body>
 </html>

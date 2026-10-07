@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login | Estrela Modas</title>
+    <title>Clientes | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -622,35 +623,46 @@
   </head>
   <body>
     <main class="phone">
-      <section class="screen screen--login">
+      <section class="screen">
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Bem-vinda!</h1>
-            <p class="subtitle">Acesse a gestão da sua loja.</p>
+            <h1 class="title">Clientes</h1>
+            <p class="subtitle">Cadastros e histórico de compras.</p>
           </div>
+          <div class="avatar">K</div>
         </header>
-
-        <div class="login-logo">
-          <strong>Estrela</strong>
-          <span>MODAS</span>
+        <div class="content stack">
+          {% for message in messages %}<p class="card">{{ message }}</p>{% endfor %}
+          <form method="get">
+            <input class="search" type="search" name="q" value="{{ request.GET.q }}" aria-label="Buscar cliente" placeholder="Nome, telefone ou WhatsApp" />
+          </form>
+          <details class="card">
+            <summary class="button">＋ Novo cliente</summary>
+            <form class="stack" method="post">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button class="button button--wine" type="submit">Salvar cliente</button>
+            </form>
+          </details>
+          <div class="list">
+            {% for cliente in clientes %}
+              <article class="card row"><div class="avatar">{{ cliente.nome_cliente|first|upper }}</div><div class="row-main"><p class="row-title">{{ cliente.nome_cliente }}</p><p class="row-sub">{{ cliente.telefone|default:'Sem telefone' }} · {{ cliente.vendas.count }} compra{{ cliente.vendas.count|pluralize }}</p></div><p class="row-sub">{% if cliente.saldo_devedor %}R$ {{ cliente.saldo_devedor|floatformat:2 }} em aberto{% else %}Sem débito{% endif %}</p></article>
+            {% empty %}
+              <p class="card">Nenhum cliente cadastrado.</p>
+            {% endfor %}
+          </div>
+          <a class="button button--wine" href="{% url 'debitos' %}">Clientes com débito</a>
         </div>
-
-        <form class="content stack login-form" data-login-form>
-          <label>
-            <span class="form-label">Usuário</span>
-            <input class="input" id="usuario" name="usuario" placeholder="Digite seu usuário" autocomplete="username" />
-          </label>
-          <label>
-            <span class="form-label">Senha</span>
-            <input class="input" id="senha" type="password" name="senha" placeholder="Digite sua senha" autocomplete="current-password" />
-          </label>
-          <p class="form-error" data-erro-login role="alert" hidden></p>
-          <button class="button" id="btnEntrar" type="submit">Entrar</button>
-        </form>
-        <p class="login-note">Acesso protegido por perfil e permissões</p>
       </section>
+      <nav class="nav" aria-label="Navegação principal">
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+      </nav>
     </main>
-    <script type="module" src="./login.js"></script>
+    <script type="module" src="{% static 'estrela_modas/clientes.js' %}"></script>
   </body>
 </html>

@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Painel | Estrela Modas</title>
+    <title>Mais | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -626,66 +627,31 @@
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Painel</h1>
-            <p class="subtitle">Acompanhe o movimento da loja.</p>
+            <h1 class="title">Mais</h1>
+            <p class="subtitle">Acesso aos módulos administrativos.</p>
           </div>
-          <div class="avatar" aria-label="Perfil de Kamila">K</div>
+          <div class="avatar">K</div>
         </header>
-
         <div class="content">
-          <p class="welcome">Olá, Kamila</p>
-          <h2 class="summary-title">Resumo de hoje</h2>
-          <div class="grid-2 summary-grid">
-            <article class="card stat">
-              <p class="stat-label">Vendas hoje</p>
-              <p class="stat-value"><strong>R$ 2.480</strong></p>
-              <p class="stat-sub">12 vendas</p>
-            </article>
-            <article class="card stat">
-              <p class="stat-label">Lucro do mês</p>
-              <p class="stat-value"><strong>R$ 8.920</strong></p>
-              <p class="stat-sub">estimado</p>
-            </article>
-            <article class="card stat">
-              <p class="stat-label">Estoque baixo</p>
-              <p class="stat-value wine"><strong>7</strong></p>
-              <p class="stat-sub">itens</p>
-            </article>
-            <article class="card stat">
-              <p class="stat-label">Produtos</p>
-              <p class="stat-value"><strong>248</strong></p>
-              <p class="stat-sub">ativos</p>
-            </article>
+          <p class="count" style="margin-bottom: 14px">Gerencie outras áreas da loja</p>
+          <div class="list">
+            <a class="menu-item" href="{% url 'compras' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Compras</span><span class="row-sub" style="display: block">Registrar mercadorias e entradas</span></span><span class="chevron">›</span></a>
+            <a class="menu-item" href="{% url 'trocas' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Trocas</span><span class="row-sub" style="display: block">Registrar trocas e atualizar estoque</span></span><span class="chevron">›</span></a>
+            <a class="menu-item" href="{% url 'despesas' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Despesas</span><span class="row-sub" style="display: block">Registrar gastos operacionais</span></span><span class="chevron">›</span></a>
+            <a class="menu-item" href="{% url 'relatorios' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Relatórios</span><span class="row-sub" style="display: block">Vendas, estoque e financeiro</span></span><span class="chevron">›</span></a>
+            <a class="menu-item" href="{% url 'admin:index' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Administração</span><span class="row-sub" style="display: block">Gerenciar usuários, produtos e registros</span></span><span class="chevron">›</span></a>
           </div>
-
-          <h2 class="section-title">Mais vendidos</h2>
-          <article class="card row">
-            <div class="thumb"></div>
-            <div class="row-main">
-              <p class="row-title">Camiseta Básica</p>
-              <p class="row-sub">32 unidades no mês</p>
-            </div>
-            <p class="row-value">R$ 79,90</p>
-          </article>
-
-          <h2 class="section-title">Estoque acabando</h2>
-          <div class="alert">
-            <div>
-              <p class="row-title">Calça Wide Leg · M / Preto</p>
-              <p class="row-sub">1 unidade disponível</p>
-            </div>
-            <button class="button button--wine button--small" data-screen="estoque">Ver</button>
-          </div>
+          <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="button button--wine" type="submit">Sair da conta</button></form>
         </div>
       </section>
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./dashboard.js"></script>
+    <script type="module" src="{% static 'estrela_modas/mais_opcoes.js' %}"></script>
   </body>
 </html>

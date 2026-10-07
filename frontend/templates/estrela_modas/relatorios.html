@@ -1,4 +1,5 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -636,28 +637,28 @@
           <article class="card report-summary">
             <div>
               <p class="eyebrow" style="color: var(--text); font-weight: 700">Vendas no período</p>
-              <h2 class="report-value">R$ 32.480</h2>
-              <p class="row-sub">184 vendas registradas</p>
+              <h2 class="report-value">R$ {{ total_vendas|floatformat:2 }}</h2>
+              <p class="row-sub">{{ quantidade_vendas }} vendas registradas no mês</p>
             </div>
             <div class="chart-placeholder" aria-label="Gráfico de vendas"></div>
           </article>
           <h2 class="section-title">Relatórios</h2>
           <div class="list">
-            <article class="card row"><div class="row-main"><p class="row-title">Produtos mais vendidos</p><p class="row-sub">Quantidade por produto</p></div><span class="chevron">›</span></article>
-            <article class="card row"><div class="row-main"><p class="row-title">Estoque baixo</p><p class="row-sub">Itens com 1 unidade</p></div><span class="chevron">›</span></article>
-            <article class="card row"><div class="row-main"><p class="row-title">Vendas realizadas</p><p class="row-sub">Período e pagamento</p></div><span class="chevron">›</span></article>
-            <article class="card row"><div class="row-main"><p class="row-title">Financeiro</p><p class="row-sub">Vendas, compras e despesas</p></div><span class="chevron">›</span></article>
+            {% for item in mais_vendidos %}<article class="card row"><div class="row-main"><p class="row-title">{{ item.produto__nome_produto }}</p><p class="row-sub">{{ item.unidades }} unidades vendidas</p></div><span class="chevron">›</span></article>{% empty %}<p class="card">Ainda não há vendas no período.</p>{% endfor %}
+            {% for produto in produtos_baixo %}<article class="card row"><div class="row-main"><p class="row-title">{{ produto.nome_produto }}</p><p class="row-sub">Estoque baixo · {{ produto.quantidade_estoque }} unidades</p></div><span class="chevron">›</span></article>{% empty %}<p class="card">Nenhum produto abaixo do estoque mínimo.</p>{% endfor %}
+            <article class="card row"><div class="row-main"><p class="row-title">Compras do mês</p></div><strong>R$ {{ total_compras|floatformat:2 }}</strong></article>
+            <article class="card row"><div class="row-main"><p class="row-title">Despesas do mês</p></div><strong>R$ {{ total_despesas|floatformat:2 }}</strong></article>
           </div>
         </div>
       </section>
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./relatorios.js"></script>
+    <script type="module" src="{% static 'estrela_modas/relatorios.js' %}"></script>
   </body>
 </html>

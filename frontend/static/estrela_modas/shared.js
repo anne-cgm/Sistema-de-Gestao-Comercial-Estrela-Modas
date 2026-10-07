@@ -1,14 +1,15 @@
 const caminhosDasTelas = {
-  login: './login.html',
-  dashboard: './dashboard.html',
-  produtos: './produtos.html',
-  'novo-produto': './novo-produto.html',
-  estoque: './estoque.html',
-  'nova-venda': './nova-venda.html',
-  clientes: './clientes.html',
-  debitos: './debitos.html',
-  mais: './mais.html',
-  relatorios: './relatorios.html',
+  login: '/login/',
+  dashboard: '/dashboard/',
+  produtos: '/produtos/',
+  'novo-produto': '/produtos/novo/',
+  estoque: '/estoque/',
+  'nova-venda': '/vendas/nova/',
+  clientes: '/clientes/',
+  debitos: '/debitos/',
+  mais: '/mais/',
+  relatorios: '/relatorios/',
+  compras: '/compras/',
 }
 
 export function navegarParaTela(tela) {

@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mais | Estrela Modas</title>
+    <title>Login | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -622,34 +623,37 @@
   </head>
   <body>
     <main class="phone">
-      <section class="screen">
+      <section class="screen screen--login">
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Mais</h1>
-            <p class="subtitle">Acesso aos módulos administrativos.</p>
+            <h1 class="title">Bem-vinda!</h1>
+            <p class="subtitle">Acesse a gestão da sua loja.</p>
           </div>
-          <div class="avatar">K</div>
         </header>
-        <div class="content">
-          <p class="count" style="margin-bottom: 14px">Gerencie outras áreas da loja</p>
-          <div class="list">
-            <button class="menu-item" data-module="Compras"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Compras</span><span class="row-sub" style="display: block">Registrar mercadorias e entradas</span></span><span class="chevron">›</span></button>
-            <button class="menu-item" data-module="Trocas"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Trocas</span><span class="row-sub" style="display: block">Validar trocas e atualizar estoque</span></span><span class="chevron">›</span></button>
-            <button class="menu-item" data-module="Despesas"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Despesas</span><span class="row-sub" style="display: block">Registrar gastos operacionais</span></span><span class="chevron">›</span></button>
-            <button class="menu-item" data-screen="relatorios"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Relatórios</span><span class="row-sub" style="display: block">Vendas, estoque e financeiro</span></span><span class="chevron">›</span></button>
-            <button class="menu-item" data-module="Usuários"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Usuários</span><span class="row-sub" style="display: block">Perfis e permissões</span></span><span class="chevron">›</span></button>
-          </div>
+
+        <div class="login-logo">
+          <strong>Estrela</strong>
+          <span>MODAS</span>
         </div>
+
+        <form class="content stack login-form" method="post" data-login-form>
+          {% csrf_token %}
+          {% if erro_login %}<p class="form-error" role="alert">{{ erro_login }}</p>{% endif %}
+          <label>
+            <span class="form-label">Usuário</span>
+            <input class="input" id="usuario" name="usuario" placeholder="Digite seu usuário" autocomplete="username" />
+          </label>
+          <label>
+            <span class="form-label">Senha</span>
+            <input class="input" id="senha" type="password" name="senha" placeholder="Digite sua senha" autocomplete="current-password" />
+          </label>
+          <p class="form-error" data-erro-login role="alert" hidden></p>
+          <button class="button" id="btnEntrar" type="submit">Entrar</button>
+        </form>
+        <p class="login-note">Acesso protegido por perfil e permissões</p>
       </section>
-      <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
-      </nav>
     </main>
-    <script type="module" src="./mais.js"></script>
+    <script type="module" src="{% static 'estrela_modas/login.js' %}"></script>
   </body>
 </html>

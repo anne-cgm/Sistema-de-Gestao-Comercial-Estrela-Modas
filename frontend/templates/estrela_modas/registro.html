@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ titulo }} | Estrela Modas</title>
+    <style>
+      :root { font-family: Inter, Arial, sans-serif; color: #3a2930; background: #e8d5db; }
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      main { width: min(100%, 520px); min-height: 100dvh; margin: auto; padding: 24px 20px 90px; background: #fff8fa; }
+      h1 { margin: 5px 0; font-size: 24px; }
+      .brand { color: #d96b8b; font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+      .muted { color: #8b777f; font-size: 13px; }
+      form, .records { display: grid; gap: 14px; margin-top: 24px; }
+      form p { display: grid; gap: 6px; margin: 0; }
+      label { font-size: 12px; font-weight: 700; }
+      input, select, textarea { width: 100%; padding: 12px; border: 1px solid #eedde3; border-radius: 10px; background: white; color: inherit; font: inherit; }
+      textarea { resize: vertical; }
+      button, .button { display: block; width: 100%; padding: 13px; border: 0; border-radius: 10px; background: #6e2945; color: white; text-align: center; text-decoration: none; font: inherit; font-weight: 700; }
+      .card { padding: 14px; border: 1px solid #eedde3; border-radius: 12px; background: white; }
+      .errorlist { color: #a4284a; font-size: 12px; }
+      nav { position: fixed; bottom: 0; left: 50%; display: flex; width: min(100%, 520px); justify-content: space-around; padding: 14px 8px; transform: translateX(-50%); border-top: 1px solid #eedde3; background: #fff8fa; }
+      nav a { color: #6e2945; font-size: 12px; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="brand">ESTRELA MODAS</p>
+      <h1>{{ titulo }}</h1>
+      <p class="muted">{{ subtitulo }}</p>
+      {% for message in messages %}<p class="card">{{ message }}</p>{% endfor %}
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Salvar registro</button>
+      </form>
+      <section class="records">
+        <h2>Registros recentes</h2>
+        {% for registro in registros %}
+          <article class="card">
+            {% if tipo_registro == 'despesa' %}
+              <strong>{{ registro.descricao_despesa }}</strong><br />
+              <span class="muted">{{ registro.categoria_despesa }} · {{ registro.data_despesa|date:'d/m/Y' }}</span><br />
+              <strong>R$ {{ registro.valor_despesa|floatformat:2 }}</strong>
+            {% else %}
+              <strong>{{ registro.produto_devolvido.nome_produto }}</strong>
+              {% if registro.produto_entregue %}<br /><span class="muted">Entregue: {{ registro.produto_entregue.nome_produto }}</span>{% endif %}<br />
+              <span class="muted">{{ registro.motivo_troca }} · {{ registro.data_troca|date:'d/m/Y H:i' }}</span>
+            {% endif %}
+          </article>
+        {% empty %}
+          <p class="card muted">Ainda não há registros.</p>
+        {% endfor %}
+      </section>
+    </main>
+    <nav aria-label="Navegação principal">
+      <a href="{% url 'dashboard' %}">Início</a>
+      <a href="{% url 'produtos' %}">Produtos</a>
+      <a href="{% url 'nova_venda' %}">Venda</a>
+      <a href="{% url 'clientes' %}">Clientes</a>
+      <a href="{% url 'mais_opcoes' %}">Mais</a>
+    </nav>
+  </body>
+</html>

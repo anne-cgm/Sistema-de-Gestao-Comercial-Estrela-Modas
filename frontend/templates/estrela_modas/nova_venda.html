@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Novo Produto | Estrela Modas</title>
+    <title>Nova Venda | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -626,41 +627,52 @@
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Novo produto</h1>
-            <p class="subtitle">Cadastre uma peça e suas variações.</p>
+            <h1 class="title">Nova venda</h1>
+            <p class="subtitle">Registre produtos, desconto e pagamento.</p>
           </div>
           <div class="avatar">K</div>
         </header>
-        <form class="content stack" data-product-form>
-          <p class="count">Dados principais</p>
-          <label><span class="form-label">Nome do produto</span><input class="input" value="Camiseta Masculina Básica" /></label>
-          <label><span class="form-label">SKU Pai</span><input class="input" value="CAM-MAS-BAS" /></label>
-          <div class="grid-2">
-            <label><span class="form-label">Categoria</span><input class="input" value="Masculino" /></label>
-            <label><span class="form-label">Subcategoria</span><input class="input" value="Partes de Cima" /></label>
-          </div>
-          <div class="grid-2">
-            <label><span class="form-label">Tipo de peça</span><input class="input" value="Camiseta" /></label>
-            <label><span class="form-label">Material</span><input class="input" value="100% Algodão" /></label>
-          </div>
-          <p class="count">Precificação</p>
-          <div class="grid-2">
-            <label><span class="form-label">Custo</span><input class="input" value="R$ 48,00" /></label>
-            <label><span class="form-label">Venda</span><input class="input" value="R$ 79,90" /></label>
-          </div>
-          <p class="count">Variações</p>
-          <div class="badge">M · Preto · SKU CAM-MAS-BAS-M-PT</div>
-          <button class="button" type="button" data-save-product>Salvar produto</button>
+        <form class="content stack" method="post" data-form-venda>
+          {% csrf_token %}
+          {% for message in messages %}<p class="card">{{ message }}</p>{% endfor %}
+          <label><span class="form-label">{{ form.cliente.label }}</span>{{ form.cliente }}{{ form.cliente.errors }}</label>
+          {{ itens_formset.management_form }}
+          <p class="count">Adicione até cinco produtos à venda</p>
+          {% for item_form in itens_formset.forms %}
+            <div class="grid-2">
+              <label>
+                <span class="form-label">Produto</span>
+                <select class="select" name="{{ item_form.produto.html_name }}" data-produto-venda>
+                  <option value="">Selecione um produto</option>
+                  {% for produto in item_form.fields.produto.queryset %}
+                    <option value="{{ produto.pk }}" data-preco-venda="{{ produto.preco_venda }}" data-estoque="{{ produto.quantidade_estoque }}"{% if item_form.produto.value == produto.pk|stringformat:'s' %} selected{% endif %}>{{ produto.nome_produto }} · {{ produto.sku }} ({{ produto.quantidade_estoque }} em estoque)</option>
+                  {% endfor %}
+                </select>
+                {{ item_form.produto.errors }}
+              </label>
+              <label><span class="form-label">Quantidade</span>{{ item_form.quantidade }}{{ item_form.quantidade.errors }}</label>
+            </div>
+          {% endfor %}
+          {{ itens_formset.non_form_errors }}
+          <label><span class="form-label">{{ form.desconto_aplicado.label }}</span>{{ form.desconto_aplicado }}{{ form.desconto_aplicado.errors }}</label>
+          <label><span class="form-label">{{ form.forma_pagamento.label }}</span>{{ form.forma_pagamento }}{{ form.forma_pagamento.errors }}</label>
+          {{ form.non_field_errors }}
+          <div class="total"><span class="muted">Total</span><strong data-valor-total>R$ 0,00</strong></div>
+          <button class="button" type="submit" data-finish-sale>Finalizar venda</button>
+          <h2 class="section-title">Vendas recentes</h2>
+          {% for venda in vendas_recentes %}
+            <article class="card row"><div class="row-main"><p class="row-title">Venda #{{ venda.pk }} · {{ venda.get_forma_pagamento_display }}</p><p class="row-sub">{{ venda.data_venda|date:'d/m/Y H:i' }}{% if venda.cliente %} · {{ venda.cliente.nome_cliente }}{% endif %}</p></div><strong>R$ {{ venda.valor_total|floatformat:2 }}</strong></article>
+          {% empty %}<p class="card">Nenhuma venda registrada ainda.</p>{% endfor %}
         </form>
       </section>
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./novo-produto.js"></script>
+    <script type="module" src="{% static 'estrela_modas/nova_venda.js' %}"></script>
   </body>
 </html>

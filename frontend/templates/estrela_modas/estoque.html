@@ -1,9 +1,10 @@
 <!doctype html>
+{% load static %}
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Produtos | Estrela Modas</title>
+    <title>Estoque | Estrela Modas</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
@@ -626,42 +627,34 @@
         <header class="header">
           <div>
             <p class="brand">ESTRELA MODAS</p>
-            <h1 class="title">Produtos</h1>
-            <p class="subtitle">Catálogo e variações.</p>
+            <h1 class="title">Estoque</h1>
+            <p class="subtitle">Entradas, saídas e alertas.</p>
           </div>
           <div class="avatar">K</div>
         </header>
         <div class="content stack">
-          <label>
-            <span class="form-label">Buscar produto</span>
-            <input class="search" type="search" placeholder="Nome ou SKU..." data-busca-produto />
-          </label>
-          <button class="button" data-screen="novo-produto">＋ Cadastrar produto</button>
-          <p class="count">248 produtos cadastrados</p>
+          <input class="search" type="search" aria-label="Pesquisar estoque" placeholder="Pesquisar estoque" />
+          <div class="grid-2">
+            <div class="badge">Todos os produtos ▾</div>
+            <div class="select">Ordenar ▾</div>
+          </div>
           <div class="list">
-            <article class="card row" data-produto data-nome-produto="Camiseta Básica">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Camiseta Básica</p><p class="row-sub">CAM-MAS-BAS-M</p></div><div><p class="row-value">R$ 79,90</p><p class="row-sub">12 un.</p></div>
-            </article>
-            <article class="card card--alert row" data-produto data-nome-produto="Calça Wide Leg">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Calça Wide Leg</p><p class="row-sub">CAL-WID-PT-M</p></div><div><p class="row-value">R$ 149,90</p><p class="row-sub">1 un.</p></div>
-            </article>
-            <article class="card row" data-produto data-nome-produto="Vestido Floral">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Vestido Floral</p><p class="row-sub">VES-FLO-AZ-G</p></div><div><p class="row-value">R$ 189,90</p><p class="row-sub">8 un.</p></div>
-            </article>
-            <article class="card row" data-produto data-nome-produto="Bolsa Mini">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Bolsa Mini</p><p class="row-sub">BOL-MIN-PR</p></div><div><p class="row-value">R$ 119,90</p><p class="row-sub">4 un.</p></div>
-            </article>
+            {% for produto in produtos %}
+              <article class="card row{% if produto.estoque_baixo %} card--alert{% endif %}" data-item-estoque data-quantidade-estoque="{{ produto.quantidade_estoque }}"><div class="row-main"><p class="row-title">{{ produto.nome_produto }}</p><p class="row-sub">{{ produto.sku }}{% if produto.tamanho %} · {{ produto.tamanho }}{% endif %}{% if produto.cor %} · {{ produto.cor }}{% endif %}</p></div><div><p class="stat-value wine"><strong>{{ produto.quantidade_estoque }}</strong></p><p class="row-sub">{% if produto.estoque_baixo %}REPOR{% else %}DISPONÍVEL{% endif %}</p></div></article>
+            {% empty %}
+              <p class="card">Nenhum produto cadastrado.</p>
+            {% endfor %}
           </div>
         </div>
       </section>
       <nav class="nav" aria-label="Navegação principal">
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
       </nav>
     </main>
-    <script type="module" src="./produtos.js"></script>
+    <script type="module" src="{% static 'estrela_modas/estoque.js' %}"></script>
   </body>
 </html>
