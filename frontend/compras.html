@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrar Compra | Estrela Modas</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+      :root {
+        --bg: #fff8fa;
+        --pink: #d96b8b;
+        --wine: #6e2945;
+        --light-pink: #f7dde6;
+        --border: #eedde3;
+        --text: #3a2930;
+        --muted: #8b777f;
+        --alert-bg: #fff0f4;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        margin: 0;
+        background: #e8d5db;
+        color: var(--text);
+        font-family: 'Inter', Arial, sans-serif;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .phone {
+        position: relative;
+        width: min(100%, 390px);
+        min-height: 100dvh;
+        margin: 0 auto;
+        overflow: hidden;
+        background: var(--bg);
+        box-shadow: 0 8px 40px rgb(110 41 69 / 18%);
+      }
+
+      .screen {
+        min-height: 100dvh;
+        padding-bottom: 76px;
+      }
+
+      .screen--login {
+        padding-bottom: 32px;
+      }
+
+      .header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 24px 20px 10px;
+      }
+
+      .brand {
+        margin: 0;
+        color: var(--pink);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0.04em;
+      }
+
+      .title {
+        margin: 4px 0;
+        color: var(--text);
+        font-size: 23px;
+        line-height: 1.2;
+      }
+
+      .subtitle,
+      .muted {
+        margin: 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .avatar {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        flex: 0 0 auto;
+        place-items: center;
+        background: var(--light-pink);
+        color: var(--wine);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .content {
+        padding: 0 20px;
+      }
+
+      .section-title {
+        margin: 18px 0 10px;
+        font-size: 15px;
+      }
+
+      .welcome {
+        margin: 2px 0 4px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .summary-title {
+        margin: 0 0 14px;
+        font-size: 18px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        background: #fff;
+      }
+
+      .card--alert {
+        background: var(--alert-bg);
+      }
+
+      .stat {
+        padding: 14px 16px;
+      }
+
+      .stat-label,
+      .eyebrow {
+        margin: 0 0 5px;
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .stat-value {
+        margin: 0 0 2px;
+        font-size: 21px;
+      }
+
+      .stat-sub {
+        margin: 0;
+        color: var(--pink);
+        font-size: 9px;
+      }
+
+      .wine {
+        color: var(--wine);
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+      }
+
+      .row-main {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .row-title {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .row-sub {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .row-value {
+        margin: 0;
+        color: var(--wine);
+        font-size: 12px;
+        font-weight: 700;
+        text-align: right;
+      }
+
+      .thumb {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 auto;
+        background: var(--light-pink);
+      }
+
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .search,
+      .field-display,
+      .select {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid var(--border);
+        background: #fff;
+        padding: 12px 16px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .button {
+        width: 100%;
+        min-height: 44px;
+        border: 0;
+        padding: 12px 16px;
+        background: var(--pink);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .button--wine {
+        background: var(--wine);
+      }
+
+      .button--small {
+        width: auto;
+        min-height: 0;
+        padding: 5px 11px;
+        font-size: 9px;
+      }
+
+      .alert {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: var(--alert-bg);
+        padding: 12px 16px;
+      }
+
+      .form-label {
+        display: block;
+        margin: 0 0 5px;
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .input {
+        width: 100%;
+        height: 48px;
+        border: 1px solid var(--border);
+        outline: none;
+        background: #fff;
+        padding: 0 16px;
+        color: var(--text);
+        font-size: 12px;
+      }
+
+      .input:focus {
+        border-color: var(--pink);
+        box-shadow: 0 0 0 3px rgb(217 107 139 / 12%);
+      }
+
+      .form-error {
+        margin: -6px 0 0;
+        color: var(--wine);
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .login-logo {
+        margin: 32px 20px 0;
+        padding: 18px 0;
+        background: var(--light-pink);
+        color: var(--wine);
+        text-align: center;
+      }
+
+      .login-logo strong {
+        display: block;
+        font-size: 25px;
+      }
+
+      .login-logo span {
+        font-size: 11px;
+      }
+
+      .login-form {
+        gap: 16px;
+        margin-top: 28px;
+      }
+
+      .login-note {
+        margin: 24px 20px 0;
+        color: var(--muted);
+        font-size: 11px;
+        text-align: center;
+      }
+
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .count {
+        margin: 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .badge {
+        background: var(--light-pink);
+        padding: 10px 14px;
+        color: var(--wine);
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .total {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .total strong {
+        color: var(--wine);
+        font-size: 21px;
+      }
+
+      .payment-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+
+      .payment {
+        border: 1px solid var(--border);
+        background: #fff;
+        padding: 10px 4px;
+        color: var(--text);
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .payment.is-active {
+        border-color: var(--pink);
+        background: var(--pink);
+        color: #fff;
+      }
+
+      .menu-item {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid var(--border);
+        background: #fff;
+        padding: 12px 14px;
+        color: inherit;
+        text-align: left;
+      }
+
+      .menu-icon {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 auto;
+        background: var(--light-pink);
+      }
+
+      .chevron {
+        color: var(--pink);
+        font-size: 17px;
+      }
+
+      .report-summary {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        padding: 18px 16px;
+      }
+
+      .report-value {
+        margin: 0;
+        color: var(--wine);
+        font-size: 24px;
+      }
+
+      .chart-placeholder {
+        width: 100px;
+        height: 52px;
+        border: 3px solid var(--pink);
+      }
+
+      .nav {
+        position: fixed;
+        z-index: 10;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        height: 58px;
+        max-width: 390px;
+        align-items: center;
+        margin: 0 auto;
+        border-top: 1px solid var(--border);
+        background: #fff;
+      }
+
+      .nav-link {
+        display: flex;
+        height: 100%;
+        flex: 1;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        color: var(--muted);
+        font-size: 9px;
+        text-decoration: none;
+      }
+
+      .nav-link.is-active {
+        color: var(--pink);
+      }
+
+      .nav-icon {
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .toast {
+        position: fixed;
+        z-index: 20;
+        right: 20px;
+        bottom: 76px;
+        left: 20px;
+        max-width: 350px;
+        margin: auto;
+        background: var(--wine);
+        padding: 12px 16px;
+        color: #fff;
+        font-size: 11px;
+        text-align: center;
+        box-shadow: 0 8px 24px rgb(110 41 69 / 20%);
+      }
+
+      @media (min-width: 640px) and (max-width: 1023px) {
+        body {
+          padding: 24px;
+        }
+
+        .phone {
+          width: 100%;
+          max-width: 768px;
+          min-height: calc(100dvh - 48px);
+          border: 1px solid var(--border);
+        }
+
+        .screen {
+          min-height: calc(100dvh - 48px);
+        }
+
+        .header,
+        .content {
+          padding-right: 32px;
+          padding-left: 32px;
+        }
+
+        .nav {
+          max-width: 768px;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        body {
+          background: #f6edf0;
+        }
+
+        .phone {
+          display: grid;
+          width: 100%;
+          max-width: none;
+          min-height: 100dvh;
+          grid-template-columns: 210px minmax(0, 1fr);
+          overflow: visible;
+          box-shadow: none;
+        }
+
+        .phone:not(:has(.nav)) {
+          display: grid;
+          grid-template-columns: 1fr;
+          place-items: center;
+          padding: 48px;
+        }
+
+        .screen {
+          width: 100%;
+          min-height: 100dvh;
+          grid-column: 1 / -1;
+          padding-bottom: 48px;
+        }
+
+        .phone:has(.nav) .screen {
+          grid-column: 2;
+          grid-row: 1;
+        }
+
+        .screen--login {
+          width: min(100%, 500px);
+          min-height: auto;
+          border: 1px solid var(--border);
+          background: var(--bg);
+          padding: 16px 20px 40px;
+          box-shadow: 0 18px 60px rgb(110 41 69 / 14%);
+        }
+
+        .header,
+        .content {
+          width: 100%;
+          max-width: 1050px;
+          margin-right: auto;
+          margin-left: auto;
+          padding-right: clamp(40px, 6vw, 80px);
+          padding-left: clamp(40px, 6vw, 80px);
+        }
+
+        .header {
+          padding-top: 42px;
+          padding-bottom: 20px;
+        }
+
+        .title {
+          font-size: 29px;
+        }
+
+        .summary-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .nav {
+          position: sticky;
+          top: 0;
+          right: auto;
+          bottom: auto;
+          left: auto;
+          grid-column: 1;
+          grid-row: 1;
+          display: flex;
+          width: 210px;
+          height: 100dvh;
+          max-width: none;
+          flex-direction: column;
+          align-items: stretch;
+          justify-content: center;
+          border-top: 0;
+          border-right: 1px solid var(--border);
+          background: #fff;
+          padding: 24px 14px;
+        }
+
+        .nav::before {
+          content: 'ESTRELA MODAS';
+          position: absolute;
+          top: 38px;
+          left: 24px;
+          color: var(--pink);
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+        }
+
+        .nav-link {
+          width: 100%;
+          height: 54px;
+          flex: 0 0 auto;
+          flex-direction: row;
+          justify-content: flex-start;
+          gap: 12px;
+          border-radius: 8px;
+          padding: 0 16px;
+          font-size: 12px;
+        }
+
+        .nav-link.is-active {
+          background: var(--light-pink);
+          color: var(--wine);
+          font-weight: 700;
+        }
+
+        .nav-icon {
+          width: 24px;
+          font-size: 20px;
+          text-align: center;
+        }
+
+        .toast {
+          right: 40px;
+          bottom: 40px;
+          left: auto;
+          width: 350px;
+          max-width: calc(100vw - 80px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="phone">
+      <section class="screen">
+        <header class="header">
+          <div>
+            <p class="brand">ESTRELA MODAS</p>
+            <h1 class="title">Registrar compra</h1>
+            <p class="subtitle">Registre a entrada de produtos no estoque.</p>
+          </div>
+          <div class="avatar">K</div>
+        </header>
+
+        <form class="content stack" data-formulario-compra>
+          <p class="count">Entrada de produto existente</p>
+          <label>
+            <span class="form-label">Produto e variação</span>
+            <select class="select" name="produtoId" data-seletor-produto required>
+              <option value="">Selecione um produto cadastrado</option>
+              <option value="CAM-MAS-BAS-M-PT" data-nome-produto="Camiseta Básica · M / Preto" data-preco-custo="48" data-quantidade-estoque="12">Camiseta Básica · M / Preto</option>
+              <option value="CAL-WID-PT-M" data-nome-produto="Calça Wide Leg · M / Preto" data-preco-custo="92" data-quantidade-estoque="1">Calça Wide Leg · M / Preto</option>
+              <option value="VES-FLO-AZ-G" data-nome-produto="Vestido Floral · G / Azul" data-preco-custo="110" data-quantidade-estoque="8">Vestido Floral · G / Azul</option>
+              <option value="BOL-MIN-PR" data-nome-produto="Bolsa Mini · Única / Preto" data-preco-custo="70" data-quantidade-estoque="4">Bolsa Mini · Única / Preto</option>
+            </select>
+          </label>
+
+          <article class="card row">
+            <div class="thumb"></div>
+            <div class="row-main">
+              <p class="row-title" data-nome-produto-selecionado>Nenhum produto selecionado</p>
+              <p class="row-sub">A compra será adicionada ao estoque desta variação.</p>
+            </div>
+          </article>
+
+          <div class="grid-2">
+            <label>
+              <span class="form-label">Quantidade recebida</span>
+              <input class="input" type="number" name="quantidadeRecebida" min="1" step="1" value="1" required />
+            </label>
+            <label>
+              <span class="form-label">Preço de custo por unidade</span>
+              <input class="input" type="number" name="precoCusto" min="0" step="0.01" placeholder="0,00" required />
+            </label>
+          </div>
+
+          <div class="grid-2">
+            <article class="card stat">
+              <p class="stat-label">Estoque atual</p>
+              <p class="stat-value"><strong data-estoque-atual>0</strong></p>
+              <p class="stat-sub">unidades</p>
+            </article>
+            <article class="card stat">
+              <p class="stat-label">Estoque após entrada</p>
+              <p class="stat-value wine"><strong data-novo-estoque>0</strong></p>
+              <p class="stat-sub">unidades</p>
+            </article>
+          </div>
+
+          <article class="card stat total">
+            <div>
+              <p class="stat-label">Valor total da compra</p>
+              <p class="row-sub">Custo unitário × quantidade recebida</p>
+            </div>
+            <strong data-valor-total-compra>R$ 0,00</strong>
+          </article>
+
+          <button class="button" type="submit">Registrar compra</button>
+          <button class="button button--wine" type="button" data-screen="novo-produto">O produto ainda não existe? Cadastrar produto</button>
+        </form>
+      </section>
+
+      <nav class="nav" aria-label="Navegação principal">
+        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Início</a>
+        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+      </nav>
+    </main>
+    <script type="module" src="./compras.js"></script>
+  </body>
+</html>
