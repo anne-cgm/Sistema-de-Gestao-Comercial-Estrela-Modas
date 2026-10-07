@@ -30,7 +30,7 @@ create table if not exists produto (
     categoria_id int not null,
     
 		constraint fk_produto_categoria
-			foreign key (cateogria_id)
+			foreign key (categoria_id)
             references categoria(id)
             on delete restrict
             on update cascade
