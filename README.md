@@ -1,11 +1,10 @@
 # Sistema de Gestão Comercial - Estrela Modas
 
-<img width="1254" height="1254" alt="estrela_modas_logo" src="https://github.com/user-attachments/assets/1c297274-0078-473c-830e-ee045a1bdb99" />
-
-
 [![Status](https://img.shields.io/badge/status-[em_desenvolvimento]-yellow)]()
 [![Versão](https://img.shields.io/badge/versão-[0.1.0]-blue)]()
 [![Licença](https://img.shields.io/badge/licença-[acadêmica]-lightgrey)]()
+
+<img width="200" height="200" alt="estrela_modas_logo" src="https://github.com/user-attachments/assets/1c297274-0078-473c-830e-ee045a1bdb99" />
 
 **Instituição:** UniCEUB 
 **Curso:** Ciência da Computação
