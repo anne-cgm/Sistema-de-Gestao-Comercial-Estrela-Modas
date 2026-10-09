@@ -275,10 +275,10 @@ Documentação completa da API: docs/api.md
 
 | Nome | Matrícula | Função no projeto |
 | --- | --- | --- |
-| Sciel Ramos RodriguesBuitrago | [000000] | backend / testes |
-| Kamila Gomes da Silva | [22503734] | frontend / documentação |
-| Anna Nicolly da Silva | [000000] | backend / documentação |
-| Anne Caroline Gonçalves de Mesquita | [000000] | backend / documentação / frontend |
+| Sciel Ramos RodriguesBuitrago | [22510054] | backend / frontend / Engenheiro de Dados |
+| Kamila Gomes da Silva | [22503734] | backend / frontend / Designer UI/UX |
+| Anna Nicolly da Silva | [22500860] | backend / frontend / documentação |
+| Anne Caroline Gonçalves de Mesquita | [22500825] | backend / frontend / testes / Gerenciadora de Projetos |
 
 **Professor(a) responsável:** Felippe Pires
 
