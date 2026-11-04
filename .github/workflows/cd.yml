@@ -80,7 +80,7 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Identificar imagem publicada
-        shell: pwsh
+        shell: powershell
         env:
           IMAGE_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
@@ -100,7 +100,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configurar variáveis de ambiente
-        shell: pwsh
+        shell: powershell
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -131,23 +131,23 @@ jobs:
           )
 
       - name: Baixar imagem publicada
-        shell: pwsh
+        shell: powershell
         run: |
           docker compose pull web
 
       - name: Atualizar aplicação
-        shell: pwsh
+        shell: powershell
         run: |
           docker compose up -d --no-build --remove-orphans
 
       - name: Verificar aplicação
-        shell: pwsh
+        shell: powershell
         run: |
           docker compose ps
 
           docker compose exec -T web python manage.py check
 
       - name: Registrar imagem utilizada
-        shell: pwsh
+        shell: powershell
         run: |
           Write-Host "Imagem utilizada: $env:DOCKER_IMAGE"
