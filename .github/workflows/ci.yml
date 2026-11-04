@@ -22,24 +22,14 @@ jobs:
         with:
           node-version: 24
 
-      # Instala as dependências do projeto
+      # Instala exatamente as dependências registradas no package-lock.json da raiz
       - name: Instalar dependências
-        run: npm install
+        run: npm ci
 
-      # Instala as dependências do frontend
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: npm install
-
-      # Executa os testes do frontend
-      - name: Run frontend tests
-        working-directory: ./frontend
-        run: npm test
-
-      # Executa o build
-      - name: Executar build
-        run: npm run build
-
-      # Executa os testes do projeto
+      # Executa os testes do projeto (inclui tests/script.test.js)
       - name: Executar testes
         run: npm test
+
+      # Verifica se os arquivos obrigatórios estão presentes
+      - name: Executar build
+        run: npm run build

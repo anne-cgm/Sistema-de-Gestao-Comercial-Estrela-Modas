@@ -1,0 +1,20 @@
+# Arquivos ignorados na imagem
+
+.git
+.venv/
+venv/
+__pycache__/
+*py[cod]
+
+.env
+.env.* 
+backend/.env
+
+node_modules/
+.pytest_cache/
+
+*.sqlite3
+staticfiles/
+media/
+.vscode/
+.idea/

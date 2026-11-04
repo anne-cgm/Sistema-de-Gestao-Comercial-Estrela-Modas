@@ -4,7 +4,7 @@
   "description": "Sistema de gestão comercial desenvolvido para uma loja de roupas e acessórios, com foco no gerenciamento interno de produtos, estoque, vendas e demais operações administrativas.",
   "main": "script.js",
   "scripts": {
-    "build": "node build.js",
+    "build": "node tests/build.js",
     "test": "node --test"
   },
   "repository": {
@@ -14,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/anne-cgm/Sistema-de-Gestao-Comercial-Estrela-Modas/issues"
   },

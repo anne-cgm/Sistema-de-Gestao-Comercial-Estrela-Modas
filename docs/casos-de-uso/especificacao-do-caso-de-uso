@@ -1,0 +1,425 @@
+# 9. ESPECIFICAÇÃO DOS CASOS DE USO
+
+Os casos de uso descrevem as interações entre os atores e o sistema para a realização de objetivos relacionados à operação da loja. As especificações apresentadas nesta seção detalham os principais fluxos, condições e resultados esperados para cada caso de uso identificado.
+
+Os casos de uso foram definidos a partir do escopo do sistema, dos requisitos funcionais levantados e das informações obtidas durante a elicitação de requisitos. As especificações poderão ser refinadas após a validação das regras de negócio e das permissões de acesso pelas responsáveis pela loja.
+
+## 9.1 UC01 — GERENCIAR PRODUTOS
+
+**Ator principal:** Administrador
+
+**Objetivo:** Permitir o cadastro, consulta, pesquisa, alteração e desativação dos produtos comercializados pela loja.
+
+**Pré-condições:**
+
+- O administrador deve estar autenticado no sistema.
+- O administrador deve possuir permissão para gerenciamento de produtos.
+
+**Fluxo principal:**
+
+1. O administrador acessa o módulo de produtos.
+2. O sistema apresenta os produtos cadastrados.
+3. O administrador seleciona uma operação: cadastrar, consultar, pesquisar, alterar ou desativar produto.
+4. Para o cadastro, o administrador informa os dados do produto.
+5. O administrador informa ou cadastra suas respectivas variações, quando aplicável.
+6. O sistema valida os dados informados.
+7. O sistema registra ou atualiza as informações.
+8. O sistema apresenta a confirmação da operação.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Dados inválidos:** caso algum dado obrigatório esteja ausente ou inválido, o sistema informa o erro e solicita a correção.
+- **FA02 — Produto já cadastrado:** caso seja identificada duplicidade de código ou SKU, o sistema impede o cadastro e informa o conflito.
+- **FA03 — Desativação de produto:** o produto pode ser desativado para impedir novas operações de venda, mantendo seu histórico no sistema.
+
+**Pós-condições:**
+
+- O produto é cadastrado, alterado ou desativado conforme a operação realizada.
+- As informações históricas relacionadas ao produto permanecem preservadas.
+
+## 9.2 UC02 — GERENCIAR ESTOQUE
+
+**Ator principal:** Administrador
+
+**Ator secundário:** Funcionário, para consulta
+
+**Objetivo:** Permitir o acompanhamento das quantidades disponíveis e das movimentações de estoque dos produtos.
+
+**Pré-condições:**
+
+- O usuário deve estar autenticado.
+- O administrador deve possuir permissão para gerenciar estoque ou o funcionário deve possuir permissão para consulta.
+
+**Fluxo principal:**
+
+1. O usuário acessa o módulo de estoque.
+2. O sistema apresenta as quantidades disponíveis por produto e variação.
+3. O usuário pode consultar os registros de movimentação de estoque.
+4. O administrador pode realizar as operações de controle de estoque autorizadas.
+5. O sistema registra as movimentações realizadas.
+6. O sistema atualiza as quantidades correspondentes.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Estoque mínimo atingido:** quando a quantidade de uma variação atingir o estoque mínimo definido, o sistema apresenta um alerta.
+- **FA02 — Produto sem estoque:** quando a quantidade disponível for zero, o sistema informa a indisponibilidade da variação para venda.
+
+**Pós-condições:**
+
+- As quantidades de estoque permanecem atualizadas.
+- As movimentações realizadas ficam registradas para consulta.
+
+**Observação:** A definição de quais movimentações poderão ser lançadas manualmente pelo administrador ainda deverá ser validada.
+
+## 9.3 UC03 — REGISTRAR COMPRA DE MERCADORIAS
+
+**Ator principal:** Administrador
+
+**Objetivo:** Permitir o registro das compras de mercadorias realizadas para abastecimento da loja.
+
+**Pré-condições:**
+
+- O administrador deve estar autenticado.
+- Os produtos ou variações adquiridos devem estar cadastrados ou serem cadastrados durante o processo, conforme regra definida.
+
+**Fluxo principal:**
+
+1. O administrador acessa a funcionalidade de registro de compras.
+2. O administrador inicia uma nova compra.
+3. O administrador informa a data da compra.
+4. O administrador seleciona os produtos ou variações adquiridos.
+5. O administrador informa as quantidades e os valores unitários.
+6. O sistema calcula os subtotais dos itens.
+7. O sistema calcula o valor total da compra.
+8. O administrador confirma o registro.
+9. O sistema registra a compra.
+10. O sistema registra a entrada correspondente no estoque.
+11. O sistema apresenta a confirmação da operação.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Dados inválidos:** o sistema solicita a correção dos dados antes da confirmação.
+- **FA02 — Produto não cadastrado:** o sistema impede a associação do item até que o produto seja cadastrado ou que seja definida uma forma autorizada de inclusão.
+
+**Pós-condições:**
+
+- A compra é registrada.
+- Os itens adquiridos são associados à compra.
+- O estoque é atualizado com as quantidades adquiridas.
+
+## 9.4 UC04 — REGISTRAR VENDA
+
+**Atores principais:** Administrador e Funcionário
+
+**Objetivo:** Permitir o registro e a conclusão das vendas realizadas pela loja.
+
+**Pré-condições:**
+
+- O usuário deve estar autenticado.
+- Os produtos ou variações vendidos devem estar cadastrados e disponíveis.
+- O usuário deve possuir permissão para registrar vendas.
+
+**Fluxo principal:**
+
+1. O usuário acessa a funcionalidade de vendas.
+2. O usuário inicia uma nova venda.
+3. O sistema permite selecionar um cliente cadastrado ou registrar um novo cliente, quando necessário.
+4. O usuário seleciona os produtos e suas respectivas variações.
+5. O usuário informa as quantidades.
+6. O sistema verifica a disponibilidade dos itens em estoque.
+7. O sistema calcula o subtotal da venda.
+8. O usuário informa o desconto, quando aplicável.
+9. O sistema calcula o valor total da venda.
+10. O usuário seleciona a forma de pagamento.
+11. O sistema apresenta o resumo da venda.
+12. O usuário confirma a operação.
+13. O sistema registra a venda.
+14. O sistema atualiza o estoque, registrando a saída correspondente.
+15. O sistema apresenta a confirmação da venda.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Venda sem cliente cadastrado:** o usuário pode concluir a venda sem associá-la a um cliente, quando permitido pelas regras do sistema.
+- **FA02 — Venda a prazo (fiado):** caso a forma de pagamento selecionada seja “Fiado”, o sistema exige a identificação do cliente e registra o débito correspondente.
+- **FA03 — Estoque insuficiente:** caso a quantidade solicitada seja superior à quantidade disponível, o sistema impede a conclusão da venda e informa a indisponibilidade.
+- **FA04 — Desconto:** caso seja aplicado desconto, o sistema recalcula o valor total antes da conclusão. A autorização para aplicação do desconto ainda deverá ser validada.
+- **FA05 — Dados inválidos:** o sistema impede a conclusão enquanto houver informações obrigatórias ausentes ou inválidas.
+
+**Pós-condições:**
+
+- A venda é registrada.
+- Os itens vendidos são associados à venda.
+- O estoque é atualizado.
+- Caso a venda seja realizada a prazo, um débito é registrado para o cliente.
+
+**Regra relacionada:** As vendas não poderão ser canceladas. Eventuais correções deverão ser tratadas por meio do processo de troca, conforme as regras definidas pela loja.
+
+## 9.5 UC05 — GERENCIAR CLIENTES
+
+**Atores principais:** Administrador e Funcionário
+
+**Objetivo:** Permitir o cadastro, consulta e atualização dos dados básicos dos clientes e o acompanhamento de seu histórico de compras.
+
+**Pré-condições:**
+
+- O usuário deve estar autenticado.
+- O usuário deve possuir permissão para acessar os dados de clientes.
+
+**Fluxo principal:**
+
+1. O usuário acessa o módulo de clientes.
+2. O sistema apresenta os clientes cadastrados.
+3. O usuário pode pesquisar e consultar um cliente.
+4. O usuário pode cadastrar um novo cliente, conforme sua permissão.
+5. O usuário informa ou altera os dados permitidos.
+6. O sistema valida os dados.
+7. O sistema registra a operação.
+8. O usuário pode consultar o histórico de compras do cliente.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Cliente não encontrado:** o sistema informa que não foi localizado cadastro correspondente à pesquisa.
+- **FA02 — Dados inválidos:** o sistema solicita a correção das informações.
+- **FA03 — Permissão insuficiente:** o sistema impede operações não autorizadas para o perfil do usuário.
+
+**Pós-condições:**
+
+- Os dados do cliente são registrados ou atualizados.
+- O histórico de compras permanece associado ao cliente.
+
+## 9.6 UC06 — GERENCIAR CLIENTES COM DÉBITOS
+
+**Atores principais:** Administrador e Funcionário
+
+**Objetivo:** Permitir a consulta e o acompanhamento dos débitos de clientes decorrentes de vendas realizadas a prazo.
+
+**Pré-condições:**
+
+- O usuário deve estar autenticado.
+- O usuário deve possuir permissão para consultar ou editar informações de débitos.
+
+**Fluxo principal:**
+
+1. O usuário acessa a área de clientes com débitos.
+2. O sistema apresenta os clientes que possuem valores pendentes.
+3. O usuário seleciona um cliente.
+4. O sistema apresenta os débitos associados ao cliente.
+5. O usuário consulta o valor original e o valor pendente.
+6. Quando autorizado, o usuário registra um pagamento.
+7. O sistema atualiza o valor pendente.
+8. Caso o débito seja totalmente quitado, o sistema atualiza seu status para quitado.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Débito quitado:** o sistema informa que não há valor pendente para o débito selecionado.
+- **FA02 — Pagamento parcial:** o sistema registra o pagamento e mantém o saldo restante como pendente.
+- **FA03 — Valor de pagamento inválido:** o sistema impede o registro de valor inválido ou superior ao saldo permitido.
+
+**Pós-condições:**
+
+- O pagamento é registrado, quando realizado.
+- O valor pendente do débito é atualizado.
+- O débito é marcado como quitado quando seu saldo chega a zero.
+
+**Regra relacionada:** Os débitos não possuem prazo de vencimento definido, permanecendo pendentes até sua quitação.
+
+## 9.7 UC07 — REGISTRAR TROCA
+
+**Atores principais:** Administrador e Funcionário
+
+**Objetivo:** Permitir o registro de trocas realizadas pelos clientes, respeitando as condições estabelecidas pela loja e atualizando o estoque correspondente.
+
+**Pré-condições:**
+
+- O usuário deve estar autenticado.
+- O usuário deve possuir permissão para realizar ou editar registros de troca.
+- A venda original deve ser identificável.
+- O produto apresentado deve atender às condições estabelecidas para troca.
+
+**Fluxo principal:**
+
+1. O usuário acessa a funcionalidade de trocas.
+2. O usuário identifica a venda relacionada à troca.
+3. O usuário identifica o produto ou variação devolvido.
+4. O sistema verifica as condições da troca.
+5. O usuário registra o produto fornecido em substituição.
+6. O sistema registra os itens envolvidos na troca.
+7. O sistema atualiza o estoque de acordo com a operação.
+8. O sistema registra a troca.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Prazo excedido:** caso tenham se passado mais de 30 dias, o sistema impede a troca.
+- **FA02 — Ausência de etiqueta:** caso o produto não possua a etiqueta exigida, a troca não é autorizada.
+- **FA03 — Produto manchado ou lavado:** caso o produto não atenda às condições estabelecidas, a troca não é autorizada.
+- **FA04 — Produto danificado em venda a prazo:** caso o dano tenha sido causado pelo cliente em produto adquirido a prazo, deverá ser aplicado o procedimento definido pela loja para cobrança, não sendo considerada uma troca.
+
+**Pós-condições:**
+
+- A troca é registrada, quando autorizada.
+- O estoque é atualizado conforme os produtos devolvidos e fornecidos.
+
+**Pendências de validação:** regras para diferença de preço, troca por produto de outra categoria, motivo da troca e comportamento exato do estoque ainda deverão ser validadas.
+
+## 9.8 UC08 — ATUALIZAR ESTOQUE
+
+**Ator principal:** Sistema
+
+**Objetivo:** Atualizar automaticamente as quantidades disponíveis em estoque a partir das operações que geram movimentações de entrada ou saída de produtos.
+
+**Pré-condições:**
+
+- A operação que originou a movimentação deve estar sendo concluída.
+- O produto ou sua variação deve estar cadastrado no sistema.
+
+**Fluxo principal:**
+
+1. O sistema identifica a operação que originou a movimentação.
+2. O sistema identifica o produto ou a variação de produto envolvida.
+3. O sistema identifica a quantidade a ser movimentada.
+4. O sistema determina o tipo de movimentação:
+   - **Entrada**, em operações de compra ou devolução decorrente de troca;
+   - **Saída**, em operações de venda ou troca de produto.
+5. O sistema atualiza a quantidade disponível em estoque.
+6. O sistema registra a movimentação de estoque.
+7. O sistema verifica se a quantidade resultante atingiu o estoque mínimo definido.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Estoque insuficiente:** caso uma operação de saída resulte em quantidade inferior à disponível, o sistema deverá impedir a movimentação e informar a indisponibilidade do produto.
+- **FA02 — Estoque mínimo:** caso a quantidade resultante seja igual ou inferior ao estoque mínimo, o sistema deverá sinalizar a necessidade de reposição.
+
+**Pós-condições:**
+
+- A quantidade disponível do produto ou variação está atualizada.
+- A movimentação correspondente está registrada no histórico do estoque.
+
+## 9.9 UC09 — GERENCIAR DESPESAS
+
+**Ator principal:** Administrador
+
+**Objetivo:** Permitir o registro e a consulta das despesas relacionadas à operação da loja.
+
+**Pré-condições:**
+
+- O administrador deve estar autenticado.
+- O administrador deve possuir permissão para gerenciamento de despesas.
+
+**Fluxo principal:**
+
+1. O administrador acessa o módulo de despesas.
+2. O administrador inicia o registro de uma despesa.
+3. O administrador informa a descrição, valor, data e categoria da despesa.
+4. O sistema valida as informações.
+5. O administrador confirma o registro.
+6. O sistema registra a despesa.
+7. O administrador pode consultar as despesas registradas.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Dados inválidos:** o sistema solicita a correção das informações.
+- **FA02 — Categoria não definida:** o sistema impede ou solicita a classificação da despesa conforme a regra definida.
+
+**Pós-condições:**
+
+- A despesa é registrada e fica disponível para consulta e utilização nos indicadores financeiros.
+
+**Pendência de validação:** as categorias de despesas ainda deverão ser definidas pelas responsáveis pela loja.
+
+## 9.10 UC10 — CONSULTAR DASHBOARD
+
+**Ator principal:** Administrador
+
+**Objetivo:** Permitir ao administrador visualizar indicadores gerenciais consolidados sobre a operação da loja.
+
+**Pré-condições:**
+
+- O administrador deve estar autenticado.
+- O administrador deve possuir permissão de acesso ao dashboard.
+
+**Fluxo principal:**
+
+1. O administrador acessa o dashboard.
+2. O sistema consulta os dados registrados.
+3. O sistema apresenta os indicadores disponíveis.
+4. O administrador consulta as informações gerenciais.
+
+**Informações previstas:**
+
+- histórico das vendas do dia;
+- vendas do período;
+- lucro do mês;
+- produtos mais vendidos;
+- produtos com estoque baixo.
+
+**Pós-condições:**
+
+- Nenhuma informação operacional é alterada pela consulta.
+
+**Pendência de validação:** as fórmulas e critérios utilizados para cálculo de vendas, despesas e lucro ainda deverão ser definidos.
+
+## 9.11 UC11 — CONSULTAR RELATÓRIOS
+
+**Ator principal:** Administrador
+
+**Objetivo:** Permitir a consulta de informações consolidadas para acompanhamento da operação da loja.
+
+**Pré-condições:**
+
+- O administrador deve estar autenticado.
+- O administrador deve possuir permissão de acesso aos relatórios.
+
+**Fluxo principal:**
+
+1. O administrador acessa o módulo de relatórios.
+2. O sistema apresenta os tipos de informações disponíveis.
+3. O administrador seleciona o relatório desejado.
+4. O sistema consulta os dados correspondentes.
+5. O sistema apresenta as informações consolidadas.
+
+**Informações previstas:**
+
+- vendas;
+- produtos;
+- estoque;
+- informações financeiras.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Período sem dados:** caso não existam registros para o período selecionado, o sistema informa que não há dados disponíveis.
+
+**Pós-condições:**
+
+- Nenhum dado operacional é alterado pela consulta.
+
+**Pendência de validação:** os tipos de relatórios, filtros e formatos de apresentação ainda deverão ser definidos.
+
+## 9.12 UC12 — AUTENTICAR USUÁRIO
+
+**Atores principais:** Administrador e Funcionário
+
+**Objetivo:** Permitir que usuários autorizados acessem o sistema de acordo com seu perfil e suas permissões.
+
+**Pré-condições:**
+
+- O usuário deve possuir uma conta cadastrada.
+- A conta deve estar ativa.
+
+**Fluxo principal:**
+
+1. O usuário acessa a tela de autenticação.
+2. O sistema solicita as credenciais.
+3. O usuário informa suas credenciais.
+4. O sistema valida os dados.
+5. O sistema identifica o perfil e as permissões do usuário.
+6. O sistema permite o acesso às funcionalidades autorizadas.
+
+**Fluxos alternativos e exceções:**
+
+- **FA01 — Credenciais inválidas:** o sistema informa que as credenciais não são válidas e impede o acesso.
+- **FA02 — Usuário inativo:** o sistema impede o acesso à conta.
+- **FA03 — Campos obrigatórios não preenchidos:** o sistema solicita o preenchimento das credenciais.
+
+**Pós-condições:**
+
+- O usuário autenticado obtém acesso às funcionalidades permitidas para seu perfil.

@@ -39,7 +39,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          # O nome do repositório Git contém maiúsculas, mas nomes de imagens
+          # no GHCR devem estar em letras minúsculas.
+          images: ghcr.io/anne-cgm/sistema-de-gestao-comercial-estrela-modas
           tags: |
             type=raw,value=latest
             type=sha
