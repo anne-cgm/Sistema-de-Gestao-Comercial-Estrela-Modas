@@ -1,0 +1,31 @@
+# Orquestração
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: estrela-modas:0.1.0
+
+    env_file:
+      - ./backend/.env
+    
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    
+    ports:
+      - "8000:8000"
+    
+    command: python manage.py runserver 0.0.0.0:8000
+
+# services: define o serviços que serão executados
+# web:nome que demos ao serviço Django.
+# build: indica que a imagem será construída usando o Dockerfile.
+# context: indica que a pasta atual será utilizada como contexto 
+# image: define o nome e a tag da imagem.
+# env_file: carrega as variáveis do arquivo .env
+# environment: define variáveis adicionais
+# ports: conecta a porta 8000 do computador à porta 8000 do container
+# command: define como iniciar o Django 

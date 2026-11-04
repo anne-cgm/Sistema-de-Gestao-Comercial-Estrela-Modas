@@ -157,12 +157,17 @@ O projeto está sendo desenvolvido seguindo uma abordagem de desenvolvimento ág
 | Camada | Tecnologia | Versão / Observação |
 | --- | --- | --- |
 | **Linguagem Backend** | Python | 3.14 (identificado via `.pyc`)[cite: 1] |
-| **Framework Backend** | Django | Estrutura `settings.py` / `urls.py`[cite: 1] |
-| **Frontend** | HTML5 / JavaScript (Vanilla) | Páginas estáticas e scripts de interface[cite: 1] |
-| **Banco de Dados** | SQLite | `db.sqlite3`[cite: 1] |
+| **Framework Backend** | Django | Estrutura `settings.py` / `urls.py` (Versão 6.1.3) [cite: 1] |
+| **Frontend** | HTML5/CSS3/JavaScript (Vanilla) | Páginas e scripts de interface[cite: 1] |
+| **Banco de Dados** | PostgreSQL | Hospedado na plataforma Neon [cite: 1] |
+| **Acesso ao Banco** | psycopg | Driver de conexão com PostgreSQL [cite: 1] |
+| **Configuração do Banco** | dj-database-url | Leitura da URL de conexão[cite: 1] |
 | **Gerenciador de Pacotes** | npm (Node.js) | `package-lock.json` / `node_modules`[cite: 1] |
+| **Gerenciador de Dependências Python** | pip | `requirements.txt` [cite: 1] |
+| **Containerização** | Docker | Criação e execução de contêineres para a aplicação [cite: 1] |
+| **Orquestração de Contêineres** | Docker Compose | Configuração e gerenciamento dos serviços da aplicação [cite: 1] |
 | **CI/CD & Automação** | GitHub Actions | Workflows de integração contínua (`ci.yml`)[cite: 1] |
-| **Controle de Versão** | Git | —[cite: 1] |
+| **Controle de Versão** | Git | — [cite: 1] |
 
 ---
 
@@ -170,10 +175,12 @@ O projeto está sendo desenvolvido seguindo uma abordagem de desenvolvimento ág
 
 O sistema adota uma arquitetura em **camadas bem definidas**, garantindo o desacoplamento entre a interface de usuário, as regras de negócio e a persistência de dados. O fluxo de comunicação é síncrono e baseado no protocolo HTTP/HTTPS, onde a camada de apresentação consome uma API REST exposta pelo servidor backend.
 
+O backend é executado em um container Docker, gerenciado pelo Docker Compose, enquanto o banco de dados PostgreSQL permanece hospedado externamente na plataforma Neon. Essa configuração permite organizar e padronizar o ambiente de execução da aplicação.
+
 ### Camadas do Sistema
 
 1. **Camada de Apresentação (Frontend):**
-   * Desenvolvida em **HTML5 e JavaScript Vanilla**, sendo responsável por renderizar a interface e interagir com o usuário.
+   * Desenvolvida em **HTML5, CSS3 e JavaScript Vanilla**, sendo responsável por renderizar a interface e interagir com o usuário.
    * Contém telas estruturadas para fluxos específicos, tais como autenticação (`login.html`), painel principal (`dashboard.html`), gerenciamento de utilizadores (`users.html`), produtos (`products.html`), clientes (`customers.html`) e vendas (`sales.html`)[cite: 1].
    * Consome as rotas do backend através de requisições HTTP (API REST).
 
@@ -181,10 +188,12 @@ O sistema adota uma arquitetura em **camadas bem definidas**, garantindo o desac
    * Desenvolvida em **Python** utilizando o framework **Django**[cite: 1].
    * O módulo `config` centraliza as definições do projeto (`settings.py`) e a estrutura de rotas (`urls.py`)[cite: 1].
    * Processa as requisições HTTP recebidas, executa as validações e regras de negócio do sistema e coordena a comunicação com o banco de dados.
+   * Executada em um container Docker, cuja configuração é definida pelo (`Dockerfile`) e gerenciada pelo Docker Compose. 
 
 3. **Camada de Persistência (Banco de Dados):**
-   * Utiliza o banco de dados relacional **SQLite** (`db.sqlite3`)[cite: 1].
+   * Utiliza o banco de dados relacional **PostgreSQL**, hospedado na plataforma Neon.
    * Armazena os dados do sistema, incluindo utilizadores, produtos, clientes e histórico de vendas.
+   * A conexão com o banco é realizada pelo backend por meio da variável de ambiente (`DATABASE_URL`)
 
 ---
 
@@ -200,24 +209,38 @@ O diagrama detalhado da arquitetura e o modelo de entidades encontram-se dispon�
       ▼
 ┌─────────────────────────────────────────┐
 │       Apresentação (Frontend)           │
-│  HTML / JS (login, dashboard, etc.)     │[cite: 1]
+│       HTML / CSS / JavaScript           |
+|       (login, dashboard, etc.)          │[cite: 1]
 └────────────────────┬────────────────────┘
                      │  Requisições HTTP / REST API
                      ▼
 ┌─────────────────────────────────────────┐
-│     Aplicação & Negócio (Backend)       │
+│            Container Docker             |
+|                                         |
+|     Aplicação & Negócio (Backend)       │
 │      Django (urls.py / settings.py)     │[cite: 1]
 └────────────────────┬────────────────────┘
                      │  ORM / Consultas SQL
+                     |  Conexão via DATABASE_URL
                      ▼
 ┌─────────────────────────────────────────┐
 │       Persistência (Banco)              │
-│       SQLite3 (db.sqlite3)              │[cite: 1]
+│       PostgreSQL - Neon                 |
+|       (Hospedagem externa)              |
 └─────────────────────────────────────────┘
+
 **Decisões relevantes:**
 
-- [Ex.: uso de API REST para separar cliente e servidor.]
-- [Ex.: persistência relacional porque os dados possuem relacionamentos bem definidos.]
+- Uso de uma arquitetura em camadas para separar a interface, o processamento das regras de negócio e a persistência dos dados.
+
+- Utilização de banco de dados relacional PostgreSQL, considerando os relacionamentos entre os dados do sistema.
+
+- Hospedagem do banco de dados na plataforma Neon, mantendo a persistência separada do ambiente de execução da aplicação.
+
+- Utilização de Docker para padronizar o ambiente de execução do backend.
+
+- Utilização de Docker Compose para configurar e iniciar o container da aplicação, incluindo as variáveis de ambiente e o mapeamento de portas.
+
 
 ### Endpoints principais (quando houver API)
 
@@ -236,39 +259,134 @@ Documentação completa da API: docs/api.md
 
 ## 6. Organização dos diretórios
 
+A estrutura do projeto está organizada em diretórios que separam as configurações do Django, a aplicação, a interface, os testes, a documentação e os arquivos de infraestrutura. Essa organização facilita a manutenção e o desenvolvimento do sistema.
+
 ```text
 .
-├── README.md                 # Documentação principal do projeto
-├── .env.example              # Modelo de variáveis de ambiente (sem segredos)
-├── docs/                     # Modelagem e demais artefatos técnicos (PDF)
-│   ├── README.pdf            # Índice da pasta docs/
-│   └── modelagem/
-│       ├── casos-de-uso/
-│       │   └── especificacoes-casos-de-uso.pdf
-│       ├── classes/
-│       │   └── diagrama-de-classes.pdf
-│       └── banco-de-dados/
-│           ├── diagrama-er.pdf
-│           └── modelo-logico.pdf
-├── images/                   # Figuras da documentação geral (ex.: política de IA)
-├── src/                      # Código-fonte da aplicação
-│   ├── frontend/             # Interface com o usuário (quando houver)
-│   └── backend/              # Regras de negócio, API e acesso a dados (quando houver)
-├── tests/                    # Testes automatizados
-└── scripts/                  # Scripts auxiliares de setup, build ou deploy
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── backend/
+│   └── db.sqlite3
+├── config/
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── docs/
+│   ├── api/
+│   │   └── contrato-api.md
+│   ├── arquitetura/
+│   │   ├── arquitetura.drawio
+│   │   ├── arquitetura.drawio.png
+│   │   ├── arquitetura.md
+│   │   ├── integracao.md
+│   │   └── integracoes.md
+│   ├── banco-de-dados/
+│   │   ├── image.png
+│   │   ├── modelo-dados.md
+│   │   └── modelo-er.mwb
+│   ├── casos-de-uso/
+│   │   ├── Diagrama Caso Uso Loja.asta
+│   │   ├── diagrama-casos-de-uso.png
+│   │   └── especificacao-do-caso-de-uso
+│   ├── planejamento/
+│   │   ├── backlog.md
+│   │   ├── planejamento-fase-1.md
+│   │   └── riscos.md
+│   ├── requisitos/
+│   │   ├── levantamento.md
+│   │   ├── regras-de-negocio.md
+│   │   ├── requisitos-funcionais.md
+│   │   ├── requisitos-nao-funcionais.md
+│   │   └── retricoes.md
+│   ├── visao/
+│   │   └── documento-de-visao.md
+│   └── PADROES.md
+├── estrela_modas/
+│   ├── migrations/
+│   │   ├── 0001_initial.py
+│   │   └── __init__.py
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── frontend/
+│   ├── static/
+│   │   └── estrela_modas/
+│   │       ├── cadastro_produto.js
+│   │       ├── clientes.js
+│   │       ├── compras.js
+│   │       ├── dashboard.js
+│   │       ├── debitos.js
+│   │       ├── estoque.js
+│   │       ├── login.js
+│   │       ├── mais_opcoes.js
+│   │       ├── nova_venda.js
+│   │       ├── produtos.js
+│   │       ├── relatorios.js
+│   │       └── shared.js
+│   └── templates/
+│       └── estrela_modas/
+│           ├── cadastro_produto.html
+│           ├── clientes.html
+│           ├── compras.html
+│           ├── dashboard.html
+│           ├── debitos.html
+│           ├── estoque.html
+│           ├── index.html
+│           ├── login.html
+│           ├── mais_opcoes.html
+│           ├── nova_venda.html
+│           ├── produtos.html
+│           ├── registro.html
+│           └── relatorios.html
+├── tests/
+│   ├── build.js
+│   └── script.test.js
+├── .dockerignore
+├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
+├── manage.py
+├── package.json
+├── package-lock.json
+├── README.md
+└── requirements.txt
 ```
 
 | Diretório / arquivo | Função |
 | --- | --- |
-| `README.md` | Apresentação do projeto, objetivos, tecnologias e instruções de uso |
-| `.env.example` | Lista das variáveis necessárias, sem credenciais reais |
-| `docs/` | Artefatos de análise e modelagem em PDF |
-| `docs/modelagem/` | Casos de uso, classes e modelo de dados (diagramas embutidos nos PDFs) |
-| `images/` | Figuras da documentação geral do repositório (não usar para diagramas de modelagem) |
-| `src/` | Código-fonte organizado por camada ou módulo |
-| `tests/` | Casos de teste e evidências de verificação |
-| `scripts/` | Automação de ambiente e execução |
-
+| `.github/workflows/` | Armazena os workflows de automação do GitHub Actions. |
+| `backend/` | Contém arquivos relacionados ao ambiente do backend e o banco SQLite local (`db.sqlite3`). |
+| `config/` | Reúne as configurações centrais do Django, incluindo configurações gerais, rotas e interfaces WSGI e ASGI. |
+| `docs/` | Armazena a documentação técnica e os artefatos de desenvolvimento do projeto. |
+| `docs/api/` | Contém o contrato e a documentação da API. |
+| `docs/arquitetura/` | Reúne diagramas, documentos de arquitetura e especificações de integração. |
+| `docs/banco-de-dados/` | Armazena modelos e diagramas relacionados à estrutura do banco de dados. |
+| `docs/casos-de-uso/` | Contém diagramas e especificações dos casos de uso do sistema. |
+| `docs/planejamento/` | Reúne o backlog, o planejamento das fases e o registro de riscos do projeto. |
+| `docs/requisitos/` | Armazena os documentos de levantamento, regras de negócio e requisitos funcionais e não funcionais. |
+| `docs/visao/` | Contém o documento de visão do projeto. |
+| `estrela_modas/` | Contém a aplicação Django, incluindo modelos, formulários, visualizações, rotas, testes e configurações administrativas. |
+| `estrela_modas/migrations/` | Armazena as migrações responsáveis por registrar alterações na estrutura do banco de dados. |
+| `frontend/static/estrela_modas/` | Contém os arquivos JavaScript responsáveis pelas funcionalidades e interações da interface. |
+| `frontend/templates/estrela_modas/` | Armazena os templates HTML das telas do sistema. |
+| `tests/` | Reúne arquivos de testes e verificações relacionadas ao projeto. |
+| `.dockerignore` | Define os arquivos e diretórios que não devem ser enviados para a construção da imagem Docker. |
+| `.gitignore` | Define os arquivos e diretórios que não devem ser versionados pelo Git. |
+| `Dockerfile` | Define as instruções para construir a imagem Docker da aplicação. |
+| `docker-compose.yml` | Configura e gerencia a inicialização do ambiente da aplicação. |
+| `manage.py` | Permite executar comandos administrativos do Django. |
+| `package.json` | Contém as informações e configurações das dependências Node.js. |
+| `package-lock.json` | Registra as versões das dependências Node.js instaladas. |
+| `requirements.txt` | Lista as dependências Python necessárias para a aplicação. |
+| `README.md` | Apresenta o projeto, suas tecnologias e instruções de utilização. |
 ---
  
 ## 7. Participantes
@@ -286,107 +404,177 @@ Documentação completa da API: docs/api.md
 
 ## 8. Como executar
 
-Siga as instruções abaixo para configurar e executar o projeto localmente.
+### 8.1. Pré-requisitos
 
-### Pré-requisitos
+Antes de executar o projeto, é necessário ter instalado:
 
-- **Git**
-- **Python 3.14+**
-- **Node.js** e **npm**
+- Git;
+- Python 3.14 ou superior;
+- Docker Desktop com Docker Compose (para execução com contêineres).
 
----
+Também é necessário possuir o arquivo `backend/.env`, configurado com as variáveis de ambiente exigidas pela aplicação.
 
-### Instalação e execução
+### 8.2. Execução com Docker Compose (recomendada)
 
-```bash
-# 1. Clonar o repositório
-git clone <URL_DO_REPOSITORIO>
-cd <NOME_DA_PASTA>
+O Docker Compose permite configurar e executar a aplicação em um ambiente padronizado, utilizando as configurações definidas no `Dockerfile` e no `docker-compose.yml`.
 
-# 2. Configurar o ambiente virtual do Python e instalar dependências do Backend
-python -m venv venv
-
-# No Linux/macOS:
-source venv/bin/activate
-# No Windows (Command Prompt):
-# venv\Scripts\activate
-
-# 3. Instalar dependências do Frontend/Node.js
-npm install[cite: 1]
-
-# 4. Executar as migrações do banco de dados (SQLite)
-python backend/manage.py migrate[cite: 1]
-
-# 5. Executar a aplicação (Servidor Django)
-python backend/manage.py runserver[cite: 1]
-
-### Pré-requisitos
-
-- [Ex.: Git]
-- [Ex.: Python 3.12+]
-- [Ex.: Node.js 20+]
-- [Ex.: Docker]
-
-### Instalação e execução
+**1. Clone o repositório:**
 
 ```bash
-# 1. Clonar o repositório
-git clone [URL_DO_REPOSITORIO]
-cd [NOME_DA_PASTA]
-
-# 2. Instalar dependências
-[comando de instalação]
-
-# 3. Configurar variáveis de ambiente
-cp .env.example .env
-# edite o arquivo .env com as credenciais locais
-
-# 4. Executar a aplicação
-[comando de execução]
+git clone <https://github.com/anne-cgm/Sistema-de-Gestao-Comercial-Estrela-Modas.git>
+cd <Sistema-de-Gestao-Comercial-Estrela-Modas>
 ```
 
-**Acesso local:** 
+**2. Verifique se o arquivo `backend/.env` está configurado.**
 
- - Backend / API: http://127.0.0.1:8000
+Esse arquivo contém as variáveis necessárias para a execução da aplicação e a conexão com o banco de dados PostgreSQL hospedado na Neon.
 
- - Frontend: Abra os arquivos HTML da pasta frontend/ (como frontend/login.html ou frontend/dashboard.html) diretamente no navegador ou utilize uma extensão de servidor estático (como o Live Server do VS Code)
+**3. Construa a imagem e inicie o contêiner:**
 
-### Implantação 
+```bash
+docker compose up --build -d
+```
 
-- **Ambiente:** GitHub Actions / GitHub Pages 
-- **URL de produção:** (https://github.com/anne-cgm/Sistema-de-Gestao-Comercial-Estrela-Modas)
-- **Observações:** O projeto possui pipeline de CI/CD configurada no GitHub Actions via `.github/workflows/ci.yml`. Para ambiente de produção em nuvem (ex.: Render, Railway ou Vercel), é necessário configurar as variáveis de ambiente e ajustar as permissões de CORS no Django (`settings.py`)
+**4. Execute as migrações do banco de dados:**
+
+```bash
+docker compose exec web python manage.py migrate
+```
+
+**5. Verifique se o contêiner está em execução:**
+
+```bash
+docker compose ps
+```
+
+**6. Acesse a aplicação pelo navegador:**
+
+```text
+http://localhost:8000
+```
+
+#### Comandos úteis do Docker Compose
+
+| Comando | Descrição |
+|---|---|
+| `docker compose up -d` | Inicia os contêineres em segundo plano |
+| `docker compose up --build -d` | Reconstrói a imagem e inicia os contêineres |
+| `docker compose ps` | Lista os contêineres em execução |
+| `docker compose logs -f web` | Exibe os logs da aplicação em tempo real |
+| `docker compose down` | Para e remove os contêineres |
+| `docker compose build` | Constrói a imagem da aplicação |
+
+### 8.3. Execução sem Docker (alternativa)
+
+Também é possível executar a aplicação diretamente no ambiente local, utilizando Python e Django, sem a necessidade de Docker.
+
+**1. Clone o repositório:**
+
+```bash
+git clone <https://github.com/anne-cgm/Sistema-de-Gestao-Comercial-Estrela-Modas.git>
+cd <Sistema-de-Gestao-Comercial-Estrela-Modas>
+```
+
+**2. Crie um ambiente virtual Python:**
+
+```bash
+python -m venv venv
+```
+
+**3. Ative o ambiente virtual:**
+
+No Windows (PowerShell):
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+No Linux ou macOS:
+
+```bash
+source venv/bin/activate
+```
+
+**4. Instale as dependências do projeto:**
+
+```bash
+pip install -r requirements.txt
+```
+
+**5. Verifique se o arquivo `backend/.env` está configurado.**
+
+As variáveis `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS` e `DATABASE_URL` são necessárias para a configuração da aplicação e conexão com o banco de dados.
+
+**6. Execute as migrações:**
+
+```bash
+python manage.py migrate
+```
+
+**7. Inicie o servidor de desenvolvimento:**
+
+```bash
+python manage.py runserver
+```
+
+**8. Acesse a aplicação pelo navegador:**
+
+```text
+http://127.0.0.1:8000
+```
+
+> **Observação:** Nas duas formas de execução, a aplicação utiliza o PostgreSQL hospedado na Neon. Portanto, é necessário ter o arquivo `backend/.env` corretamente configurado e acesso à internet para estabelecer a conexão com o banco de dados.
 
 ## 9. Configuração
 
-O sistema utiliza variáveis de ambiente para gerenciar as configurações do framework Django e as conexões da aplicação. As variáveis abaixo devem ser definidas em um arquivo `.env` na raiz do projeto (não versionado):
+O sistema utiliza variáveis de ambiente para gerenciar as configurações do framework Django e a conexão com o banco de dados PostgreSQL hospedado na plataforma Neon.
+
+As variáveis devem ser definidas no arquivo `backend/.env`, que é utilizado pelo Docker Compose durante a inicialização da aplicação. Esse arquivo não deve ser versionado no repositório, pois contém informações sensíveis.
 
 | Variável | Obrigatória | Descrição | Exemplo |
 | --- | --- | --- | --- |
-| `SECRET_KEY` | Sim | Chave secreta de segurança do Django | `django-insecure-chave-secreta-aqui` |
-| `DEBUG` | Sim | Ativa/desativa o modo de depuração (`True` para dev, `False` para prod) | `True` |
-| `ALLOWED_HOSTS` | Sim | Lista de hosts/domínios permitidos para servir a aplicação | `localhost,127.0.0.1` |
-| `DATABASE_URL` | Não | String de conexão com o banco de dados (padrão local: SQLite) | `sqlite:///db.sqlite3`|
-| `PORT` | Não | Porta em que o servidor web irá executar | `8000`|
+| `SECRET_KEY` | Sim | Chave secreta utilizada pelo Django para funções de segurança. | `django-insecure-chave-secreta-aqui` |
+| `DEBUG` | Sim | Ativa ou desativa o modo de depuração do Django (`True` para desenvolvimento e `False` para produção). | `True` |
+| `ALLOWED_HOSTS` | Sim | Lista de hosts e domínios permitidos para acessar a aplicação. | `localhost,127.0.0.1` |
+| `DATABASE_URL` | Sim | String de conexão com o banco de dados PostgreSQL hospedado no Neon. | `postgresql://usuario:senha@host/banco?sslmode=require` |
 
-*Credenciais reais e chaves secretas devem ficar apenas no arquivo `.env` local e jamais serem commitadas no repositório.*
+### Exemplo de configuração
+
+O arquivo `backend/.env` deve seguir o formato abaixo, substituindo os valores de exemplo pelas configurações correspondentes ao ambiente:
+
+```env
+SECRET_KEY=django-insecure-chave-secreta-aqui
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+DATABASE_URL=postgresql://usuario:senha@host/banco?sslmode=require
+```
+
+**Importante:** as credenciais reais do banco de dados e a chave secreta do Django devem permanecer apenas no arquivo `.env` local. Nunca compartilhe ou versione esse arquivo no GitHub. Para ambientes de produção, utilize variáveis de ambiente configuradas diretamente na plataforma de hospedagem.
 
 ## 10. Testes
 
-Os testes da aplicação cobrem as validações do backend em Django e as rotas de automação configuradas na pipeline de CI/CD via GitHub Actions (`ci.yml`).
+Os testes do projeto verificam funcionalidades do backend desenvolvido em Django e os scripts de teste do frontend. A execução dos testes do backend pode ser realizada por meio do container Docker, enquanto os testes do frontend utilizam as ferramentas configuradas no projeto.
 
-``bash
-# Executar a suíte de testes unitários e de integração do Django
-python backend/manage.py test
+### Execução dos testes
+
+```bash
+# Executar a suíte de testes do Django
+docker compose exec web python manage.py test
+
+# Executar os testes do frontend, caso o script esteja configurado no package.json
+npm test
+```
+
+### Tipos de testes
 
 | Tipo | Ferramenta | O que verifica |
 | --- | --- | --- |
-| Unitários | Django Test Runner/unittest | Regras de negócio, métodos de modelos e validações isoladas do backend |
-| Integração | Django Test Client | Respostas das rotas da API REST, códigos de status HTTP e persistência com o banco SQLite (db.sqlite3) |
-| Automação/CI | GitHub Actions (ci.yml) | Execução automática do build e testes a cada push ou pull request na pipeline |
-| Manuais | Checklist local | Fluxo de navegação e chamadas JS nas páginas estáticas em frontend/ |
+| Backend | Django Test Runner / unittest | Testes das funcionalidades, regras de negócio e validações implementadas no backend. |
+| Frontend | Scripts de teste em JavaScript | Verificações relacionadas aos scripts e funcionalidades do frontend. |
+| Automação/CI | GitHub Actions (`ci.yml`) | Execução automática das etapas de integração contínua configuradas no workflow. |
+| Manuais | Verificação local | Funcionamento da aplicação, navegação entre páginas e interação com as funcionalidades do sistema. |
 
-**Cobertura atual:** A definir / em expansão via suíte nativa do Django.
+**Cobertura atual:** A cobertura de testes está em desenvolvimento e pode ser ampliada conforme novas funcionalidades e testes forem implementados.
 
 ---
 
