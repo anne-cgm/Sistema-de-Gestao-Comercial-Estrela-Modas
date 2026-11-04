@@ -1,3 +1,4 @@
+
 name: CI
 
 on:
@@ -11,26 +12,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Baixa o código do repositório
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      # Configura o Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
 
+      # Instala as dependências do projeto
       - name: Instalar dependências
-        run: npm install- name: Install frontend dependencies
+        run: npm install
+
+      # Instala as dependências do frontend
+      - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm install
 
+      # Executa os testes do frontend
       - name: Run frontend tests
         working-directory: ./frontend
         run: npm test
 
+      # Executa o build
       - name: Executar build
         run: npm run build
 
+      # Executa os testes do projeto
       - name: Executar testes
         run: npm test
