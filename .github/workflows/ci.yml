@@ -22,9 +22,9 @@ jobs:
         with:
           node-version: 24
 
-      # Instala exatamente as dependências registradas no package-lock.json da raiz
+      # Instala as dependências declaradas no package.json da raiz
       - name: Instalar dependências
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       # Executa os testes do projeto (inclui tests/script.test.js)
       - name: Executar testes
