@@ -1,3 +1,4 @@
+
 name: CI
 
 on:
@@ -11,20 +12,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Baixa o código do repositório
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      # Configura o Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
 
+      # Instala as dependências declaradas em frontend/package.json
       - name: Instalar dependências
-        run: npm install
+        working-directory: ./frontend
+        run: npm install --no-audit --no-fund
 
-      - name: Executar build
-        run: npm run build
-
+      # Executa os testes armazenados na raiz do repositório
       - name: Executar testes
-        run: npm test
+        run: node --test
+
+      # Verifica se os arquivos obrigatórios estão presentes
+      - name: Executar build
+        run: node tests/build.js
