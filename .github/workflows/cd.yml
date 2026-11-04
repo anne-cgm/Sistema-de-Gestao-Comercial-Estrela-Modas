@@ -46,7 +46,7 @@ jobs:
           images: ghcr.io/anne-cgm/sistema-de-gestao-comercial-estrela-modas
           tags: |
             type=raw,value=latest
-            type=sha
+            type=raw,value=sha-${{ github.event.workflow_run.head_sha }}
 
       - name: Construir e publicar imagem
         uses: docker/build-push-action@v6
@@ -81,10 +81,10 @@ jobs:
 
       - name: Identificar imagem publicada
         shell: pwsh
+        env:
+          IMAGE_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          $shortSha = (git rev-parse --short=7 HEAD).Trim()
-
-          $image = "ghcr.io/anne-cgm/sistema-de-gestao-comercial-estrela-modas:sha-$shortSha"
+          $image = "ghcr.io/anne-cgm/sistema-de-gestao-comercial-estrela-modas:sha-$env:IMAGE_SHA"
 
           [System.IO.File]::AppendAllText(
             $env:GITHUB_ENV,
