@@ -14,9 +14,13 @@ permissions:
   packages: write
 
 jobs:
+
+  # ETAPA 1: Construir e publicar a imagem
   build-and-publish:
     name: Build and Publish Image
+
     if: github.event.workflow_run.conclusion == 'success'
+
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +32,7 @@ jobs:
       - name: Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Autenticar no GitHub Container Registry
+      - name: Autenticar no GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -39,8 +43,6 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          # O nome do repositório Git contém maiúsculas, mas nomes de imagens
-          # no GHCR devem estar em letras minúsculas.
           images: ghcr.io/anne-cgm/sistema-de-gestao-comercial-estrela-modas
           tags: |
             type=raw,value=latest
@@ -54,3 +56,98 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  # ETAPA 2: Fazer o deploy em homologação
+  deploy-homologacao:
+
+    name: Deploy em Homologação
+
+    needs: build-and-publish
+
+    if: >-
+      needs.build-and-publish.result == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+
+    runs-on: [self-hosted, windows, x64]
+
+    timeout-minutes: 15
+
+    steps:
+
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Identificar imagem publicada
+        shell: pwsh
+        run: |
+          $shortSha = (git rev-parse --short=7 HEAD).Trim()
+
+          $image = "ghcr.io/anne-cgm/sistema-de-gestao-comercial-estrela-modas:sha-$shortSha"
+
+          [System.IO.File]::AppendAllText(
+            $env:GITHUB_ENV,
+            "DOCKER_IMAGE=$image`n",
+            [System.Text.UTF8Encoding]::new($false)
+          )
+
+      - name: Autenticar no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configurar variáveis de ambiente
+        shell: pwsh
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+
+          if ([string]::IsNullOrWhiteSpace($env:SECRET_KEY)) {
+            throw "SECRET_KEY não configurada."
+          }
+
+          if ([string]::IsNullOrWhiteSpace($env:DATABASE_URL)) {
+            throw "DATABASE_URL não configurada."
+          }
+
+          $content = @"
+          SECRET_KEY=$env:SECRET_KEY
+          DEBUG=False
+          ALLOWED_HOSTS=localhost,127.0.0.1
+          DATABASE_URL=$env:DATABASE_URL
+          PORT=8000
+          "@
+
+          $envPath = Join-Path $env:GITHUB_WORKSPACE "backend/.env"
+
+          [System.IO.File]::WriteAllText(
+            $envPath,
+            $content,
+            [System.Text.UTF8Encoding]::new($false)
+          )
+
+      - name: Baixar imagem publicada
+        shell: pwsh
+        run: |
+          docker compose pull web
+
+      - name: Atualizar aplicação
+        shell: pwsh
+        run: |
+          docker compose up -d --no-build --remove-orphans
+
+      - name: Verificar aplicação
+        shell: pwsh
+        run: |
+          docker compose ps
+
+          docker compose exec -T web python manage.py check
+
+      - name: Registrar imagem utilizada
+        shell: pwsh
+        run: |
+          Write-Host "Imagem utilizada: $env:DOCKER_IMAGE"
