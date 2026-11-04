@@ -22,14 +22,15 @@ jobs:
         with:
           node-version: 24
 
-      # Instala as dependências declaradas no package.json da raiz
+      # Instala as dependências declaradas em frontend/package.json
       - name: Instalar dependências
+        working-directory: ./frontend
         run: npm install --no-audit --no-fund
 
-      # Executa os testes do projeto (inclui tests/script.test.js)
+      # Executa os testes armazenados na raiz do repositório
       - name: Executar testes
-        run: npm test
+        run: node --test
 
       # Verifica se os arquivos obrigatórios estão presentes
       - name: Executar build
-        run: npm run build
+        run: node tests/build.js
