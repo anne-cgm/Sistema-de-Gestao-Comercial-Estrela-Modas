@@ -80,7 +80,7 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Identificar imagem publicada
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         env:
           IMAGE_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
@@ -100,7 +100,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configurar variáveis de ambiente
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -131,23 +131,23 @@ jobs:
           )
 
       - name: Baixar imagem publicada
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           docker compose pull web
 
       - name: Atualizar aplicação
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           docker compose up -d --no-build --remove-orphans
 
       - name: Verificar aplicação
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           docker compose ps
 
           docker compose exec -T web python manage.py check
 
       - name: Registrar imagem utilizada
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           Write-Host "Imagem utilizada: $env:DOCKER_IMAGE"
