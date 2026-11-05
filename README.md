@@ -156,18 +156,18 @@ O projeto está sendo desenvolvido seguindo uma abordagem de desenvolvimento ág
 
 | Camada | Tecnologia | Versão / Observação |
 | --- | --- | --- |
-| **Linguagem Backend** | Python | 3.14 (identificado via `.pyc`)[cite: 1] |
-| **Framework Backend** | Django | Estrutura `settings.py` / `urls.py` (Versão 6.1.3) [cite: 1] |
-| **Frontend** | HTML5/CSS3/JavaScript (Vanilla) | Páginas e scripts de interface[cite: 1] |
-| **Banco de Dados** | PostgreSQL | Hospedado na plataforma Neon [cite: 1] |
-| **Acesso ao Banco** | psycopg | Driver de conexão com PostgreSQL [cite: 1] |
-| **Configuração do Banco** | dj-database-url | Leitura da URL de conexão[cite: 1] |
-| **Gerenciador de Pacotes** | npm (Node.js) | `package-lock.json` / `node_modules`[cite: 1] |
-| **Gerenciador de Dependências Python** | pip | `requirements.txt` [cite: 1] |
-| **Containerização** | Docker | Criação e execução de contêineres para a aplicação [cite: 1] |
-| **Orquestração de Contêineres** | Docker Compose | Configuração e gerenciamento dos serviços da aplicação [cite: 1] |
-| **CI/CD & Automação** | GitHub Actions | Workflows de integração contínua (`ci.yml`)[cite: 1] |
-| **Controle de Versão** | Git | — [cite: 1] |
+| **Linguagem Backend** | Python | 3.14 |
+| **Framework Backend** | Django | Estrutura `settings.py` / `urls.py` (versão 6.1.3) |
+| **Frontend** | HTML5/CSS3/JavaScript (Vanilla) | Páginas e scripts de interface |
+| **Banco de Dados** | PostgreSQL | Hospedado na plataforma Neon |
+| **Acesso ao Banco** | psycopg | Driver de conexão com PostgreSQL |
+| **Configuração do Banco** | dj-database-url | Leitura da URL de conexão |
+| **Gerenciador de Pacotes** | npm (Node.js) | Dependências definidas em `frontend/package.json` |
+| **Gerenciador de Dependências Python** | pip | `requirements.txt` |
+| **Containerização** | Docker | Criação e execução de contêineres para a aplicação |
+| **Orquestração de Contêineres** | Docker Compose | Configuração e gerenciamento dos serviços da aplicação |
+| **CI/CD & Automação** | GitHub Actions | Workflows `ci.yml` e `cd.yml` |
+| **Controle de Versão** | Git | — |
 
 ---
 
@@ -181,12 +181,12 @@ O backend é executado em um container Docker, gerenciado pelo Docker Compose, e
 
 1. **Camada de Apresentação (Frontend):**
    * Desenvolvida em **HTML5, CSS3 e JavaScript Vanilla**, sendo responsável por renderizar a interface e interagir com o usuário.
-   * Contém telas estruturadas para fluxos específicos, tais como autenticação (`login.html`), painel principal (`dashboard.html`), gerenciamento de utilizadores (`users.html`), produtos (`products.html`), clientes (`customers.html`) e vendas (`sales.html`)[cite: 1].
+   * Contém telas estruturadas para fluxos específicos, como autenticação, painel principal, gerenciamento de produtos, clientes e vendas.
    * Consome as rotas do backend através de requisições HTTP (API REST).
 
 2. **Camada de Aplicação e Negócio (Backend):**
-   * Desenvolvida em **Python** utilizando o framework **Django**[cite: 1].
-   * O módulo `config` centraliza as definições do projeto (`settings.py`) e a estrutura de rotas (`urls.py`)[cite: 1].
+   * Desenvolvida em **Python** utilizando o framework **Django**.
+   * O módulo `config` centraliza as definições do projeto (`settings.py`) e a estrutura de rotas (`urls.py`).
    * Processa as requisições HTTP recebidas, executa as validações e regras de negócio do sistema e coordena a comunicação com o banco de dados.
    * Executada em um container Docker, cuja configuração é definida pelo (`Dockerfile`) e gerenciada pelo Docker Compose. 
 
@@ -210,7 +210,7 @@ O diagrama detalhado da arquitetura e o modelo de entidades encontram-se dispon�
 ┌─────────────────────────────────────────┐
 │       Apresentação (Frontend)           │
 │       HTML / CSS / JavaScript           |
-|       (login, dashboard, etc.)          │[cite: 1]
+|       (login, dashboard, etc.)          │
 └────────────────────┬────────────────────┘
                      │  Requisições HTTP / REST API
                      ▼
@@ -218,7 +218,7 @@ O diagrama detalhado da arquitetura e o modelo de entidades encontram-se dispon�
 │            Container Docker             |
 |                                         |
 |     Aplicação & Negócio (Backend)       │
-│      Django (urls.py / settings.py)     │[cite: 1]
+│      Django (urls.py / settings.py)     │
 └────────────────────┬────────────────────┘
                      │  ORM / Consultas SQL
                      |  Conexão via DATABASE_URL
@@ -265,7 +265,8 @@ A estrutura do projeto está organizada em diretórios que separam as configura�
 .
 ├── .github/
 │   └── workflows/
-│       └── ci.yml
+│       ├── ci.yml
+│       └── cd.yml
 ├── backend/
 │   └── db.sqlite3
 ├── config/
@@ -317,6 +318,7 @@ A estrutura do projeto está organizada em diretórios que separam as configura�
 │   ├── urls.py
 │   └── views.py
 ├── frontend/
+│   ├── package.json
 │   ├── static/
 │   │   └── estrela_modas/
 │   │       ├── cadastro_produto.js
@@ -354,8 +356,6 @@ A estrutura do projeto está organizada em diretórios que separam as configura�
 ├── Dockerfile
 ├── docker-compose.yml
 ├── manage.py
-├── package.json
-├── package-lock.json
 ├── README.md
 └── requirements.txt
 ```
@@ -383,8 +383,7 @@ A estrutura do projeto está organizada em diretórios que separam as configura�
 | `Dockerfile` | Define as instruções para construir a imagem Docker da aplicação. |
 | `docker-compose.yml` | Configura e gerencia a inicialização do ambiente da aplicação. |
 | `manage.py` | Permite executar comandos administrativos do Django. |
-| `package.json` | Contém as informações e configurações das dependências Node.js. |
-| `package-lock.json` | Registra as versões das dependências Node.js instaladas. |
+| `frontend/package.json` | Contém os scripts e as dependências Node.js do frontend. |
 | `requirements.txt` | Lista as dependências Python necessárias para a aplicação. |
 | `README.md` | Apresenta o projeto, suas tecnologias e instruções de utilização. |
 ---
@@ -561,8 +560,16 @@ Os testes do projeto verificam funcionalidades do backend desenvolvido em Django
 # Executar a suíte de testes do Django
 docker compose exec web python manage.py test
 
-# Executar os testes do frontend, caso o script esteja configurado no package.json
-npm test
+# Instalar dependências JavaScript
+cd frontend
+npm install
+cd ..
+
+# Executar os testes JavaScript a partir da raiz do repositório
+node --test
+
+# Verificar os arquivos obrigatórios do projeto
+node tests/build.js
 ```
 
 ### Tipos de testes
@@ -571,8 +578,14 @@ npm test
 | --- | --- | --- |
 | Backend | Django Test Runner / unittest | Testes das funcionalidades, regras de negócio e validações implementadas no backend. |
 | Frontend | Scripts de teste em JavaScript | Verificações relacionadas aos scripts e funcionalidades do frontend. |
-| Automação/CI | GitHub Actions (`ci.yml`) | Execução automática das etapas de integração contínua configuradas no workflow. |
+| Automação/CI | GitHub Actions (`ci.yml`) | Instala dependências JavaScript, executa os testes e verifica os arquivos obrigatórios. |
 | Manuais | Verificação local | Funcionamento da aplicação, navegação entre páginas e interação com as funcionalidades do sistema. |
+
+### Integração e deploy contínuos
+
+O workflow `ci.yml` é executado em pushes e pull requests. Quando uma execução do CI termina com sucesso na branch `main`, o workflow `cd.yml` constrói a imagem Docker e publica as tags `latest` e `sha-<commit>` no GitHub Container Registry (GHCR). Em seguida, o job de homologação usa um runner Windows auto-hospedado para baixar a imagem, atualizar os serviços com Docker Compose e verificar a aplicação.
+
+O job de deploy exige os segredos `SECRET_KEY` e `DATABASE_URL` configurados no repositório. A visibilidade pública da imagem é configurada nas opções do pacote no GitHub.
 
 **Cobertura atual:** A cobertura de testes está em desenvolvimento e pode ser ampliada conforme novas funcionalidades e testes forem implementados.
 
