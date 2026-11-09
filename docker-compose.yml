@@ -3,7 +3,10 @@ name: estrela-modas
 
 services:
   web:
-    image: ${DOCKER_IMAGE:-ghcr.io/anne-cgm/sistema-de-gestao-comercial-estrela-modas:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${DOCKER_IMAGE:-estrela-modas:0.1.1}
 
     env_file:
       - ./backend/.env
@@ -16,6 +19,12 @@ services:
 
     ports:
       - "8000:8000"
+
+    # Desenvolvimento local:
+    # Remova o comentário abaixo para sincronizar os arquivos
+    # do computador com o container automaticamente.
+    # volumes:
+    #   - .:/app
 
     command: python manage.py runserver 0.0.0.0:8000
 
