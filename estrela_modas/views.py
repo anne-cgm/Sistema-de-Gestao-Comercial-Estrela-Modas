@@ -80,7 +80,7 @@ def produtos(request):
 
 
 @login_required
-def cadastro_produto(request):
+def novo_produto(request):
     form = ProdutoForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         with transaction.atomic():
@@ -94,7 +94,7 @@ def cadastro_produto(request):
                 )
         messages.success(request, 'Produto cadastrado com sucesso.')
         return redirect('produtos')
-    return render(request, 'estrela_modas/cadastro_produto.html', {'form': form})
+    return render(request, 'estrela_modas/novo_produto.html', {'form': form})
 
 
 @login_required

@@ -48,7 +48,7 @@ class PageRoutingTests(TestCase):
         pages = {
             'dashboard': 'dashboard.js',
             'produtos': 'produtos.js',
-            'cadastro_produto': 'cadastro_produto.js',
+            'novo_produto': 'novo_produto.js',
             'estoque': 'estoque.js',
             'nova_venda': 'nova_venda.js',
             'clientes': 'clientes.js',

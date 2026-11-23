@@ -691,7 +691,7 @@
           <label><span class="form-label">Fornecedor</span>{{ form.fornecedor_nome }}{{ form.fornecedor_nome.errors }}</label>
           <label><span class="form-label">Nota fiscal (opcional)</span>{{ form.numero_nota_fiscal }}{{ form.numero_nota_fiscal.errors }}</label>
           <button class="button" type="submit">Registrar compra</button>
-          <button class="button button--wine" type="button" data-screen="novo-produto">O produto ainda não existe? Cadastrar produto</button>
+          <button class="button button--wine" type="button" data-screen="novo_produto">O produto ainda não existe? Cadastrar produto</button>
           <h2 class="section-title">Compras recentes</h2>
           {% for compra in compras_recentes %}
             <article class="card row"><div class="row-main"><p class="row-title">{{ compra.fornecedor_nome|default:'Fornecedor não informado' }}</p><p class="row-sub">{{ compra.data_chegada|date:'d/m/Y H:i' }} · {{ compra.itens.count }} item{{ compra.itens.count|pluralize }}</p></div><strong>R$ {{ compra.valor_total|floatformat:2 }}</strong></article>

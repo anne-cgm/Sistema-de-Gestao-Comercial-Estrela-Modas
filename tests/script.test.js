@@ -93,10 +93,16 @@ test('formatarMoeda usa o padrão brasileiro', () => {
 test('módulos das telas podem ser importados sem um DOM', async () => {
   const modulos = [
     '../frontend/static/estrela_modas/clientes.js',
+    '../frontend/static/estrela_modas/clientes-data.js',
+    '../frontend/static/estrela_modas/compras.js',
     '../frontend/static/estrela_modas/dashboard.js',
     '../frontend/static/estrela_modas/debitos.js',
+    '../frontend/static/estrela_modas/estoque.js',
     '../frontend/static/estrela_modas/mais_opcoes.js',
-    '../frontend/static/estrela_modas/cadastro_produto.js',
+    '../frontend/static/estrela_modas/nova_venda.js',
+    '../frontend/static/estrela_modas/novo_cliente.js',
+    '../frontend/static/estrela_modas/novo_produto.js',
+    '../frontend/static/estrela_modas/produtos.js',
     '../frontend/static/estrela_modas/relatorios.js',
     '../frontend/static/estrela_modas/shared.js',
   ]

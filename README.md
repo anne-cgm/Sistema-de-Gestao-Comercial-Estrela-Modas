@@ -321,7 +321,7 @@ A estrutura do projeto está organizada em diretórios que separam as configura�
 │   ├── package.json
 │   ├── static/
 │   │   └── estrela_modas/
-│   │       ├── cadastro_produto.js
+│   │       ├── novo_produto.js
 │   │       ├── clientes.js
 │   │       ├── compras.js
 │   │       ├── dashboard.js
@@ -335,7 +335,7 @@ A estrutura do projeto está organizada em diretórios que separam as configura�
 │   │       └── shared.js
 │   └── templates/
 │       └── estrela_modas/
-│           ├── cadastro_produto.html
+│           ├── novo_produto.html
 │           ├── clientes.html
 │           ├── compras.html
 │           ├── dashboard.html
