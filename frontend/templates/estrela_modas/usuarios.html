@@ -1433,14 +1433,14 @@
       <nav class="nav" id="menu-principal" data-menu aria-label="Navegação principal">
         <div class="nav-top"><span>Menu principal</span><button class="menu-close" type="button" data-fechar-menu aria-label="Fechar menu">Fechar ×</button></div>
         <img class="nav-brand" src="./assets/estrela-modas.jpeg" alt="Estrela Modas" width="1254" height="1254" />
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Dashboard</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
-        <a class="nav-link nav-exit" href="./login.html" data-sair>Sair da sessão</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Dashboard</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="nav-link nav-exit" type="submit" data-sair>Sair da sessão</button></form>
       </nav>
     </main>
-    <script type="module" src="./usuarios.js"></script>
+    <script type="module" src="{% static 'estrela_modas/shared.js' %}"></script>
   </body>
 </html>

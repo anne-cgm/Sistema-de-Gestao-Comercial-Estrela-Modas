@@ -49,6 +49,7 @@ class PageRoutingTests(TestCase):
             'dashboard': 'dashboard.js',
             'produtos': 'produtos.js',
             'novo_produto': 'novo_produto.js',
+            'novo_cliente': 'novo_cliente.js',
             'estoque': 'estoque.js',
             'nova_venda': 'nova_venda.js',
             'clientes': 'clientes.js',

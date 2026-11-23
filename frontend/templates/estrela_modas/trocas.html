@@ -1264,7 +1264,8 @@
           <div class="avatar" data-nome-perfil aria-label="Perfil">P</div>
         </header>
         <div class="content">
-          <form class="exchange-form" data-formulario-troca>
+          <form class="exchange-form" data-formulario-troca method="post">
+            {% csrf_token %}
             <p class="card exchange-message" data-mensagem-troca role="status" hidden></p>
 
             <section class="card exchange-section">
@@ -1274,9 +1275,7 @@
               </div>
               <label>
                 <span class="form-label">Venda *</span>
-                <select class="select" name="vendaId" data-venda-troca required>
-                  <option value="">Selecione uma venda</option>
-                </select>
+                {{ form.venda }}
               </label>
               <p class="exchange-sale-summary" data-resumo-venda-troca>Selecione a venda que contém o produto apresentado para troca.</p>
             </section>
@@ -1294,7 +1293,7 @@
               </label>
               <div class="exchange-client-action">
                 <p class="row-sub">O cliente ainda não está cadastrado?</p>
-                <a class="button button--outline" href="./novo-cliente.html?retorno=trocas" data-cadastrar-cliente-troca>＋ Cadastrar cliente</a>
+                <a class="button button--outline" href="{% url 'novo_cliente' %}?retorno=trocas" data-cadastrar-cliente-troca>＋ Cadastrar cliente</a>
               </div>
             </section>
 
@@ -1306,11 +1305,11 @@
               <div class="exchange-grid">
                 <label>
                   <span class="form-label">Descrição do produto *</span>
-                  <input class="input" name="produtoDevolvido" placeholder="Ex.: Vestido Midi" required />
+                  {{ form.produto_devolvido }}
                 </label>
                 <label>
                   <span class="form-label">Valor do produto *</span>
-                  <input class="input" name="valorDevolvido" type="number" min="0.01" step="0.01" placeholder="0,00" required />
+                  {{ form.cupom_credito }}
                 </label>
               </div>
             </section>
@@ -1323,11 +1322,11 @@
               <div class="exchange-grid">
                 <label>
                   <span class="form-label">Descrição do produto *</span>
-                  <input class="input" name="produtoNovo" placeholder="Ex.: Bolsa Mini" required />
+                  {{ form.produto_entregue }}
                 </label>
                 <label>
                   <span class="form-label">Valor do produto *</span>
-                  <input class="input" name="valorNovo" type="number" min="0.01" step="0.01" placeholder="0,00" required />
+                  {{ form.motivo_troca }}
                 </label>
               </div>
             </section>
@@ -1346,14 +1345,14 @@
       <nav class="nav" id="menu-principal" data-menu aria-label="Navegação principal">
         <div class="nav-top"><span>Menu principal</span><button class="menu-close" type="button" data-fechar-menu aria-label="Fechar menu">Fechar ×</button></div>
         <img class="nav-brand" src="./assets/estrela-modas.jpeg" alt="Estrela Modas" width="1254" height="1254" />
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Dashboard</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
-        <a class="nav-link nav-exit" href="./login.html" data-sair>Sair da sessão</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Dashboard</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <form method="post" action="{% url 'logout' %}"><button class="nav-link nav-exit" type="submit" data-sair>Sair da sessão</button></form>
       </nav>
     </main>
-    <script type="module" src="./trocas.js"></script>
+    <script type="module" src="{% static 'estrela_modas/shared.js' %}"></script>
   </body>
 </html>

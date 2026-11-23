@@ -16,6 +16,7 @@ from .models import (
     Cliente, Compra, Despesa, ItemCompra, ItemVenda, MovimentacaoEstoque,
     PagamentoDebito, Produto, Troca, Venda,
 )
+from usuarios.models import Usuario
 
 
 def index(request):
@@ -202,6 +203,16 @@ def clientes(request):
 
 
 @login_required
+def novo_cliente(request):
+    form = ClienteForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Cliente cadastrado com sucesso.')
+        return redirect('clientes')
+    return render(request, 'estrela_modas/novo_cliente.html', {'form': form})
+
+
+@login_required
 def debitos(request):
     form = PagamentoDebitoForm(request.POST or None)
 
@@ -345,12 +356,18 @@ def trocas(request):
         else:
             messages.success(request, 'Troca registrada e estoque atualizado.')
             return redirect('trocas')
-    return render(request, 'estrela_modas/registro.html', {
+    return render(request, 'estrela_modas/trocas.html', {
         'form': form,
-        'titulo': 'Registrar troca',
-        'subtitulo': 'Registre o produto devolvido e a reposição, se houver.',
         'registros': Troca.objects.select_related('produto_devolvido', 'produto_entregue')[:8],
-        'tipo_registro': 'troca',
+    })
+
+
+@login_required
+def usuarios(request):
+    if not request.user.is_superuser:
+        return redirect('mais_opcoes')
+    return render(request, 'estrela_modas/usuarios.html', {
+        'usuarios': Usuario.objects.all(),
     })
 
 

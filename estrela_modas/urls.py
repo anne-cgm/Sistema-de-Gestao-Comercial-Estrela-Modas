@@ -11,10 +11,12 @@ urlpatterns = [
     path('estoque/', views.estoque, name='estoque'),
     path('vendas/nova/', views.nova_venda, name='nova_venda'),
     path('clientes/', views.clientes, name='clientes'),
+    path('clientes/novo/', views.novo_cliente, name='novo_cliente'),
     path('debitos/', views.debitos, name='debitos'),
     path('mais/', views.mais_opcoes, name='mais_opcoes'),
     path('relatorios/', views.relatorios, name='relatorios'),
     path('compras/', views.compras, name='compras'),
     path('despesas/', views.despesas, name='despesas'),
     path('trocas/', views.trocas, name='trocas'),
+    path('usuarios/', views.usuarios, name='usuarios'),
 ]

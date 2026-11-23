@@ -11,7 +11,7 @@ const caminhosDasTelas = {
   relatorios: "./relatorios.html",
   compras: "./compras.html",
   usuarios: "./usuarios.html",
-  "novo-cliente": "./novo-cliente.html",
+  novo_cliente: "./novo_cliente.html",
   "cliente-detalhes": "./cliente-detalhes.html",
   trocas: "./trocas.html",
 }
@@ -24,7 +24,7 @@ const permissaoPorTela = {
   compras: "estoque",
   "nova-venda": "vendas",
   clientes: "clientes",
-  "novo-cliente": "clientes",
+  novo_cliente: "clientes",
   "cliente-detalhes": "clientes",
   debitos: "clientes",
   trocas: "clientes",
