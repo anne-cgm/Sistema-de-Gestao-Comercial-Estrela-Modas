@@ -46,12 +46,17 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nome_cliente
 
+# Calcula o saldo devedor do cliente considerando apenas as vendas fiadas (forma de pagamento "fiado").
     @property
     def saldo_devedor(self):
-        total_fiado = self.vendas.filter(forma_pagamento=Venda.FormaPagamento.FIADO).aggregate(total=Sum('valor_total'))['total']
-        total_pago = self.pagamentos_debito.aggregate(total=Sum('valor'))['total']
-        return (total_fiado or Decimal('0.00')) - (total_pago or Decimal('0.00'))
+        vendas_fiadas = self.vendas.filter(
+            forma_pagamento=Venda.FormaPagamento.FIADO
+        )
 
+        return sum(
+            (venda.saldo_devedor for venda in vendas_fiadas),
+            Decimal('0.00')
+        )
 
 class Compra(models.Model):
     fornecedor_nome = models.CharField(max_length=160, blank=True)
@@ -113,6 +118,29 @@ class Venda(models.Model):
     class Meta:
         ordering = ['-data_venda']
 
+# Essas propriedades calculam o total pago, o saldo devedor e a situação do débito para vendas com forma de pagamento "fiado".
+    @property
+    def total_pago(self):
+        return self.pagamentos.aggregate(
+            total_pago=Sum('valor')
+        )['total_pago'] or Decimal('0.00')
+
+    @property
+    def saldo_devedor(self):
+        if self.forma_pagamento != self.FormaPagamento.FIADO:
+            return Decimal('0.00')
+        return self.valor_total - self.total_pago
+
+    @property 
+    def situacao_debito(self):
+        if self.forma_pagamento != self.FormaPagamento.FIADO:
+            return 'nao_se_aplica'
+        if self.saldo_devedor <= 0:
+            return 'quitada'
+        if self.total_pago > 0:
+            return 'parcial'
+        return 'aberta'
+
 
 class ItemVenda(models.Model):
     venda = models.ForeignKey(Venda, related_name='itens', on_delete=models.CASCADE)
@@ -124,18 +152,27 @@ class ItemVenda(models.Model):
     def subtotal(self):
         return self.quantidade * self.preco_unitario
 
-
+# Substitui a classe PagamentoDebito para associar pagamentos diretamente à venda, permitindo o cálculo correto do saldo devedor e da situação do débito.
 class PagamentoDebito(models.Model):
-    cliente = models.ForeignKey(Cliente, related_name='pagamentos_debito', on_delete=models.PROTECT)
-    valor = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
+    venda = models.ForeignKey(
+        Venda,
+        related_name='pagamentos',
+        on_delete=models.PROTECT
+    )
+    valor = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)]
+    )
     data_pagamento = models.DateTimeField(auto_now_add=True)
     observacoes = models.CharField(max_length=240, blank=True)
 
     class Meta:
-        ordering = ['-data_pagamento']
-        verbose_name = 'pagamento de débito'
-        verbose_name_plural = 'pagamentos de débito'
+        verbose_name = 'Pagamento de débito'
+        verbose_name_plural = 'Pagamentos de débitos'
 
+    def __str__(self):
+        return f'Pagamento da venda #{self.venda_id} - R$ {self.valor}'
 
 class Despesa(models.Model):
     descricao_despesa = models.CharField(max_length=180)

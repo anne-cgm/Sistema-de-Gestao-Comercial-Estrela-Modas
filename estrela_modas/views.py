@@ -204,29 +204,66 @@ def clientes(request):
 @login_required
 def debitos(request):
     form = PagamentoDebitoForm(request.POST or None)
+
     if request.method == 'POST' and form.is_valid():
         dados = form.cleaned_data
+
         with transaction.atomic():
-            cliente = Cliente.objects.select_for_update().get(pk=dados['cliente'].pk)
-            if dados['valor'] > cliente.saldo_devedor:
-                form.add_error('valor', 'O débito foi alterado; informe um valor até o saldo atual.')
+            # Busca novamente a venda e bloqueia sua linha durante a transação.
+            venda = Venda.objects.select_for_update().get(
+                pk=dados['venda'].pk
+            )
+
+            # Confere o saldo atualizado antes de registrar o pagamento.
+            if venda.forma_pagamento != Venda.FormaPagamento.FIADO:
+                form.add_error('venda', 'Selecione uma venda fiada.')
+            
+            elif venda.saldo_devedor <= 0:
+                form.add_error('venda', 'Essa dívida já está quitada.')
+
+            elif dados['valor'] > venda.saldo_devedor:
+                form.add_error(
+                    'valor',
+                    'O débito foi alterado; informe um valor até o saldo atual.'
+                )
             else:
                 PagamentoDebito.objects.create(
-                    cliente=cliente,
+                    venda=venda,
                     valor=dados['valor'],
                     observacoes=dados['observacoes'],
                 )
+
         if not form.errors:
             messages.success(request, 'Pagamento registrado.')
             return redirect('debitos')
 
-    clientes_com_debito = [cliente for cliente in Cliente.objects.all() if cliente.saldo_devedor > 0]
+    # Busca somente as vendas fiadas que ainda possuem saldo.
+    venda_com_debito = [
+        venda for venda in Venda.objects.filter(
+            forma_pagamento=Venda.FormaPagamento.FIADO
+        ).select_related('cliente')
+        if venda.saldo_devedor > 0
+    ]
+
+    # Soma os saldos individuais das vendas.
+    total_pendente = sum(
+        (venda.saldo_devedor for venda in venda_com_debito),
+        start=0
+    )
+
+    # Busca os últimos pagamentos e suas respectivas vendas e clientes.
+    pagamentos_recentes = (
+        PagamentoDebito.objects
+        .select_related('venda', 'venda__cliente')
+        .order_by('-data_pagamento')[:8]
+    )
+
     return render(request, 'estrela_modas/debitos.html', {
         'form': form,
-        'clientes_com_debito': clientes_com_debito,
-        'total_pendente': sum((cliente.saldo_devedor for cliente in clientes_com_debito), start=0),
-        'pagamentos_recentes': PagamentoDebito.objects.select_related('cliente')[:8],
-    })
+        'vendas_com_debito': venda_com_debito,
+        'total_pendente': total_pendente,
+        'pagamentos_recentes': pagamentos_recentes,
+    })  
 
 
 @login_required
