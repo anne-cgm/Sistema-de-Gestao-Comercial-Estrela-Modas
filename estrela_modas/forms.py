@@ -4,6 +4,16 @@ from django.forms import formset_factory
 from .models import Cliente, Despesa, PagamentoDebito, Produto, Troca, Venda
 
 
+CATEGORIAS_DESPESA = [
+    ('operacional', 'Operacional'),
+    ('viagem', 'Viagem'),
+    ('marketing', 'Marketing'),
+    ('aluguel', 'Aluguel'),
+    ('servicos', 'Serviços'),
+    ('outros', 'Outros'),
+]
+
+
 class ProdutoForm(forms.ModelForm):
     class Meta:
         model = Produto
@@ -13,7 +23,7 @@ class ProdutoForm(forms.ModelForm):
         ]
         labels = {
             'nome_produto': 'Nome do produto',
-            'sku': 'SKU',
+            'sku': 'SKU / código do QR',
             'categoria': 'Categoria',
             'tamanho': 'Tamanho',
             'cor': 'Cor',
@@ -145,6 +155,11 @@ class PagamentoDebitoForm(forms.ModelForm):
 
 
 class DespesaForm(forms.ModelForm):
+    categoria_despesa = forms.ChoiceField(
+        choices=CATEGORIAS_DESPESA,
+        widget=forms.Select(attrs={'class': 'select'}),
+    )
+
     class Meta:
         model = Despesa
         fields = ['descricao_despesa', 'categoria_despesa', 'valor_despesa', 'data_despesa', 'observacoes']
@@ -157,7 +172,6 @@ class DespesaForm(forms.ModelForm):
         }
         widgets = {
             'descricao_despesa': forms.TextInput(attrs={'class': 'input'}),
-            'categoria_despesa': forms.TextInput(attrs={'class': 'input'}),
             'valor_despesa': forms.NumberInput(attrs={'class': 'input', 'min': '0.01', 'step': '0.01'}),
             'data_despesa': forms.DateInput(attrs={'class': 'input', 'type': 'date'}),
             'observacoes': forms.Textarea(attrs={'class': 'input', 'rows': 2}),

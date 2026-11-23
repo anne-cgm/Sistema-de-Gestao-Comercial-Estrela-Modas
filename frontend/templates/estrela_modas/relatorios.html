@@ -240,9 +240,16 @@
 
       .button--small {
         width: auto;
+        min-width: 118px;
         min-height: 0;
         padding: 5px 11px;
         font-size: 9px;
+      }
+
+      .action-row {
+        display: flex;
+        gap: 8px;
+        margin: 14px 0;
       }
 
       .alert {
@@ -619,6 +626,36 @@
           max-width: calc(100vw - 80px);
         }
       }
+
+      @media print {
+        @page {
+          margin: 12mm;
+        }
+
+        body {
+          background: #fff;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .phone {
+          width: 100%;
+          max-width: none;
+          box-shadow: none;
+          overflow: visible;
+        }
+
+        .screen {
+          min-height: auto;
+          padding-bottom: 0;
+        }
+
+        .nav,
+        .action-row,
+        .print-hidden {
+          display: none !important;
+        }
+      }
     </style>
   </head>
   <body>
@@ -633,6 +670,10 @@
           <div class="avatar">K</div>
         </header>
         <div class="content">
+          <div class="action-row print-hidden">
+            <button type="button" class="button button--small" data-export="csv">Exportar CSV</button>
+            <button type="button" class="button button--small button--wine" data-print-report>Imprimir</button>
+          </div>
           <div class="select" style="margin-bottom: 14px">Período: Este mês ▾</div>
           <article class="card report-summary">
             <div>
@@ -643,7 +684,7 @@
             <div class="chart-placeholder" aria-label="Gráfico de vendas"></div>
           </article>
           <h2 class="section-title">Relatórios</h2>
-          <div class="list">
+          <div class="report-list">
             {% for item in mais_vendidos %}<article class="card row"><div class="row-main"><p class="row-title">{{ item.produto__nome_produto }}</p><p class="row-sub">{{ item.unidades }} unidades vendidas</p></div><span class="chevron">›</span></article>{% empty %}<p class="card">Ainda não há vendas no período.</p>{% endfor %}
             {% for produto in produtos_baixo %}<article class="card row"><div class="row-main"><p class="row-title">{{ produto.nome_produto }}</p><p class="row-sub">Estoque baixo · {{ produto.quantidade_estoque }} unidades</p></div><span class="chevron">›</span></article>{% empty %}<p class="card">Nenhum produto abaixo do estoque mínimo.</p>{% endfor %}
             <article class="card row"><div class="row-main"><p class="row-title">Compras do mês</p></div><strong>R$ {{ total_compras|floatformat:2 }}</strong></article>
