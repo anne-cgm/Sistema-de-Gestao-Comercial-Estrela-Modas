@@ -42,4 +42,19 @@ class VendaAdmin(admin.ModelAdmin):
     inlines = (ItemVendaInline,)
 
 
-admin.site.register((PagamentoDebito, Despesa, Troca, MovimentacaoEstoque))
+@admin.register(PagamentoDebito)
+class PagamentoDebitoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'venda', 'cliente', 'valor', 'data_pagamento')
+    list_filter = ('data_pagamento',)
+    search_fields = ('venda__id', 'venda__cliente__nome_cliente')
+    readonly_fields = ('data_pagamento',)
+
+    @admin.display(description='Cliente')
+    def cliente(self, obj):
+        if obj.venda.cliente:
+            return obj.venda.cliente.nome_cliente
+        return 'Cliente não informado'
+
+admin.site.register((Despesa, Troca, MovimentacaoEstoque))
+
+

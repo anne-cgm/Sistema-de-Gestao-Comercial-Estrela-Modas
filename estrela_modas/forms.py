@@ -119,30 +119,69 @@ class ItemVendaForm(forms.Form):
 
 ItemVendaFormSet = formset_factory(ItemVendaForm, extra=5, max_num=12, validate_max=True)
 
-
+# Modificação da classe PagamentoDebitoForm para associar pagamentos diretamente à venda, permitindo o cálculo correto do saldo devedor e da situação do débito.
 class PagamentoDebitoForm(forms.ModelForm):
     class Meta:
         model = PagamentoDebito
-        fields = ['cliente', 'valor', 'observacoes']
-        labels = {'cliente': 'Cliente', 'valor': 'Valor recebido', 'observacoes': 'Observação'}
+        fields = ['venda', 'valor', 'observacoes']
+        labels = {'venda': 'Dívida',
+                   'valor': 'Valor recebido',
+                     'observacoes': 'Observação',
+                     }
         widgets = {
-            'cliente': forms.Select(attrs={'class': 'select'}),
-            'valor': forms.NumberInput(attrs={'class': 'input', 'min': '0.01', 'step': '0.01'}),
+            'venda': forms.Select(attrs={'class': 'select'}),
+            'valor': forms.NumberInput(attrs={
+                'class': 'input', 
+                'min': '0.01', 
+                'step': '0.01'
+                }),
             'observacoes': forms.TextInput(attrs={'class': 'input'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['cliente'].queryset = Cliente.objects.order_by('nome_cliente')
+        
+        self.fields['venda'].queryset = (
+            Venda.objects
+            .filter(forma_pagamento=Venda.FormaPagamento.FIADO)
+            .select_related('cliente')
+            .order_by('-data_venda')
+        )
+
+        #Define como cada venda aparecerá no campo de seleção
+        self.fields['venda'].label_from_instance = self.label_from_instance
+
+    def label_from_instance(self, venda):
+        cliente = (
+            venda.cliente.nome_cliente
+            if venda.cliente
+            else 'Cliente não informado'
+        )
+
+        return(
+            f'Venda #{venda.id} - {cliente} - '
+            f'{venda.data_venda:%d/%m/%Y %H:%M} - '
+            f'Saldo: R$ {venda.saldo_devedor:.2f}'
+        )
 
     def clean(self):
         dados = super().clean()
-        cliente = dados.get('cliente')
+        venda = dados.get('venda')
         valor = dados.get('valor')
-        if cliente and valor and valor > cliente.saldo_devedor:
-            self.add_error('valor', 'O pagamento não pode ser maior que o débito atual.')
-        return dados
 
+        if venda and valor:
+            if venda.forma_pagamento != Venda.FormaPagamento.FIADO:
+                self.add_error('venda', 'Selecione uma venda fiada.')
+
+            elif venda.saldo_devedor <= 0:
+                self.add_error('venda', 'Essa dívida já está quitada.')
+
+            elif valor > venda.saldo_devedor:
+                self.add_error('valor', 
+                               'O pagamento não pode ser maior que o saldo dessa dívida.'
+                               )
+        return dados
+                
 
 class DespesaForm(forms.ModelForm):
     class Meta:
