@@ -128,6 +128,7 @@ jobs:
         with:
           script: |
             const ref = `refs/tags/${process.env.VERSION_TAG}`;
+            const refName = `tags/${process.env.VERSION_TAG}`;
 
             try {
               await github.rest.git.createRef({
@@ -146,7 +147,7 @@ jobs:
               const existing = await github.rest.git.getRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref
+                ref: refName
               });
 
               if (existing.data.object.sha !== process.env.COMMIT_SHA) {

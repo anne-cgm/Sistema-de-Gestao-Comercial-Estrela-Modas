@@ -1,153 +1,220 @@
-import { iniciarTela } from './shared.js'
+import {
+  calcularSaldoCredito,
+  carregarClientes,
+  carregarCompras,
+  carregarDividas,
+  carregarMovimentosCredito,
+  formatarMoeda as formatarMoedaBase,
+  normalizarValor,
+  registrarMovimentoCredito,
+  salvarCompras,
+  salvarDividas,
+  salvarMovimentosCredito,
+} from "./clientes-data.js"
+import { exibirMensagem, iniciarTela } from "./shared.js"
+
+export function calcularTotalVenda(itensVenda, descontoAplicado = 0) {
+  const subtotal = itensVenda.reduce(
+    (total, item) => total + item.precoVenda * item.quantidade,
+    0,
+  )
+  const desconto = Math.min(Math.max(descontoAplicado, 0), 100)
+  return normalizarValor(subtotal - (subtotal * desconto) / 100)
+}
+
+export function calcularUsoCredito(
+  totalVenda,
+  creditoSolicitado,
+  saldoCredito,
+) {
+  const credito = Math.max(0, Number(creditoSolicitado) || 0)
+  const limite = Math.min(
+    Math.max(0, Number(totalVenda) || 0),
+    Math.max(0, Number(saldoCredito) || 0),
+  )
+  const creditoUtilizado = normalizarValor(Math.min(credito, limite))
+  return {
+    creditoUtilizado,
+    restante: normalizarValor(Number(totalVenda) - creditoUtilizado),
+  }
+}
+
+export function formatarMoedaVenda(valor) {
+  return formatarMoedaBase(valor)
+}
+
+export const formatarMoeda = formatarMoedaVenda
+
+export function vendaExigeCliente(formaPagamento, creditoUtilizado = 0) {
+  return (
+    String(formaPagamento).trim().toLocaleLowerCase("pt-BR") === "fiado" ||
+    Number(creditoUtilizado) > 0
+  )
+}
 
 export default function iniciarNovaVenda() {
-  iniciarTela('venda')
-  atualizarTotalVenda()
-  document.querySelector('[data-form-venda]')?.addEventListener('input', atualizarTotalVenda)
-  document.querySelector('[data-form-venda]')?.addEventListener('change', atualizarTotalVenda)
-  configurarLeitorQr()
-}
+  iniciarTela("venda")
 
-function atualizarTotalVenda() {
-  const subtotal = [...document.querySelectorAll('[data-produto-venda]')].reduce((total, seletor) => {
-    const produto = seletor.selectedOptions[0]
-    const campoQuantidade = document.querySelector(`[name="${seletor.name.replace(/produto$/, 'quantidade')}"]`)
-    return total + Number(produto?.dataset.precoVenda ?? 0) * Number(campoQuantidade?.value ?? 0)
-  }, 0)
-  const desconto = Number(document.querySelector('[name="desconto_aplicado"]')?.value ?? 0)
-  const valorTotal = Math.max(0, subtotal - desconto)
-  const elementoValorTotal = document.querySelector('[data-valor-total]')
+  const clientes = carregarClientes()
+  let movimentosCredito = carregarMovimentosCredito()
+  const seletorCliente = document.querySelector("[data-cliente-venda]")
+  const campoCredito = document.querySelector("[data-valor-credito]")
+  const painelCredito = document.querySelector("[data-painel-credito]")
+  let totalVenda = calcularTotalAtual()
+  let saldoCredito = 0
 
-  if (elementoValorTotal) elementoValorTotal.textContent = formatarMoeda(valorTotal)
-}
+  clientes.forEach((cliente) => {
+    const opcao = document.createElement("option")
+    opcao.value = cliente.id
+    opcao.textContent = cliente.nomeCliente
+    seletorCliente?.append(opcao)
+  })
 
-function configurarLeitorQr() {
-  const campoQr = document.getElementById('qr-input')
-  const status = document.getElementById('qr-status')
-  const botaoBuscar = document.querySelector('[data-qr-search]')
-  const botaoCamera = document.querySelector('[data-qr-camera]')
-  const botaoLimpar = document.querySelector('[data-qr-reset]')
-  const video = document.getElementById('qr-video')
+  const clienteInicial = new URLSearchParams(window.location.search).get(
+    "cliente",
+  )
+  if (clienteInicial && seletorCliente) seletorCliente.value = clienteInicial
 
-  if (!campoQr || !botaoBuscar || !botaoCamera || !botaoLimpar || !video || !status) return
-
-  const localizarProduto = (valorCodigo) => {
-    const codigo = (valorCodigo || '').trim()
-    if (!codigo) return false
-
-    const selects = [...document.querySelectorAll('[data-produto-venda]')]
-    for (const select of selects) {
-      const opcoes = [...select.options].filter((option) => option.value)
-      const produto = opcoes.find((option) => {
-        const texto = (option.dataset.nome || option.textContent || '').toLowerCase()
-        const sku = (option.dataset.sku || '').toLowerCase()
-        const valor = codigo.toLowerCase()
-        return texto.includes(valor) || sku.includes(valor) || option.value === codigo
-      })
-
-      if (produto) {
-        select.value = produto.value
-        status.textContent = `Produto localizado: ${produto.dataset.nome || produto.textContent.trim()}`
-        exibirMensagem('Produto localizado pelo QR/SKU.')
-        return true
-      }
-    }
-
-    status.textContent = 'Código não encontrado. Tente outro QR/SKU ou selecione o produto manualmente.'
-    exibirMensagem('Código não encontrado.')
-    return false
+  function atualizarCreditoCliente() {
+    const clienteId = Number(seletorCliente?.value)
+    saldoCredito = clienteId
+      ? calcularSaldoCredito(movimentosCredito, clienteId)
+      : 0
+    painelCredito.hidden = !clienteId || saldoCredito <= 0
+    document.querySelector("[data-saldo-credito-venda]").textContent =
+      formatarMoeda(saldoCredito)
+    campoCredito.max = String(Math.min(saldoCredito, totalVenda))
+    if (!clienteId || saldoCredito <= 0) campoCredito.value = "0"
+    atualizarResumoVenda()
   }
 
-  botaoBuscar.addEventListener('click', () => localizarProduto(campoQr.value))
-  campoQr.addEventListener('keydown', (evento) => {
-    if (evento.key === 'Enter') {
-      evento.preventDefault()
-      localizarProduto(campoQr.value)
-    }
-  })
+  function atualizarResumoVenda() {
+    const resultado = calcularUsoCredito(
+      totalVenda,
+      campoCredito?.value,
+      saldoCredito,
+    )
+    document.querySelector("[data-valor-total]").textContent =
+      formatarMoeda(totalVenda)
+    document.querySelector("[data-valor-restante]").textContent = formatarMoeda(
+      resultado.restante,
+    )
+    document.querySelector("[data-credito-utilizado]").textContent =
+      `− ${formatarMoeda(resultado.creditoUtilizado)}`
+    document.querySelector("[data-linha-credito]").hidden =
+      resultado.creditoUtilizado <= 0
+    return resultado
+  }
 
-  botaoLimpar.addEventListener('click', () => {
-    campoQr.value = ''
-    status.textContent = 'Digite o código do QR/SKU ou abra a câmera do celular para escanear.'
-    if (video.srcObject) {
-      video.srcObject.getTracks().forEach((track) => track.stop())
-      video.srcObject = null
-    }
-    video.style.display = 'none'
-  })
+  seletorCliente?.addEventListener("change", atualizarCreditoCliente)
+  campoCredito?.addEventListener("input", atualizarResumoVenda)
+  document
+    .querySelector("[data-usar-credito-total]")
+    ?.addEventListener("click", () => {
+      campoCredito.value = String(Math.min(saldoCredito, totalVenda))
+      atualizarResumoVenda()
+    })
 
-  botaoCamera.addEventListener('click', async () => {
-    if (!('mediaDevices' in navigator) || !navigator.mediaDevices?.getUserMedia) {
-      status.textContent = 'Câmera não disponível neste navegador. Digite o código do QR/SKU.'
-      return
-    }
+  document
+    .querySelectorAll("[data-forma-pagamento]")
+    .forEach((botaoFormaPagamento) => {
+      botaoFormaPagamento.addEventListener("click", () => {
+        document
+          .querySelector(".payment.is-active")
+          ?.classList.remove("is-active")
+        botaoFormaPagamento.classList.add("is-active")
+      })
+    })
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-      video.srcObject = stream
-      video.style.display = 'block'
-      status.textContent = 'Câmera ativa. Aponte para o QR da peça.'
+  document
+    .querySelector("[data-finish-sale]")
+    ?.addEventListener("click", () => {
+      const clienteId = Number(seletorCliente?.value)
+      const resultado = atualizarResumoVenda()
+      const formaPagamento =
+        document.querySelector(".payment.is-active")?.textContent.trim() ||
+        "Não informado"
 
-      if (!('BarcodeDetector' in window)) {
-        status.textContent = 'Câmera ativa. O navegador não suporta leitura de QR nativa; digite o código do QR/SKU.'
+      if (
+        !clienteId &&
+        vendaExigeCliente(formaPagamento, resultado.creditoUtilizado)
+      ) {
+        exibirMensagem(
+          formaPagamento === "Fiado"
+            ? "Selecione ou cadastre um cliente para registrar a venda fiada."
+            : "Selecione um cliente para utilizar crédito.",
+        )
         return
       }
 
-      const detector = new window.BarcodeDetector({ formats: ['qr_code'] })
-      const escanear = async () => {
-        try {
-          const resultados = await detector.detect(video)
-          if (!resultados.length) {
-            requestAnimationFrame(escanear)
-            return
-          }
+      if (resultado.creditoUtilizado > 0) {
+        const movimento = registrarMovimentoCredito(movimentosCredito, {
+          clienteId,
+          tipo: "utilizado",
+          valor: resultado.creditoUtilizado,
+          descricao: "Crédito utilizado em nova venda",
+        })
+        if (!movimento.sucesso) {
+          exibirMensagem(movimento.mensagem)
+          return
+        }
+        movimentosCredito = movimento.movimentos
+        salvarMovimentosCredito(movimentosCredito)
+      }
 
-          const codigo = resultados[0].rawValue
-          if (localizarProduto(codigo)) {
-            stream.getTracks().forEach((track) => track.stop())
-            video.srcObject = null
-            video.style.display = 'none'
-          }
-        } catch (erro) {
-          requestAnimationFrame(escanear)
+      const vendaId = Date.now()
+      salvarCompras([
+        {
+          id: vendaId,
+          clienteId: clienteId || null,
+          tipo: "venda",
+          data: new Date().toISOString(),
+          descricao: "Camiseta Básica e Bolsa Mini",
+          valor: totalVenda,
+          formaPagamento:
+            resultado.creditoUtilizado > 0
+              ? `Crédito + ${formaPagamento}`
+              : formaPagamento,
+        },
+        ...carregarCompras(),
+      ])
+
+      if (clienteId) {
+        if (formaPagamento === "Fiado" && resultado.restante > 0) {
+          salvarDividas([
+            {
+              id: vendaId,
+              clienteId,
+              dataVenda: new Date().toISOString(),
+              valorOriginal: resultado.restante,
+              saldoDevedor: resultado.restante,
+            },
+            ...carregarDividas(),
+          ])
         }
       }
 
-      video.addEventListener('loadedmetadata', () => {
-        video.play().catch(() => {})
-        escanear()
-      }, { once: true })
-    } catch (erro) {
-      status.textContent = 'Não foi possível acessar a câmera. Digite o código do QR/SKU.'
-    }
-  })
+      exibirMensagem("Venda finalizada com sucesso.")
+      campoCredito.value = "0"
+      movimentosCredito = carregarMovimentosCredito()
+      atualizarCreditoCliente()
+    })
+
+  atualizarCreditoCliente()
+
+  function calcularTotalAtual() {
+    const itens = [...document.querySelectorAll("[data-item-venda]")].map(
+      (item) => ({
+        precoVenda: Number(item.dataset.precoVenda),
+        quantidade: Number(item.dataset.quantidade),
+      }),
+    )
+    const desconto = Number(
+      document.querySelector("[data-desconto-aplicado]")?.dataset
+        .descontoAplicado || 0,
+    )
+    return calcularTotalVenda(itens, desconto)
+  }
 }
 
-export function calcularTotalVenda(itensVenda, descontoAplicado = 0) {
-  const subtotal = itensVenda.reduce((valorAcumulado, itemVenda) => {
-    return valorAcumulado + itemVenda.precoVenda * itemVenda.quantidade
-  }, 0)
-
-  const percentualDesconto = Math.min(Math.max(descontoAplicado, 0), 100)
-  return Number((subtotal - (subtotal * percentualDesconto) / 100).toFixed(2))
-}
-
-export function formatarMoeda(valor) {
-  return valor.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  })
-}
-
-function exibirMensagem(mensagem) {
-  const existente = document.querySelector('.toast')
-  if (existente) existente.remove()
-
-  const aviso = document.createElement('div')
-  aviso.className = 'toast'
-  aviso.textContent = mensagem
-  document.body.append(aviso)
-  window.setTimeout(() => aviso.remove(), 2200)
-}
-
-if (typeof document !== 'undefined') iniciarNovaVenda()
+if (typeof document !== "undefined") iniciarNovaVenda()

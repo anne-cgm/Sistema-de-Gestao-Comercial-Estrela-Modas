@@ -16,6 +16,7 @@ from .models import (
     Cliente, Compra, Despesa, ItemCompra, ItemVenda, MovimentacaoEstoque,
     PagamentoDebito, Produto, Troca, Venda,
 )
+from usuarios.models import Usuario
 
 
 def index(request):
@@ -80,7 +81,7 @@ def produtos(request):
 
 
 @login_required
-def cadastro_produto(request):
+def novo_produto(request):
     form = ProdutoForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         with transaction.atomic():
@@ -94,7 +95,7 @@ def cadastro_produto(request):
                 )
         messages.success(request, 'Produto cadastrado com sucesso.')
         return redirect('produtos')
-    return render(request, 'estrela_modas/cadastro_produto.html', {'form': form})
+    return render(request, 'estrela_modas/novo_produto.html', {'form': form})
 
 
 @login_required
@@ -230,7 +231,7 @@ def cliente_detalhes(request, pk):
     vendas_fiadas = [venda for venda in vendas if venda.forma_pagamento == Venda.FormaPagamento.FIADO]
     credito_disponivel = max(cliente.limite_credito - cliente.saldo_devedor, Decimal('0.00'))
 
-    return render(request, 'cliente-detalhes.html', {
+    return render(request, 'estrela_modas/cliente-detalhes.html', {
         'cliente': cliente,
         'compras': compras,
         'vendas_fiadas': vendas_fiadas,
@@ -238,6 +239,13 @@ def cliente_detalhes(request, pk):
         'credito_disponivel': credito_disponivel,
         'form_error': form_error,
     })
+def novo_cliente(request):
+    form = ClienteForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Cliente cadastrado com sucesso.')
+        return redirect('clientes')
+    return render(request, 'estrela_modas/novo_cliente.html', {'form': form})
 
 
 @login_required
@@ -384,12 +392,18 @@ def trocas(request):
         else:
             messages.success(request, 'Troca registrada e estoque atualizado.')
             return redirect('trocas')
-    return render(request, 'estrela_modas/registro.html', {
+    return render(request, 'estrela_modas/trocas.html', {
         'form': form,
-        'titulo': 'Registrar troca',
-        'subtitulo': 'Registre o produto devolvido e a reposição, se houver.',
         'registros': Troca.objects.select_related('produto_devolvido', 'produto_entregue')[:8],
-        'tipo_registro': 'troca',
+    })
+
+
+@login_required
+def usuarios(request):
+    if not request.user.is_superuser:
+        return redirect('mais_opcoes')
+    return render(request, 'estrela_modas/usuarios.html', {
+        'usuarios': Usuario.objects.all(),
     })
 
 
