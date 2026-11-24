@@ -174,6 +174,15 @@ function iniciarMenu() {
       .menu-toggle {
         display: inline-grid !important;
       }
+      input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
       @media (max-width: 1023px) {
         .nav {
           transform: translateX(-100%) !important;

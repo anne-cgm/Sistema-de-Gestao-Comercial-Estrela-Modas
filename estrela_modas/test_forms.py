@@ -1,6 +1,6 @@
 from decimal import Decimal
 from django.test import TestCase
-from .forms import PagamentoDebitoForm
+from .forms import ClienteForm, ItemVendaForm, PagamentoDebitoForm, ProdutoForm, TrocaForm
 from .models import Cliente, Venda, PagamentoDebito
 
 class PagamentoDebitoFormTests(TestCase):
@@ -26,6 +26,27 @@ class PagamentoDebitoFormTests(TestCase):
             valor_total=Decimal('100.00'),
             forma_pagamento=Venda.FormaPagamento.PIX
         )
+
+    def test_campos_monetarios_de_produto_continuam_numericos(self):
+        form = ProdutoForm()
+
+        self.assertEqual(form.fields['preco_custo'].widget.input_type, 'number')
+        self.assertEqual(form.fields['preco_venda'].widget.input_type, 'number')
+
+    def test_campos_de_novo_cliente_exibem_exemplos_de_formato(self):
+        form = ClienteForm()
+
+        self.assertEqual(form.fields['nome_cliente'].widget.attrs['placeholder'], 'Nome e sobrenome')
+        self.assertEqual(form.fields['telefone'].widget.attrs['placeholder'], '(00) 00000 - 0000')
+
+    def test_seletores_sem_escolha_usam_instrucoes_em_portugues(self):
+        self.assertEqual(ItemVendaForm().fields['produto'].empty_label, 'Selecione um produto')
+        self.assertEqual(PagamentoDebitoForm().fields['venda'].empty_label, 'Selecione uma dívida')
+
+        form_troca = TrocaForm()
+        self.assertEqual(form_troca.fields['venda'].empty_label, 'Selecione uma venda (opcional)')
+        self.assertEqual(form_troca.fields['produto_devolvido'].empty_label, 'Selecione o produto devolvido')
+        self.assertEqual(form_troca.fields['produto_entregue'].empty_label, 'Selecione o produto entregue')
 
     # Método auxiliar para criar um formulário de pagamento de débito com os dados fornecidos. Evitar repetir a montagem do formulário em todos os testes.
     def criar_formulario(self, venda, valor):

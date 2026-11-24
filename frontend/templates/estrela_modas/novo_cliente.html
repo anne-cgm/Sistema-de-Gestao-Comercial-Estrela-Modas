@@ -1203,11 +1203,14 @@
       <section class="screen">
         <header class="header">
           <div class="header-main">
-            <button class="menu-toggle" type="button" data-alternar-menu aria-controls="menu-principal" aria-expanded="false" aria-label="Abrir menu">
+            <div style="display:flex;flex:0 0 auto;flex-direction:column;align-items:center;gap:8px;">
+              <a href="{% if request.GET.retorno == 'trocas' %}{% url 'trocas' %}{% else %}{% url 'clientes' %}{% endif %}" style="display:inline-flex;width:72px;min-height:28px;margin:0;padding:4px 8px;align-items:center;justify-content:center;border:1px solid #d6b16d;border-radius:8px;background:#fff8fa;color:#580d18;text-decoration:none;font-size:11px;font-weight:700;white-space:nowrap;">← Voltar</a>
+              <button class="menu-toggle" type="button" data-alternar-menu aria-controls="menu-principal" aria-expanded="false" aria-label="Abrir menu">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
                 <path d="M4 7h16M4 12h16M4 17h16" />
               </svg>
-            </button>
+              </button>
+            </div>
             <div class="header-copy">
               <p class="brand">ESTRELA MODAS</p>
               <h1 class="title">Novo cliente</h1>
@@ -1216,7 +1219,6 @@
           </div>
           <div class="avatar" data-nome-perfil data-login-perfil="{{ request.user.login }}" aria-label="Perfil">{{ request.user.login|first|upper }}</div>
         </header>
-        <a href="{% if request.GET.retorno == 'trocas' %}{% url 'trocas' %}{% else %}{% url 'clientes' %}{% endif %}" style="display:inline-flex;width:auto;min-height:36px;margin:0 0 16px;padding:8px 14px;align-items:center;border:1px solid #d6b16d;border-radius:10px;background:#fff8fa;color:#580d18;text-decoration:none;font-weight:700;">← Voltar</a>
         <div class="content">
           <form class="card stack client-form" data-formulario-cliente method="post">
             {% csrf_token %}

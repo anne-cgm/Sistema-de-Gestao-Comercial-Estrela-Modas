@@ -1248,11 +1248,14 @@
       <section class="screen">
         <header class="header">
           <div class="header-main">
-            <button class="menu-toggle" type="button" data-alternar-menu aria-controls="menu-principal" aria-expanded="false" aria-label="Abrir menu">
+            <div style="display:flex;flex:0 0 auto;flex-direction:column;align-items:center;gap:8px;">
+              <a class="button button--outline" href="{% url 'clientes' %}" style="display:inline-flex;width:72px;min-height:28px;margin:0;padding:4px 8px;align-items:center;justify-content:center;font-size:11px;white-space:nowrap;">← Voltar</a>
+              <button class="menu-toggle" type="button" data-alternar-menu aria-controls="menu-principal" aria-expanded="false" aria-label="Abrir menu">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
                 <path d="M4 7h16M4 12h16M4 17h16" />
               </svg>
-            </button>
+              </button>
+            </div>
             <div class="header-copy">
               <p class="brand">ESTRELA MODAS</p>
               <h1 class="title" data-nome-cliente>{{ cliente.nome_cliente }}</h1>
@@ -1261,7 +1264,6 @@
           </div>
           <div class="avatar" data-nome-perfil data-login-perfil="{{ request.user.login }}" aria-label="Perfil">{{ request.user.login|first|upper }}</div>
         </header>
-        <a class="button button--outline" href="{% url 'clientes' %}" style="display:inline-flex;width:auto;min-height:36px;margin:0 0 16px;padding:8px 14px;align-items:center;">← Voltar</a>
         <div class="content">
           <div class="grid-2 detail-summary">
             <article class="card stat">

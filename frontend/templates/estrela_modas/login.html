@@ -254,11 +254,6 @@
       }
 
       .button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        text-decoration: none;
         width: 100%;
         min-height: 48px;
         border: 1px solid #c5a063;
@@ -863,7 +858,7 @@
       .screen--login { display: block; width: min(100%, 460px); min-height: auto; padding: 0; border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 16px; background: #fffdfa; box-shadow: 0 16px 60px rgb(88 13 24 / 7%); }
       .login-panel { max-width: none; padding: 40px 32px; }
       .login-panel .title { font-size: 42px; }
-      .forgot-password { align-self: flex-end; border: 0; background: none; color: var(--wine); padding: 4px 0; font-size: 12px; text-decoration: none; text-underline-offset: 4px; cursor: pointer; }
+      .forgot-password { align-self: flex-end; border: 0; background: none; color: var(--wine); padding: 4px 0; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
       .recovery-dialog { width: min(420px, calc(100% - 40px)); margin: auto; padding: 32px; border: 1px solid var(--gold); border-radius: 14px; color: var(--text); background: #fffdfa; box-shadow: 0 20px 70px rgb(32 5 12 / 20%); }
       .recovery-dialog::backdrop { background: rgb(32 5 12 / 55%); }
       .recovery-dialog h2 { margin-top: 0; color: var(--wine); font: 600 30px 'Cormorant Garamond', Georgia, serif; }
@@ -874,6 +869,12 @@
         flex-direction: column;
         gap: 14px;
         margin-top: 20px;
+      }
+      .recovery-preview {
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
       }
       .recovery-result {
         margin: 2px 0 0;
@@ -1178,8 +1179,7 @@
         .phone.menu-fechado { grid-template-columns: minmax(0, 1fr); }
         .phone.menu-fechado:has(.nav) .screen { grid-column: 1; }
       }
-           a, a:hover, a:focus, a:active { text-decoration: none; }
-    </style>
+        </style>
   </head>
   <body>
     <main class="phone">
@@ -1193,36 +1193,71 @@
             </div>
           </header>
 
-        <form class="content stack login-form" method="post" data-login-form>
+          <form class="content stack login-form" method="post" data-login-form>
           {% csrf_token %}
           {% if erro_login %}<p class="form-error" role="alert">{{ erro_login }}</p>{% endif %}
           <label>
-            <span class="form-label">Usuário</span>
-            <input class="input" id="usuario" name="usuario" placeholder="Digite seu usuário" autocomplete="username" />
-          </label>
-          <label>
-            <span class="form-label">Senha</span>
-            <input class="input" id="senha" type="password" name="senha" placeholder="Digite sua senha" autocomplete="current-password" />
-          </label>
-                    <!-- Mensagem de erro retornada pelo login -->
-          <p class="form-error" data-erro-login role="alert" hidden></p>
-
-          <a
-            class="forgot-password"
-            href="{% url 'recuperar_senha' %}"
-          >
-            Esqueci a senha
-          </a>
-
-          <button class="button" id="btnEntrar" type="submit">
-            Entrar
-          </button>
-        </form>
-
-        <p class="login-note">Gestão com elegância, todos os dias.</p>
+            <span class="form-label">Usuário ou e-mail</span>
+              <input class="input" id="usuario" name="usuario" placeholder="Digite seu usuário ou e-mail" autocomplete="username" />
+            </label>
+            <label>
+              <span class="form-label">Senha</span>
+              <input class="input" id="senha" type="password" name="senha" placeholder="Digite sua senha" autocomplete="current-password" />
+            </label>
+            <p class="form-error" data-erro-login role="alert" hidden></p>
+            <button class="forgot-password" type="button" data-abrir-recuperacao aria-haspopup="dialog">Esqueci a senha</button>
+            <button class="button" id="btnEntrar" type="submit">Entrar</button>
+          </form>
+          <p class="login-note">Gestão com elegância, todos os dias.</p>
+        </div>
       </section>
     </main>
-
+      <dialog class="recovery-dialog" data-recuperar-senha aria-labelledby="titulo-recuperacao" aria-describedby="orientacao-recuperacao">
+      <h2 id="titulo-recuperacao">Esqueceu sua senha?</h2>
+      <p id="orientacao-recuperacao">Fluxo em prévia: o e-mail e o código ainda não são consultados nem validados.</p>
+      <p class="recovery-result" data-resultado-recuperacao role="status" hidden></p>
+      <section data-etapa-email-recuperacao>
+        <form class="recovery-form" data-formulario-email-recuperacao>
+          <label>
+            <span class="form-label">E-mail do usuário</span>
+            <input class="input" type="email" name="email" placeholder="nome@estrelamodas.com.br" autocomplete="email" required />
+          </label>
+          <button class="button" type="submit">Pré-visualizar etapa do código</button>
+        </form>
+        <p class="recovery-preview">O e-mail será consultado no banco quando a integração com o servidor estiver pronta.</p>
+      </section>
+      <section data-etapa-codigo-recuperacao hidden>
+        <form class="recovery-form" data-formulario-codigo-recuperacao>
+          <label>
+            <span class="form-label">Código de recuperação</span>
+            <input class="input" type="text" name="codigo" placeholder="Digite o código" autocomplete="one-time-code" required />
+          </label>
+          <div class="recovery-actions">
+            <button class="button" type="submit">Pré-visualizar redefinição</button>
+            <button class="recovery-cancel" type="button" data-voltar-etapa-recuperacao="email">Voltar</button>
+          </div>
+        </form>
+        <p class="recovery-preview">O código será comparado com o código associado à conta após a integração.</p>
+      </section>
+      <section data-etapa-senha-recuperacao hidden>
+        <form class="recovery-form" data-formulario-senha-recuperacao>
+          <label>
+            <span class="form-label">Nova senha</span>
+            <input class="input" type="password" name="novaSenha" minlength="6" autocomplete="new-password" required />
+          </label>
+          <label>
+            <span class="form-label">Confirmar nova senha</span>
+            <input class="input" type="password" name="confirmarSenha" minlength="6" autocomplete="new-password" required />
+          </label>
+          <div class="recovery-actions">
+            <button class="button" type="submit">Concluir prévia</button>
+            <button class="recovery-cancel" type="button" data-voltar-etapa-recuperacao="codigo">Voltar</button>
+          </div>
+        </form>
+        <p class="recovery-preview">A senha só poderá ser alterada quando a redefinição estiver conectada ao servidor.</p>
+      </section>
+      <button class="recovery-cancel" type="button" data-fechar-recuperacao>Cancelar</button>
+    </dialog>
     <script type="module" src="{% static 'estrela_modas/login.js' %}"></script>
   </body>
 </html>

@@ -37,7 +37,17 @@ def login_page(request):
     if request.method == 'POST':
         usuario = request.POST.get('usuario', '').strip()
         senha = request.POST.get('senha', '')
-        user = authenticate(request, username=usuario, password=senha)
+        logins_por_email = list(
+            Usuario.objects.filter(email__iexact=usuario)
+            .values_list('login', flat=True)[:2]
+        )
+        if len(logins_por_email) == 1:
+            usuario = logins_por_email[0]
+            user = authenticate(request, username=usuario, password=senha)
+        elif len(logins_por_email) > 1:
+            user = None
+        else:
+            user = authenticate(request, username=usuario, password=senha)
         if user is not None:
             auth_login(request, user)
             return redirect('dashboard')

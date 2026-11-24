@@ -81,9 +81,16 @@ class ClienteForm(forms.ModelForm):
             'limite_credito': 'Limite para compras fiado',
         }
         widgets = {
-            'nome_cliente': forms.TextInput(attrs={'class': 'input'}),
+            'nome_cliente': forms.TextInput(attrs={
+                'class': 'input',
+                'placeholder': 'Nome e sobrenome',
+            }),
             'cpf_cliente': forms.TextInput(attrs={'class': 'input', 'inputmode': 'numeric', 'maxlength': '11'}),
-            'telefone': forms.TextInput(attrs={'class': 'input'}),
+            'telefone': forms.TextInput(attrs={
+                'class': 'input',
+                'placeholder': '(00) 00000 - 0000',
+                'inputmode': 'tel',
+            }),
             'endereco_completo': forms.Textarea(attrs={'class': 'input', 'rows': 2}),
             'limite_credito': forms.NumberInput(attrs={'class': 'input', 'min': '0', 'step': '0.01'}),
         }
@@ -130,7 +137,11 @@ class VendaForm(forms.Form):
 
 
 class ItemVendaForm(forms.Form):
-    produto = forms.ModelChoiceField(queryset=Produto.objects.none(), widget=forms.Select(attrs={'class': 'select'}))
+    produto = forms.ModelChoiceField(
+        queryset=Produto.objects.none(),
+        empty_label='Selecione um produto',
+        widget=forms.Select(attrs={'class': 'select'}),
+    )
     quantidade = forms.IntegerField(
         required=False,
         min_value=1,
@@ -164,9 +175,9 @@ class PagamentoDebitoForm(forms.ModelForm):
         widgets = {
             'venda': forms.Select(attrs={'class': 'select'}),
             'valor': forms.NumberInput(attrs={
-                'class': 'input', 
-                'min': '0.01', 
-                'step': '0.01'
+                'class': 'input',
+                'min': '0.01',
+                'step': '0.01',
                 }),
             'observacoes': forms.TextInput(attrs={'class': 'input'}),
         }
@@ -180,6 +191,7 @@ class PagamentoDebitoForm(forms.ModelForm):
             .select_related('cliente')
             .order_by('-data_venda')
         )
+        self.fields['venda'].empty_label = 'Selecione uma dívida'
 
         #Define como cada venda aparecerá no campo de seleção
         self.fields['venda'].label_from_instance = self.label_from_instance
@@ -265,6 +277,9 @@ class TrocaForm(forms.ModelForm):
         self.fields['produto_devolvido'].queryset = Produto.objects.filter(ativo=True)
         self.fields['produto_entregue'].queryset = Produto.objects.filter(ativo=True)
         self.fields['produto_entregue'].required = False
+        self.fields['venda'].empty_label = 'Selecione uma venda (opcional)'
+        self.fields['produto_devolvido'].empty_label = 'Selecione o produto devolvido'
+        self.fields['produto_entregue'].empty_label = 'Selecione o produto entregue'
 
     def clean(self):
         dados = super().clean()
