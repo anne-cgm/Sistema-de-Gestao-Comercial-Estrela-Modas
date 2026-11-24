@@ -11,11 +11,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 #Copia arquivos do projeto para imagem 
-COPY requirements.txt .
+COPY backend/requirements.txt backend/requirements.txt
 
 #Executa comandos durante a construção
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir -r backend/requirements.txt
 
 COPY . .
 
@@ -23,4 +23,4 @@ COPY . .
 EXPOSE 8000
 
 #Define o comando executado ao iniciar o container 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "backend/manage.py", "runserver", "0.0.0.0:8000"]
