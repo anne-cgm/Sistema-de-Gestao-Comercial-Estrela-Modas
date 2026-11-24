@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from usuarios import api as usuarios_api
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -22,4 +23,7 @@ urlpatterns = [
     path('despesas/', views.despesas, name='despesas'),
     path('trocas/', views.trocas, name='trocas'),
     path('usuarios/', views.usuarios, name='usuarios'),
+    path('api/usuarios/', usuarios_api.api_usuarios, name='api_usuarios'),
+    path('api/usuarios/permissoes-funcionarios/', usuarios_api.api_permissoes_funcionarios, name='api_permissoes_funcionarios'),
+    path('api/usuarios/<int:pk>/', usuarios_api.api_usuario_detalhe, name='api_usuario_detalhe'),
 ]

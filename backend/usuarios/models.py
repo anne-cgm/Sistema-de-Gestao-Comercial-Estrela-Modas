@@ -42,3 +42,14 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return f"{self.nome} ({self.login})"
+
+
+class ConfiguracaoPermissoesFuncionarios(models.Model):
+    """Permissões compartilhadas por todas as contas de funcionário."""
+
+    permissoes = models.JSONField(default=list)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'configuração de permissões dos funcionários'
+        verbose_name_plural = 'configurações de permissões dos funcionários'
