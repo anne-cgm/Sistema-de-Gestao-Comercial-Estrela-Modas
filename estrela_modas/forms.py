@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import formset_factory
+from decimal import Decimal
 
 from .models import Cliente, Despesa, PagamentoDebito, Produto, Troca, Venda
 
@@ -87,13 +88,25 @@ class ClienteForm(forms.ModelForm):
             'limite_credito': forms.NumberInput(attrs={'class': 'input', 'min': '0', 'step': '0.01'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['cpf_cliente'].required = False
+        self.fields['endereco_completo'].required = False
+        self.fields['limite_credito'].required = False
+        self.fields['limite_credito'].initial = Decimal('0.00')
+
     def clean_cpf_cliente(self):
-        cpf = self.cleaned_data.get('cpf_cliente', '').strip()
-        if not cpf:
+        cpf = self.cleaned_data.get('cpf_cliente')
+        if cpf is None or not str(cpf).strip():
             return None
+        cpf = str(cpf).strip()
         if not cpf.isdigit() or len(cpf) != 11:
             raise forms.ValidationError('Informe os 11 números do CPF, sem pontuação.')
         return cpf
+
+    def clean_limite_credito(self):
+        limite = self.cleaned_data.get('limite_credito')
+        return limite if limite is not None else Decimal('0.00')
 
 
 class VendaForm(forms.Form):
@@ -118,13 +131,23 @@ class VendaForm(forms.Form):
 
 class ItemVendaForm(forms.Form):
     produto = forms.ModelChoiceField(queryset=Produto.objects.none(), widget=forms.Select(attrs={'class': 'select'}))
-    quantidade = forms.IntegerField(min_value=1, initial=1, widget=forms.NumberInput(attrs={'class': 'input', 'min': '1', 'step': '1'}))
+    quantidade = forms.IntegerField(
+        required=False,
+        min_value=1,
+        widget=forms.NumberInput(attrs={'class': 'input', 'min': '1', 'step': '1'}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['produto'].queryset = Produto.objects.filter(ativo=True).order_by('nome_produto')
         self.fields['produto'].label = 'Produto'
         self.fields['quantidade'].label = 'Quantidade'
+
+    def clean(self):
+        dados = super().clean()
+        if dados.get('produto') and dados.get('quantidade') is None:
+            self.add_error('quantidade', 'Informe a quantidade do produto.')
+        return dados
 
 
 ItemVendaFormSet = formset_factory(ItemVendaForm, extra=5, max_num=12, validate_max=True)

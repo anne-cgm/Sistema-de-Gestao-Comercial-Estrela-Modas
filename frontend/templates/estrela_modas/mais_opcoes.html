@@ -1178,7 +1178,6 @@
           <p class="count" style="margin-bottom: 14px">Gerencie outras áreas da loja</p>
           <div class="list">
             <a class="menu-item" href="{% url 'compras' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Compras</span><span class="row-sub" style="display: block">Registrar mercadorias e entradas</span></span><span class="chevron">›</span></a>
-            <a class="menu-item" href="{% url 'trocas' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Trocas</span><span class="row-sub" style="display: block">Registrar trocas e atualizar estoque</span></span><span class="chevron">›</span></a>
             <a class="menu-item" href="{% url 'despesas' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Despesas</span><span class="row-sub" style="display: block">Registrar gastos operacionais</span></span><span class="chevron">›</span></a>
             <a class="menu-item" href="{% url 'relatorios' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Relatórios</span><span class="row-sub" style="display: block">Vendas, estoque e financeiro</span></span><span class="chevron">›</span></a>
             <a class="menu-item" href="{% url 'admin:index' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Administração</span><span class="row-sub" style="display: block">Gerenciar usuários, produtos e registros</span></span><span class="chevron">›</span></a>
@@ -1221,6 +1220,9 @@
         </a>
         <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes">
           <span class="nav-icon">♙</span>Clientes
+        </a>
+        <a class="nav-link" href="{% url 'trocas' %}" data-tab="trocas">
+          <span class="nav-icon">⇄</span>Trocas
         </a>
         <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais">
           <span class="nav-icon">☰</span>Mais

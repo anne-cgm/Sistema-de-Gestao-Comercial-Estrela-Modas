@@ -58,32 +58,14 @@ export function obterSessaoAcesso(armazenamento = globalThis.sessionStorage) {
 export function navegarParaTela(tela) {
   const caminho = caminhosDasTelas[tela]
   if (!caminho) return
-  if (!podeAcessarTela(tela, obterSessaoAcesso())) {
-    window.location.href = caminhosDasTelas.dashboard
-    return
-  }
   window.location.href = caminho
 }
 
 export function iniciarTela(abaAtiva) {
-  const sessao = obterSessaoAcesso()
-  const arquivoAtual = window.location.pathname.split("/").at(-1)
-  const telaAtual = Object.entries(caminhosDasTelas).find(
-    ([, caminho]) => caminho.replace("./", "") === arquivoAtual,
-  )?.[0]
-  if (!podeAcessarTela(telaAtual, sessao)) {
-    window.location.replace(caminhosDasTelas.dashboard)
-    return
-  }
-
   atualizarPerfil()
   iniciarMenu()
 
   document.querySelectorAll("[data-screen]").forEach((elemento) => {
-    if (!podeAcessarTela(elemento.dataset.screen, sessao)) {
-      elemento.remove()
-      return
-    }
     elemento.addEventListener("click", (evento) => {
       evento.preventDefault()
       navegarParaTela(elemento.dataset.screen)
@@ -161,6 +143,78 @@ function iniciarMenu() {
   const botaoFechar = document.querySelector("[data-fechar-menu]")
   const fundoMenu = document.querySelector("[data-fundo-menu]")
   if (!menu || !botaoMenu) return
+  if (menu.dataset.menuInicializado === "sim") return
+  menu.dataset.menuInicializado = "sim"
+
+  if (!document.querySelector("#menu-padrao-estrela")) {
+    const estiloMenu = document.createElement("style")
+    estiloMenu.id = "menu-padrao-estrela"
+    estiloMenu.textContent = `
+      .nav-brand {
+        display: block !important;
+        width: 170px !important;
+        max-width: 170px !important;
+        height: auto !important;
+        margin: 0 auto 28px !important;
+        border-radius: 8px !important;
+      }
+      .nav-top {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+      }
+      .menu-close {
+        display: inline-grid !important;
+        place-items: center !important;
+        min-width: 36px !important;
+      }
+      .menu-toggle {
+        display: inline-grid !important;
+      }
+      @media (max-width: 1023px) {
+        .nav {
+          transform: translateX(-100%) !important;
+        }
+        .nav.is-open {
+          transform: translateX(0) !important;
+        }
+        .menu-backdrop {
+          display: block !important;
+        }
+      }
+      @media (min-width: 1024px) {
+        .nav {
+          transform: none !important;
+        }
+        .nav[hidden] {
+          display: none !important;
+        }
+        .menu-backdrop {
+          display: none !important;
+        }
+      }
+    `
+    document.head.append(estiloMenu)
+  }
+
+  if (!menu.querySelector(".nav-brand")) {
+    const logo = document.createElement("img")
+    logo.className = "nav-brand"
+    logo.src = "/static/imagens/icon_da_loja.jpg"
+    logo.alt = "Estrela Modas"
+    logo.width = 1254
+    logo.height = 1254
+    logo.style.display = "block"
+    logo.style.width = "170px"
+    logo.style.height = "auto"
+    logo.style.margin = "0 auto 28px"
+    menu.querySelector(".nav-top")?.after(logo)
+  }
+
+  if (botaoFechar) {
+    botaoFechar.textContent = "×"
+    botaoFechar.setAttribute("aria-label", "Fechar menu")
+  }
 
   if (!menu.querySelector('[data-tab="trocas"]')) {
     const linkTrocas = document.createElement("a")
@@ -168,20 +222,22 @@ function iniciarMenu() {
     linkTrocas.href = "/trocas/"
     linkTrocas.dataset.tab = "trocas"
     linkTrocas.innerHTML = '<span class="nav-icon">⇄</span>Trocas'
-    menu.querySelector('[data-tab="mais"]')?.before(linkTrocas)
+    const linkMais = menu.querySelector('[data-tab="mais"]')
+    if (linkMais) linkMais.before(linkTrocas)
+    else menu.append(linkTrocas)
   }
 
   const telaLarga = window.matchMedia("(min-width: 1024px)")
   let menuAberto = telaLarga.matches
-  try {
-    if (telaLarga.matches)
-      menuAberto = window.sessionStorage.getItem("estrelaMenuFechado") !== "sim"
-  } catch {
-    // A preferência de menu é opcional.
-  }
 
   function atualizarMenu(devolverFoco = false) {
-    menu.hidden = !menuAberto
+    if (telaLarga.matches) {
+      menu.hidden = !menuAberto
+      menu.classList.toggle("is-open", menuAberto)
+    } else {
+      menu.hidden = false
+      menu.classList.toggle("is-open", menuAberto)
+    }
     document
       .querySelector(".phone")
       ?.classList.toggle("menu-fechado", !menuAberto)
@@ -207,15 +263,7 @@ function iniciarMenu() {
   }
 
   function guardarPreferencia() {
-    if (!telaLarga.matches) return
-    try {
-      window.sessionStorage.setItem(
-        "estrelaMenuFechado",
-        menuAberto ? "nao" : "sim",
-      )
-    } catch {
-      // O menu permanece funcional sem salvar sua preferência.
-    }
+    // O estado do menu não atravessa módulos e é recalculado por breakpoint.
   }
 
   botaoMenu.addEventListener("click", () => {
@@ -282,4 +330,19 @@ export function exibirMensagem(mensagem) {
   aviso.textContent = mensagem
   document.body.append(aviso)
   window.setTimeout(() => aviso.remove(), 2200)
+}
+
+if (typeof document !== "undefined") {
+  const iniciarMenusPadrao = () => {
+    const menu = document.querySelector("[data-menu]")
+    if (menu) iniciarMenu()
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", iniciarMenusPadrao, {
+      once: true,
+    })
+  } else {
+    iniciarMenusPadrao()
+  }
 }

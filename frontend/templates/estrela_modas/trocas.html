@@ -1344,11 +1344,12 @@
       <button class="menu-backdrop" type="button" data-fundo-menu aria-label="Fechar menu" tabindex="-1" hidden></button>
       <nav class="nav" id="menu-principal" data-menu aria-label="Navegação principal">
         <div class="nav-top"><span>Menu principal</span><button class="menu-close" type="button" data-fechar-menu aria-label="Fechar menu">Fechar ×</button></div>
-        <img class="nav-brand" src="./assets/estrela-modas.jpeg" alt="Estrela Modas" width="1254" height="1254" />
+        <img class="nav-brand" src="{% static 'imagens/icon_da_loja.jpg' %}" alt="Estrela Modas" width="1254" height="1254" />
         <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Dashboard</a>
         <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
         <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
         <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'trocas' %}" data-tab="trocas"><span class="nav-icon">⇄</span>Trocas</a>
         <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
         <form method="post" action="{% url 'logout' %}"><button class="nav-link nav-exit" type="submit" data-sair>Sair da sessão</button></form>
       </nav>

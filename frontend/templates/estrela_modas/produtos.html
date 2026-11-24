@@ -1162,36 +1162,56 @@
         <div class="content stack">
           <label>
             <span class="form-label">Buscar produto</span>
-            <input class="search" type="search" placeholder="Nome ou SKU..." data-busca-produto />
+            <form method="get">
+              <input
+                class="search"
+                type="search"
+                name="q"
+                value="{{ termo_busca }}"
+                placeholder="Nome ou SKU..."
+                data-busca-produto
+              />
+            </form>
           </label>
-          <button class="button" data-screen="novo_produto">＋ Cadastrar produto</button>
-          <p class="count">248 produtos cadastrados</p>
+          <a class="button" href="{% url 'novo_produto' %}">＋ Cadastrar produto</a>
+          <p class="count">{{ produtos.count }} produto{{ produtos.count|pluralize }} cadastrado{{ produtos.count|pluralize }}</p>
           <div class="list">
-            <article class="card row" data-produto data-nome-produto="Camiseta Básica">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Camiseta Básica</p><p class="row-sub">CAM-MAS-BAS-M</p></div><div><p class="row-value">R$ 79,90</p><p class="row-sub">12 un.</p></div>
-            </article>
-            <article class="card card--alert row" data-produto data-nome-produto="Calça Wide Leg">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Calça Wide Leg</p><p class="row-sub">CAL-WID-PT-M</p></div><div><p class="row-value">R$ 149,90</p><p class="row-sub">1 un.</p></div>
-            </article>
-            <article class="card row" data-produto data-nome-produto="Vestido Floral">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Vestido Floral</p><p class="row-sub">VES-FLO-AZ-G</p></div><div><p class="row-value">R$ 189,90</p><p class="row-sub">8 un.</p></div>
-            </article>
-            <article class="card row" data-produto data-nome-produto="Bolsa Mini">
-              <div class="thumb"></div><div class="row-main"><p class="row-title">Bolsa Mini</p><p class="row-sub">BOL-MIN-PR</p></div><div><p class="row-value">R$ 119,90</p><p class="row-sub">4 un.</p></div>
-            </article>
+            {% for produto in produtos %}
+              <article
+                class="card row{% if produto.estoque_baixo %} card--alert{% endif %}"
+                data-produto
+                data-nome-produto="{{ produto.nome_produto }}"
+              >
+                <div class="thumb"></div>
+                <div class="row-main">
+                  <p class="row-title">{{ produto.nome_produto }}</p>
+                  <p class="row-sub">{{ produto.sku }}{% if produto.tamanho %} · {{ produto.tamanho }}{% endif %}{% if produto.cor %} · {{ produto.cor }}{% endif %}</p>
+                </div>
+                <div>
+                  <p class="row-value">R$ {{ produto.preco_venda|floatformat:2 }}</p>
+                  <p class="row-sub">{{ produto.quantidade_estoque }} un.</p>
+                </div>
+              </article>
+            {% empty %}
+              <p class="card">Nenhum produto cadastrado.</p>
+            {% endfor %}
           </div>
         </div>
       </section>
       <button class="menu-backdrop" type="button" data-fundo-menu aria-label="Fechar menu" tabindex="-1" hidden></button>
       <nav class="nav" id="menu-principal" data-menu aria-label="Navegação principal">
         <div class="nav-top"><span>Menu principal</span><button class="menu-close" type="button" data-fechar-menu aria-label="Fechar menu">Fechar ×</button></div>
-        <img class="nav-brand" src="./assets/estrela-modas.jpeg" alt="Estrela Modas" width="1254" height="1254" />
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Dashboard</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
-        <a class="nav-link nav-exit" href="./login.html" data-sair>Sair da sessão</a>
+       <img class="nav-brand" src="{% static 'imagens/icon_da_loja.jpg' %}" alt="Estrela Modas" width="1254" height="1254" />
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Dashboard</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'trocas' %}" data-tab="trocas"><span class="nav-icon">⇄</span>Trocas</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button class="nav-link nav-exit" type="submit" data-sair style="width:100%;border-right:0;border-bottom:0;border-left:0;background:transparent;text-align:left;">Sair da sessão</button>
+        </form>
       </nav>
     </main>
     <script type="module" src="{% static 'estrela_modas/produtos.js' %}"></script>

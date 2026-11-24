@@ -1195,60 +1195,92 @@
           </div>
           <div class="avatar" data-nome-perfil aria-label="Perfil">P</div>
         </header>
-        <div class="content stack">
+        <form class="content stack" method="post" data-form-venda>
+          {% csrf_token %}
+          {% for message in messages %}
+            <p class="card" role="status" style="padding:12px 16px;">{{ message }}</p>
+          {% endfor %}
+
           <label>
-            <span class="form-label">Cliente (opcional)</span>
-            <select class="select" data-cliente-venda>
-              <option value="">Consumidor não identificado</option>
-            </select>
+            <span class="form-label">{{ form.cliente.label }}</span>
+            {{ form.cliente }}
+            {{ form.cliente.errors }}
           </label>
-          <button class="button button--wine">＋ Adicionar produto</button>
-          <article class="card row" data-item-venda data-preco-venda="79.90" data-quantidade="1"><div class="row-main"><p class="row-title">Camiseta Básica</p><p class="row-sub">1x</p></div><p class="row-value">R$ 79,90</p></article>
-          <article class="card row" data-item-venda data-preco-venda="119.90" data-quantidade="1"><div class="row-main"><p class="row-title">Bolsa Mini</p><p class="row-sub">1x</p></div><p class="row-value">R$ 119,90</p></article>
-          <div class="total" data-desconto-aplicado="5"><span class="muted">Desconto</span><span class="wine">5% · R$ 9,99</span></div>
-          <article class="card sale-credit" data-painel-credito hidden>
-            <div class="sale-credit-head">
-              <div>
-                <p class="row-title">Crédito disponível</p>
-                <p class="row-sub">Pode ser usado total ou parcialmente nesta venda.</p>
-              </div>
-              <strong class="wine" data-saldo-credito-venda>R$ 0,00</strong>
-            </div>
-            <div class="sale-credit-grid">
+
+          {{ itens_formset.management_form }}
+          <p class="count">Escolha os produtos cadastrados no estoque</p>
+
+          {% for item_form in itens_formset.forms %}
+            <div class="grid-2">
               <label>
-                <span class="form-label">Valor do crédito a utilizar</span>
-                <input class="input" type="number" min="0" step="0.01" value="0" data-valor-credito />
+                <span class="form-label">Produto</span>
+                <select class="select" name="{{ item_form.produto.html_name }}" data-produto-venda>
+                  <option value="">Selecione um produto</option>
+                  {% for produto in item_form.fields.produto.queryset %}
+                    <option
+                      value="{{ produto.pk }}"
+                      data-preco-venda="{{ produto.preco_venda }}"
+                      data-estoque="{{ produto.quantidade_estoque }}"
+                      {% if item_form.produto.value == produto.pk|stringformat:'s' %}selected{% endif %}
+                    >{{ produto.nome_produto }} · {{ produto.sku }} ({{ produto.quantidade_estoque }} em estoque)</option>
+                  {% endfor %}
+                </select>
+                {{ item_form.produto.errors }}
               </label>
-              <button class="button button--outline" type="button" data-usar-credito-total>Usar máximo</button>
+              <label>
+                <span class="form-label">Quantidade</span>
+                {{ item_form.quantidade }}
+                {{ item_form.quantidade.errors }}
+              </label>
             </div>
-          </article>
-          <div class="sale-breakdown">
-            <div class="total"><span class="muted">Total da venda</span><strong data-valor-total>R$ 189,81</strong></div>
-            <div class="total" data-linha-credito hidden><span class="muted">Crédito utilizado</span><strong class="history-value--credit" data-credito-utilizado>− R$ 0,00</strong></div>
-            <div class="total"><strong style="color: var(--text); font-size: 13px">Restante a pagar</strong><strong data-valor-restante>R$ 189,81</strong></div>
+          {% endfor %}
+          {{ itens_formset.non_form_errors }}
+
+          <label>
+            <span class="form-label">{{ form.desconto_aplicado.label }}</span>
+            {{ form.desconto_aplicado }}
+            {{ form.desconto_aplicado.errors }}
+          </label>
+          <label>
+            <span class="form-label">{{ form.forma_pagamento.label }}</span>
+            {{ form.forma_pagamento }}
+            {{ form.forma_pagamento.errors }}
+          </label>
+          {{ form.non_field_errors }}
+
+          <div class="total">
+            <span class="muted">Total da venda</span>
+            <strong data-valor-total>R$ 0,00</strong>
           </div>
-          <div>
-            <p class="eyebrow">Pagamento</p>
-            <div class="payment-grid">
-              <button class="payment is-active" data-forma-pagamento>Pix</button>
-              <button class="payment" data-forma-pagamento>Cartão</button>
-              <button class="payment" data-forma-pagamento>Dinheiro</button>
-              <button class="payment" data-forma-pagamento>Fiado</button>
-            </div>
-          </div>
-          <button class="button" data-finish-sale>Finalizar venda</button>
-        </div>
+          <button class="button" type="submit" data-finish-sale>Finalizar venda</button>
+
+          <h2 class="section-title">Vendas recentes</h2>
+          {% for venda in vendas_recentes %}
+            <article class="card row">
+              <div class="row-main">
+                <p class="row-title">Venda #{{ venda.pk }} · {{ venda.get_forma_pagamento_display }}</p>
+                <p class="row-sub">{{ venda.data_venda|date:'d/m/Y H:i' }}{% if venda.cliente %} · {{ venda.cliente.nome_cliente }}{% endif %}</p>
+              </div>
+              <strong>R$ {{ venda.valor_total|floatformat:2 }}</strong>
+            </article>
+          {% empty %}
+            <p class="card">Nenhuma venda registrada ainda.</p>
+          {% endfor %}
+        </form>
       </section>
       <button class="menu-backdrop" type="button" data-fundo-menu aria-label="Fechar menu" tabindex="-1" hidden></button>
       <nav class="nav" id="menu-principal" data-menu aria-label="Navegação principal">
         <div class="nav-top"><span>Menu principal</span><button class="menu-close" type="button" data-fechar-menu aria-label="Fechar menu">Fechar ×</button></div>
-        <img class="nav-brand" src="./assets/estrela-modas.jpeg" alt="Estrela Modas" width="1254" height="1254" />
-        <a class="nav-link" href="./dashboard.html" data-tab="inicio"><span class="nav-icon">⌂</span>Dashboard</a>
-        <a class="nav-link" href="./produtos.html" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
-        <a class="nav-link" href="./nova-venda.html" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
-        <a class="nav-link" href="./clientes.html" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
-        <a class="nav-link" href="./mais.html" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
-        <a class="nav-link nav-exit" href="./login.html" data-sair>Sair da sessão</a>
+        <a class="nav-link" href="{% url 'dashboard' %}" data-tab="inicio"><span class="nav-icon">⌂</span>Dashboard</a>
+        <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
+        <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
+        <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'trocas' %}" data-tab="trocas"><span class="nav-icon">⇄</span>Trocas</a>
+        <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button class="nav-link nav-exit" type="submit" style="width:100%;border-right:0;border-bottom:0;border-left:0;background:transparent;text-align:left;">Sair da sessão</button>
+        </form>
       </nav>
     </main>
     <script type="module" src="{% static 'estrela_modas/nova_venda.js' %}"></script>

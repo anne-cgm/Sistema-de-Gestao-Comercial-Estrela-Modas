@@ -1,14 +1,7 @@
-import { exibirMensagem, iniciarTela } from './shared.js'
+import { iniciarTela } from './shared.js'
 
 export default function iniciarClientes() {
   iniciarTela('clientes')
-
-  // BOTÃO NOVO CLIENTE:
-  // Exibe uma mensagem enquanto o fluxo de cadastro
-  // não estiver conectado à página própria de cadastro.
-  document.querySelector('[data-new-client]')?.addEventListener('click', () => {
-    exibirMensagem('Cadastro de cliente pronto para preenchimento.')
-  })
 
   // DADOS DOS CLIENTES:
   // Atualmente, a listagem, a pesquisa e os dados financeiros

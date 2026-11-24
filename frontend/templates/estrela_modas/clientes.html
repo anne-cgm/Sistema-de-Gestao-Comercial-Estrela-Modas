@@ -1186,9 +1186,62 @@
         font-size: 12px;
         text-align: center;
       }
+      .client-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .client-actions .button {
+        display: grid;
+        place-items: center;
+        text-decoration: none;
+      }
+      .client-content {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 24px 22px 40px;
+      }
+      .client-search {
+        height: 48px;
+      }
+      .client-count {
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .client-card {
+        display: flex;
+        min-height: 72px;
+        align-items: center;
+        text-decoration: none;
+      }
+      .client-card .avatar {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 auto;
+      }
+      .client-card-main {
+        min-width: 0;
+        flex: 1;
+      }
+      .client-card-status {
+        flex: 0 0 auto;
+        margin-left: 12px;
+        color: #a15d58;
+        font-size: 11px;
+        text-align: right;
+      }
       @media (max-width: 480px) {
         .client-controls {
           grid-template-columns: 1fr;
+        }
+        .client-actions {
+          grid-template-columns: 1fr;
+        }
+        .client-card-status {
+          max-width: 92px;
         }
       }
     </style>
@@ -1211,94 +1264,49 @@
           </div>
           <div class="avatar" data-nome-perfil aria-label="Perfil">P</div>
         </header>
-        <div class="content stack"></div>
-          <div class="client-controls">
-         
-            <button class="button" type="button" data-new-client>
-            ＋ Novo cliente
-          </button>
-        </div>
-
-  <!-- Acesso à página de clientes com débito pelo Django. -->
-  <a class="button button--wine" href="{% url 'debitos' %}">
-    Clientes com débito
-  </a>
-</div>
-
-
-          <a class="button button--wine" href="{% url 'debitos' %}">
-            Clientes com débito
-          </a>
-        </div>
-
-        <!-- MENSAGENS DO DJANGO:
-             Exibe avisos de sucesso ou erro enviados pela view. -->
+        <div class="client-content">
           {% for message in messages %}
-          <p class="card">{{ message }}</p>
+            <p class="card" role="status" style="padding:12px 16px;">{{ message }}</p>
           {% endfor %}
 
-          <!-- PESQUISA:
-             O método GET envia o texto pesquisado para a view
-             através do parâmetro q. -->
+          <div class="client-actions">
+            <a class="button" href="{% url 'novo_cliente' %}" data-new-client>＋ Novo cliente</a>
+            <a class="button button--wine" href="{% url 'debitos' %}">Clientes com débito</a>
+          </div>
+
           <form method="get">
-            <input 
-            class="search" 
-            type="search" 
-            name="q" 
-            value="{{ request.GET.q }}" 
-            aria-label="Buscar cliente" 
-            placeholder="Nome, telefone" />
+            <input
+              class="search client-search"
+              type="search"
+              name="q"
+              value="{{ request.GET.q }}"
+              aria-label="Buscar cliente"
+              placeholder="Nome ou telefone"
+            />
           </form>
 
-           <!-- CONTADOR:
-             O Django calcula a quantidade de clientes encontrados. -->
-          <details class="count">
-            {{ clientes.count }} cliente{{ clientes.count|pluralize }}
-        </p>
+          <p class="client-count">{{ clientes.count }} cliente{{ clientes.count|pluralize }} encontrado{{ clientes.count|pluralize }}</p>
 
-           <!-- LISTA DE CLIENTES:
-             O Django percorre os clientes enviados pela view.
-             Cada cartão leva à página de detalhes daquele cliente. -->
           <div class="list">
             {% for cliente in clientes %}
-            <a 
-            class="card row client-card" 
-            href="{% url 'cliente_detalhes' cliente.pk %}" 
-            style="text-decoration:none;color:inherit;"
-            >
-
-              <div class="avatar">
-                {{ cliente.nome_cliente|first|upper }}
-            </div>
-
-              <div class="row-main">
-                <p class="row-title">{{ cliente.nome_cliente }}</p>
-
-                <p class="row-sub">{{ cliente.telefone|default:'Sem telefone' }} 
-                  · 
-                  {{ cliente.vendas.count }}
-                   compra{{ cliente.vendas.count|pluralize }}
-                  </p>
-              </div>
-
-              <p class="row-sub">
-                {% if cliente.saldo_devedor %}
-                R$ {{ cliente.saldo_devedor|floatformat:2 }} em aberto
-                {% else %}
-                Sem débito
-                {% endif %}
-              </p>
-            </a>
-
+              <a class="card row client-card" href="{% url 'cliente_detalhes' cliente.pk %}">
+                <div class="avatar">{{ cliente.nome_cliente|first|upper }}</div>
+                <div class="client-card-main">
+                  <p class="row-title">{{ cliente.nome_cliente }}</p>
+                  <p class="row-sub">{{ cliente.telefone|default:'Sem telefone' }} · {{ cliente.vendas.count }} compra{{ cliente.vendas.count|pluralize }}</p>
+                </div>
+                <p class="client-card-status">
+                  {% if cliente.saldo_devedor %}
+                    R$ {{ cliente.saldo_devedor|floatformat:2 }} em débito
+                  {% else %}
+                    Sem débito
+                  {% endif %}
+                </p>
+              </a>
             {% empty %}
-              <!-- Aparece quando a pesquisa não encontra clientes
-                 ou quando ainda não existem cadastros. -->
-              <p class="card">
-                Nenhum cliente cadastrado.
-              </p>
+              <p class="card client-empty">Nenhum cliente cadastrado.</p>
             {% endfor %}
           </div>
-          <a class="button button--wine" href="{% url 'debitos' %}">Clientes com débito</a>
         </div>
       </section>
 
@@ -1327,6 +1335,7 @@
         <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
         <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
         <a class="nav-link" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'trocas' %}" data-tab="trocas"><span class="nav-icon">⇄</span>Trocas</a>
         <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
@@ -1334,8 +1343,6 @@
         </form>
     </nav>
   </main>
-      </nav>
-    </main>
     <script type="module" src="{% static 'estrela_modas/clientes.js' %}"></script>
   </body>
 </html>

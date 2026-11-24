@@ -1342,6 +1342,7 @@
         <a class="nav-link" href="{% url 'produtos' %}" data-tab="produtos"><span class="nav-icon">▦</span>Produtos</a>
         <a class="nav-link" href="{% url 'nova_venda' %}" data-tab="venda"><span class="nav-icon">＋</span>Venda</a>
         <a class="nav-link is-active" href="{% url 'clientes' %}" data-tab="clientes"><span class="nav-icon">♙</span>Clientes</a>
+        <a class="nav-link" href="{% url 'trocas' %}" data-tab="trocas"><span class="nav-icon">⇄</span>Trocas</a>
         <a class="nav-link" href="{% url 'mais_opcoes' %}" data-tab="mais"><span class="nav-icon">☰</span>Mais</a>
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
@@ -1349,30 +1350,6 @@
         </form>
       </nav>
     </main>
-    <script type="module">
-      import { iniciarTela } from "{% static 'estrela_modas/shared.js' %}";
-      iniciarTela('clientes');
-
-      const menu = document.querySelector('[data-menu]');
-      const fundo = document.querySelector('[data-fundo-menu]');
-      const alternar = document.querySelector('[data-alternar-menu]');
-      const fechar = document.querySelector('[data-fechar-menu]');
-
-      function fecharMenu() {
-        menu?.classList.remove('is-open');
-        if (fundo) fundo.hidden = true;
-        document.body.classList.remove('menu-sobreposto');
-        alternar?.setAttribute('aria-expanded', 'false');
-      }
-
-      alternar?.addEventListener('click', () => {
-        menu?.classList.add('is-open');
-        if (fundo) fundo.hidden = false;
-        document.body.classList.add('menu-sobreposto');
-        alternar.setAttribute('aria-expanded', 'true');
-      });
-      fechar?.addEventListener('click', fecharMenu);
-      fundo?.addEventListener('click', fecharMenu);
-    </script>
+    <script type="module" src="{% static 'estrela_modas/cliente-detalhes.js' %}"></script>
   </body>
 </html>
