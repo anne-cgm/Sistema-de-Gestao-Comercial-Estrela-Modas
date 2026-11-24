@@ -14,7 +14,7 @@ services:
     environment:
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONUNBUFFERED: "1"
-      DEBUG: "False"
+      DEBUG: "True"
       ALLOWED_HOSTS: "localhost,127.0.0.1"
 
     ports:
@@ -26,6 +26,6 @@ services:
     # volumes:
     #   - .:/app
 
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver --insecure 0.0.0.0:8000
 
     restart: unless-stopped

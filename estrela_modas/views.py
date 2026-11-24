@@ -1,11 +1,18 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import F, Q, Sum
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 from decimal import Decimal
 
 from .forms import (
@@ -16,6 +23,7 @@ from .models import (
     Cliente, Compra, Despesa, ItemCompra, ItemVenda, MovimentacaoEstoque,
     PagamentoDebito, Produto, Troca, Venda,
 )
+from usuarios.models import Usuario
 
 
 def index(request):
@@ -29,12 +37,94 @@ def login_page(request):
     if request.method == 'POST':
         usuario = request.POST.get('usuario', '').strip()
         senha = request.POST.get('senha', '')
-        user = authenticate(request, username=usuario, password=senha)
+        logins_por_email = list(
+            Usuario.objects.filter(email__iexact=usuario)
+            .values_list('login', flat=True)[:2]
+        )
+        if len(logins_por_email) == 1:
+            usuario = logins_por_email[0]
+            user = authenticate(request, username=usuario, password=senha)
+        elif len(logins_por_email) > 1:
+            user = None
+        else:
+            user = authenticate(request, username=usuario, password=senha)
         if user is not None:
             auth_login(request, user)
             return redirect('dashboard')
         erro_login = 'Usuário ou senha inválidos.'
     return render(request, 'estrela_modas/login.html', {'erro_login': erro_login})
+
+
+@require_http_methods(['GET', 'POST'])
+def recuperar_senha(request):
+    if request.method == 'GET':
+        return render(request, 'estrela_modas/recuperar_senha.html')
+
+    email = request.POST.get('email', '').strip()
+    usuarios_com_email = Usuario.objects.filter(email__iexact=email, is_active=True)
+    administrador = usuarios_com_email.filter(is_superuser=True).first()
+    mensagem = 'Se o endereço informado pertence a um administrador, o link de redefinição foi enviado.'
+    tipo_mensagem = 'info'
+
+    if administrador:
+        uid = urlsafe_base64_encode(force_bytes(administrador.pk))
+        token = default_token_generator.make_token(administrador)
+        caminho = reverse('redefinir_senha', kwargs={'uidb64': uid, 'token': token})
+        link = request.build_absolute_uri(caminho)
+        try:
+            send_mail(
+                'Redefinição de senha — Estrela Modas',
+                f'Olá, {administrador.nome}.\n\n'
+                f'Use este link para cadastrar uma nova senha:\n{link}\n\n'
+                'Se você não solicitou esta alteração, ignore esta mensagem.',
+                None,
+                [administrador.email],
+            )
+        except Exception:
+            mensagem = 'Não foi possível enviar o e-mail agora. Confira a configuração de e-mail e tente novamente.'
+            tipo_mensagem = 'error'
+        else:
+            mensagem = 'Se o endereço informado pertence a um administrador, o link de redefinição foi enviado.'
+            tipo_mensagem = 'success'
+    elif usuarios_com_email.exists():
+        mensagem = 'Funcionário: consulte o administrador da loja para redefinir sua senha.'
+
+    return render(request, 'estrela_modas/recuperar_senha.html', {
+        'mensagem': mensagem,
+        'tipo_mensagem': tipo_mensagem,
+    })
+
+
+def redefinir_senha(request, uidb64, token):
+    administrador = None
+    try:
+        pk = force_str(urlsafe_base64_decode(uidb64))
+        administrador = Usuario.objects.get(pk=pk, is_superuser=True, is_active=True)
+    except (TypeError, ValueError, OverflowError, UnicodeDecodeError, Usuario.DoesNotExist):
+        pass
+
+    token_valido = administrador is not None and default_token_generator.check_token(administrador, token)
+    erros = []
+    if request.method == 'POST' and token_valido:
+        senha = request.POST.get('senha', '')
+        confirmacao = request.POST.get('confirmacao', '')
+        if senha != confirmacao:
+            erros.append('As senhas informadas não são iguais.')
+        else:
+            try:
+                validate_password(senha, administrador)
+            except ValidationError as exc:
+                erros.extend(exc.messages)
+            else:
+                administrador.set_password(senha)
+                administrador.save(update_fields=['password'])
+                messages.success(request, 'Senha redefinida. Entre com sua nova senha.')
+                return redirect('login')
+
+    return render(request, 'estrela_modas/redefinir_senha.html', {
+        'token_valido': token_valido,
+        'erros': erros,
+    })
 
 
 @require_POST
@@ -80,7 +170,7 @@ def produtos(request):
 
 
 @login_required
-def cadastro_produto(request):
+def novo_produto(request):
     form = ProdutoForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         with transaction.atomic():
@@ -94,7 +184,7 @@ def cadastro_produto(request):
                 )
         messages.success(request, 'Produto cadastrado com sucesso.')
         return redirect('produtos')
-    return render(request, 'estrela_modas/cadastro_produto.html', {'form': form})
+    return render(request, 'estrela_modas/novo_produto.html', {'form': form})
 
 
 @login_required
@@ -199,6 +289,52 @@ def clientes(request):
         'form': form,
         'clientes': lista_clientes,
     })
+
+
+@login_required
+def cliente_detalhes(request, pk):
+    cliente = get_object_or_404(
+        Cliente.objects.prefetch_related(
+            'vendas__itens__produto',
+            'vendas__pagamentos',
+        ),
+        pk=pk,
+    )
+
+    if request.method == 'POST':
+        nome = request.POST.get('nome_cliente', '').strip()
+        telefone = request.POST.get('telefone', '').strip()
+        if not nome:
+            form_error = 'Informe o nome completo do cliente.'
+        else:
+            cliente.nome_cliente = nome
+            cliente.telefone = telefone
+            cliente.save(update_fields=['nome_cliente', 'telefone'])
+            messages.success(request, 'Dados do cliente atualizados com sucesso.')
+            return redirect('cliente_detalhes', pk=cliente.pk)
+    else:
+        form_error = ''
+
+    vendas = list(cliente.vendas.all())
+    compras = [venda for venda in vendas if venda.itens.exists()]
+    vendas_fiadas = [venda for venda in vendas if venda.forma_pagamento == Venda.FormaPagamento.FIADO]
+    credito_disponivel = max(cliente.limite_credito - cliente.saldo_devedor, Decimal('0.00'))
+
+    return render(request, 'estrela_modas/cliente-detalhes.html', {
+        'cliente': cliente,
+        'compras': compras,
+        'vendas_fiadas': vendas_fiadas,
+        'saldo_devedor': cliente.saldo_devedor,
+        'credito_disponivel': credito_disponivel,
+        'form_error': form_error,
+    })
+def novo_cliente(request):
+    form = ClienteForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Cliente cadastrado com sucesso.')
+        return redirect('clientes')
+    return render(request, 'estrela_modas/novo_cliente.html', {'form': form})
 
 
 @login_required
@@ -345,12 +481,18 @@ def trocas(request):
         else:
             messages.success(request, 'Troca registrada e estoque atualizado.')
             return redirect('trocas')
-    return render(request, 'estrela_modas/registro.html', {
+    return render(request, 'estrela_modas/trocas.html', {
         'form': form,
-        'titulo': 'Registrar troca',
-        'subtitulo': 'Registre o produto devolvido e a reposição, se houver.',
         'registros': Troca.objects.select_related('produto_devolvido', 'produto_entregue')[:8],
-        'tipo_registro': 'troca',
+    })
+
+
+@login_required
+def usuarios(request):
+    if not request.user.is_superuser:
+        return redirect('mais_opcoes')
+    return render(request, 'estrela_modas/usuarios.html', {
+        'usuarios': Usuario.objects.all(),
     })
 
 

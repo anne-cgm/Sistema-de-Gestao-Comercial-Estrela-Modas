@@ -3,7 +3,7 @@ import test from 'node:test'
 
 import { calcularNovoEstoque, calcularValorCompra } from '../frontend/static/estrela_modas/compras.js'
 import { produtoComEstoqueBaixo } from '../frontend/static/estrela_modas/estoque.js'
-import { validarLogin } from '../frontend/static/estrela_modas/login.js'
+import iniciarLogin, { validarLogin } from '../frontend/static/estrela_modas/login.js'
 import { calcularTotalVenda, formatarMoeda } from '../frontend/static/estrela_modas/nova_venda.js'
 import { buscarProduto } from '../frontend/static/estrela_modas/produtos.js'
 
@@ -15,6 +15,137 @@ test('validarLogin rejeita campos vazios', () => {
   assert.equal(validarLogin('   ', '123456'), false)
   assert.equal(validarLogin('kamila', '   '), false)
   assert.equal(validarLogin('', ''), false)
+})
+
+test('o diálogo percorre as etapas visuais sem validar ou alterar dados', () => {
+  const criarBotao = (dataset = {}) => ({
+    dataset,
+    addEventListener(evento, manipulador) {
+      this.manipuladores ??= {}
+      this.manipuladores[evento] = manipulador
+    },
+    click() {
+      this.manipuladores.click()
+    },
+  })
+  const criarFormulario = campos => ({
+    elements: campos,
+    addEventListener(evento, manipulador) {
+      this.manipulador = manipulador
+    },
+    reset() {
+      Object.values(this.elements).forEach(campo => {
+        campo.value = ''
+      })
+    },
+    submit() {
+      this.manipulador({ preventDefault() {} })
+    },
+  })
+  const criarEtapa = () => ({
+    hidden: true,
+    querySelector() {
+      return { focus() {} }
+    },
+  })
+  const botaoAbrir = criarBotao()
+  const botaoFechar = criarBotao()
+  const botaoVoltarEmail = criarBotao({ voltarEtapaRecuperacao: 'email' })
+  const botaoVoltarCodigo = criarBotao({ voltarEtapaRecuperacao: 'codigo' })
+  const formulario = { addEventListener() {} }
+  const campoEmail = { value: 'teste@example.com' }
+  const campoCodigo = { value: '123456' }
+  const campoNovaSenha = { value: 'Senha123' }
+  const campoConfirmacao = { value: 'SenhaDiferente' }
+  const formularioEmail = criarFormulario({ email: campoEmail })
+  const formularioCodigo = criarFormulario({ codigo: campoCodigo })
+  const formularioSenha = criarFormulario({
+    novaSenha: campoNovaSenha,
+    confirmarSenha: campoConfirmacao,
+  })
+  const etapaEmail = criarEtapa()
+  const etapaCodigo = criarEtapa()
+  const etapaSenha = criarEtapa()
+  const resultado = { hidden: true, textContent: '' }
+  const elementosDialogo = {
+    '[data-fechar-recuperacao]': botaoFechar,
+    '[data-etapa-email-recuperacao]': etapaEmail,
+    '[data-etapa-codigo-recuperacao]': etapaCodigo,
+    '[data-etapa-senha-recuperacao]': etapaSenha,
+    '[data-resultado-recuperacao]': resultado,
+    '[data-formulario-email-recuperacao]': formularioEmail,
+    '[data-formulario-codigo-recuperacao]': formularioCodigo,
+    '[data-formulario-senha-recuperacao]': formularioSenha,
+  }
+  const dialogo = {
+    open: false,
+    addEventListener(evento, manipulador) {
+      this.manipuladores ??= {}
+      this.manipuladores[evento] = manipulador
+    },
+    showModal() {
+      this.open = true
+    },
+    close() {
+      this.open = false
+      this.manipuladores.close()
+    },
+    querySelector(seletor) {
+      return elementosDialogo[seletor] ?? null
+    },
+    querySelectorAll() {
+      return [botaoVoltarEmail, botaoVoltarCodigo]
+    },
+  }
+  const elementos = {
+    '[data-login-form]': formulario,
+    '[data-abrir-recuperacao]': botaoAbrir,
+    '[data-recuperar-senha]': dialogo,
+  }
+  const documentoAnterior = globalThis.document
+
+  globalThis.document = {
+    querySelector(seletor) {
+      return elementos[seletor] ?? null
+    },
+  }
+
+  try {
+    iniciarLogin()
+    botaoAbrir.click()
+
+    assert.equal(dialogo.open, true)
+    assert.equal(etapaEmail.hidden, false)
+
+    campoEmail.value = 'teste@example.com'
+    formularioEmail.submit()
+    assert.equal(etapaCodigo.hidden, false)
+    assert.match(resultado.textContent, /não foi consultada/)
+
+    campoCodigo.value = '123456'
+    formularioCodigo.submit()
+    assert.equal(etapaSenha.hidden, false)
+    assert.match(resultado.textContent, /não foi validado/)
+
+    campoNovaSenha.value = 'Senha123'
+    campoConfirmacao.value = 'SenhaDiferente'
+    formularioSenha.submit()
+    assert.match(resultado.textContent, /não são iguais/)
+
+    campoConfirmacao.value = campoNovaSenha.value
+    formularioSenha.submit()
+    assert.match(resultado.textContent, /senha não foi alterada/)
+
+    botaoFechar.click()
+    assert.equal(dialogo.open, false)
+    assert.equal(etapaEmail.hidden, false)
+  } finally {
+    if (documentoAnterior === undefined) {
+      delete globalThis.document
+    } else {
+      globalThis.document = documentoAnterior
+    }
+  }
 })
 
 test('calcularTotalVenda aplica desconto corretamente', () => {
@@ -93,10 +224,16 @@ test('formatarMoeda usa o padrão brasileiro', () => {
 test('módulos das telas podem ser importados sem um DOM', async () => {
   const modulos = [
     '../frontend/static/estrela_modas/clientes.js',
+    '../frontend/static/estrela_modas/clientes-data.js',
+    '../frontend/static/estrela_modas/compras.js',
     '../frontend/static/estrela_modas/dashboard.js',
     '../frontend/static/estrela_modas/debitos.js',
+    '../frontend/static/estrela_modas/estoque.js',
     '../frontend/static/estrela_modas/mais_opcoes.js',
-    '../frontend/static/estrela_modas/cadastro_produto.js',
+    '../frontend/static/estrela_modas/nova_venda.js',
+    '../frontend/static/estrela_modas/novo_cliente.js',
+    '../frontend/static/estrela_modas/novo_produto.js',
+    '../frontend/static/estrela_modas/produtos.js',
     '../frontend/static/estrela_modas/relatorios.js',
     '../frontend/static/estrela_modas/shared.js',
   ]

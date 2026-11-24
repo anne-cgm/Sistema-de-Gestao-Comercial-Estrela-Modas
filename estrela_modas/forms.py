@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import formset_factory
+from decimal import Decimal
 
 from .models import Cliente, Despesa, PagamentoDebito, Produto, Troca, Venda
 
@@ -80,20 +81,39 @@ class ClienteForm(forms.ModelForm):
             'limite_credito': 'Limite para compras fiado',
         }
         widgets = {
-            'nome_cliente': forms.TextInput(attrs={'class': 'input'}),
+            'nome_cliente': forms.TextInput(attrs={
+                'class': 'input',
+                'placeholder': 'Nome e sobrenome',
+            }),
             'cpf_cliente': forms.TextInput(attrs={'class': 'input', 'inputmode': 'numeric', 'maxlength': '11'}),
-            'telefone': forms.TextInput(attrs={'class': 'input'}),
+            'telefone': forms.TextInput(attrs={
+                'class': 'input',
+                'placeholder': '(00) 00000 - 0000',
+                'inputmode': 'tel',
+            }),
             'endereco_completo': forms.Textarea(attrs={'class': 'input', 'rows': 2}),
             'limite_credito': forms.NumberInput(attrs={'class': 'input', 'min': '0', 'step': '0.01'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['cpf_cliente'].required = False
+        self.fields['endereco_completo'].required = False
+        self.fields['limite_credito'].required = False
+        self.fields['limite_credito'].initial = Decimal('0.00')
+
     def clean_cpf_cliente(self):
-        cpf = self.cleaned_data.get('cpf_cliente', '').strip()
-        if not cpf:
+        cpf = self.cleaned_data.get('cpf_cliente')
+        if cpf is None or not str(cpf).strip():
             return None
+        cpf = str(cpf).strip()
         if not cpf.isdigit() or len(cpf) != 11:
             raise forms.ValidationError('Informe os 11 números do CPF, sem pontuação.')
         return cpf
+
+    def clean_limite_credito(self):
+        limite = self.cleaned_data.get('limite_credito')
+        return limite if limite is not None else Decimal('0.00')
 
 
 class VendaForm(forms.Form):
@@ -117,14 +137,28 @@ class VendaForm(forms.Form):
 
 
 class ItemVendaForm(forms.Form):
-    produto = forms.ModelChoiceField(queryset=Produto.objects.none(), widget=forms.Select(attrs={'class': 'select'}))
-    quantidade = forms.IntegerField(min_value=1, initial=1, widget=forms.NumberInput(attrs={'class': 'input', 'min': '1', 'step': '1'}))
+    produto = forms.ModelChoiceField(
+        queryset=Produto.objects.none(),
+        empty_label='Selecione um produto',
+        widget=forms.Select(attrs={'class': 'select'}),
+    )
+    quantidade = forms.IntegerField(
+        required=False,
+        min_value=1,
+        widget=forms.NumberInput(attrs={'class': 'input', 'min': '1', 'step': '1'}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['produto'].queryset = Produto.objects.filter(ativo=True).order_by('nome_produto')
         self.fields['produto'].label = 'Produto'
         self.fields['quantidade'].label = 'Quantidade'
+
+    def clean(self):
+        dados = super().clean()
+        if dados.get('produto') and dados.get('quantidade') is None:
+            self.add_error('quantidade', 'Informe a quantidade do produto.')
+        return dados
 
 
 ItemVendaFormSet = formset_factory(ItemVendaForm, extra=5, max_num=12, validate_max=True)
@@ -141,9 +175,9 @@ class PagamentoDebitoForm(forms.ModelForm):
         widgets = {
             'venda': forms.Select(attrs={'class': 'select'}),
             'valor': forms.NumberInput(attrs={
-                'class': 'input', 
-                'min': '0.01', 
-                'step': '0.01'
+                'class': 'input',
+                'min': '0.01',
+                'step': '0.01',
                 }),
             'observacoes': forms.TextInput(attrs={'class': 'input'}),
         }
@@ -157,6 +191,7 @@ class PagamentoDebitoForm(forms.ModelForm):
             .select_related('cliente')
             .order_by('-data_venda')
         )
+        self.fields['venda'].empty_label = 'Selecione uma dívida'
 
         #Define como cada venda aparecerá no campo de seleção
         self.fields['venda'].label_from_instance = self.label_from_instance
@@ -242,6 +277,9 @@ class TrocaForm(forms.ModelForm):
         self.fields['produto_devolvido'].queryset = Produto.objects.filter(ativo=True)
         self.fields['produto_entregue'].queryset = Produto.objects.filter(ativo=True)
         self.fields['produto_entregue'].required = False
+        self.fields['venda'].empty_label = 'Selecione uma venda (opcional)'
+        self.fields['produto_devolvido'].empty_label = 'Selecione o produto devolvido'
+        self.fields['produto_entregue'].empty_label = 'Selecione o produto entregue'
 
     def clean(self):
         dados = super().clean()

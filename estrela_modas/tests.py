@@ -40,6 +40,23 @@ class PageRoutingTests(TestCase):
         response = self.client.get(reverse('login'))
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<form class="content stack login-form" method="post"')
+
+    def test_login_accepts_email_and_password(self):
+        response = self.client.post(reverse('login'), {
+            'usuario': 'teste@email.com',
+            'senha': 'senha-teste-123',
+        })
+
+        self.assertRedirects(response, reverse('dashboard'), fetch_redirect_response=False)
+
+    def test_login_continues_accepting_username_and_password(self):
+        response = self.client.post(reverse('login'), {
+            'usuario': 'teste',
+            'senha': 'senha-teste-123',
+        })
+
+        self.assertRedirects(response, reverse('dashboard'), fetch_redirect_response=False)
 
     # Teste para verificar se as páginas protegidas são renderizadas corretamente para usuários autenticados.
     def test_protected_pages_render_through_django(self):
@@ -48,7 +65,8 @@ class PageRoutingTests(TestCase):
         pages = {
             'dashboard': 'dashboard.js',
             'produtos': 'produtos.js',
-            'cadastro_produto': 'cadastro_produto.js',
+            'novo_produto': 'novo_produto.js',
+            'novo_cliente': 'novo_cliente.js',
             'estoque': 'estoque.js',
             'nova_venda': 'nova_venda.js',
             'clientes': 'clientes.js',
