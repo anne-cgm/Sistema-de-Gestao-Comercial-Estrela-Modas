@@ -8,36 +8,6 @@ export default function iniciarCompras() {
   const formularioCompra = document.querySelector('[data-formulario-compra]')
   const seletorProduto = document.querySelector('[data-seletor-produto]')
 
-  // Elementos responsáveis pelo funcionamento do menu lateral.
-  const menu = document.querySelector('[data-menu]')
-  const fundo = document.querySelector('[data-fundo-menu]')
-  const alternar = document.querySelector('[data-alternar-menu]')
-  const fechar = document.querySelector('[data-fechar-menu]')
-
-  // Fecha o menu e restaura o estado inicial.
-  function fecharMenu() {
-    menu?.classList.remove('is-open')
-    if (fundo) fundo.hidden = true
-    document.body.classList.remove('menu-sobreposto')
-    alternar?.setAttribute('aria-expanded', 'false')
-  }
-
-  // Abre o menu lateral.
-  alternar?.addEventListener('click', () => {
-    menu?.classList.add('is-open')
-    if (fundo) fundo.hidden = false
-    document.body.classList.add('menu-sobreposto')
-    alternar.setAttribute('aria-expanded', 'true')
-  })
-
-  // Permite fechar o menu pelo botão, pelo fundo ou pela tecla ESC.
-  fechar?.addEventListener('click', fecharMenu)
-  fundo?.addEventListener('click', fecharMenu)
-
-  document.addEventListener('keydown', evento => {
-    if (evento.key === 'Escape') fecharMenu()
-  })
-
   // Atualiza o resumo conforme os campos do formulário são preenchidos.
   formularioCompra?.addEventListener('input', atualizarResumoCompra)
 

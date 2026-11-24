@@ -254,6 +254,11 @@
       }
 
       .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        text-decoration: none;
         width: 100%;
         min-height: 48px;
         border: 1px solid #c5a063;
@@ -873,7 +878,7 @@
       .screen--login { display: block; width: min(100%, 460px); min-height: auto; padding: 0; border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 16px; background: #fffdfa; box-shadow: 0 16px 60px rgb(88 13 24 / 7%); }
       .login-panel { max-width: none; padding: 40px 32px; }
       .login-panel .title { font-size: 42px; }
-      .forgot-password { align-self: flex-end; border: 0; background: none; color: var(--wine); padding: 4px 0; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
+      .forgot-password { align-self: flex-end; border: 0; background: none; color: var(--wine); padding: 4px 0; font-size: 12px; text-decoration: none; text-underline-offset: 4px; }
       .recovery-dialog { width: min(420px, calc(100% - 40px)); margin: auto; padding: 32px; border: 1px solid var(--gold); border-radius: 14px; color: var(--text); background: #fffdfa; box-shadow: 0 20px 70px rgb(32 5 12 / 20%); }
       .recovery-dialog::backdrop { background: rgb(32 5 12 / 55%); }
       .recovery-dialog h2 { margin-top: 0; color: var(--wine); font: 600 30px 'Cormorant Garamond', Georgia, serif; }
@@ -1154,7 +1159,8 @@
         .phone.menu-fechado { grid-template-columns: minmax(0, 1fr); }
         .phone.menu-fechado:has(.nav) .screen { grid-column: 1; }
       }
-     </style>
+           a, a:hover, a:focus, a:active { text-decoration: none; }
+    </style>
   </head>
   <body>
     <main class="phone">
@@ -1172,7 +1178,7 @@
               <p class="subtitle">Acesso aos módulos administrativos.</p>
             </div>
           </div>
-          <div class="avatar" data-nome-perfil aria-label="Perfil">P</div>
+          <div class="avatar" data-nome-perfil data-login-perfil="{{ request.user.login }}" aria-label="Perfil">{{ request.user.login|first|upper }}</div>
         </header>
         <div class="content">
           <p class="count" style="margin-bottom: 14px">Gerencie outras áreas da loja</p>
@@ -1180,9 +1186,8 @@
             <a class="menu-item" href="{% url 'compras' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Compras</span><span class="row-sub" style="display: block">Registrar mercadorias e entradas</span></span><span class="chevron">›</span></a>
             <a class="menu-item" href="{% url 'despesas' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Despesas</span><span class="row-sub" style="display: block">Registrar gastos operacionais</span></span><span class="chevron">›</span></a>
             <a class="menu-item" href="{% url 'relatorios' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Relatórios</span><span class="row-sub" style="display: block">Vendas, estoque e financeiro</span></span><span class="chevron">›</span></a>
-            <a class="menu-item" href="{% url 'admin:index' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Administração</span><span class="row-sub" style="display: block">Gerenciar usuários, produtos e registros</span></span><span class="chevron">›</span></a>
+            <a class="menu-item" href="{% url 'usuarios' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Usuários</span><span class="row-sub" style="display: block">Gerenciar usuários e acessos da equipe</span></span><span class="chevron">›</span></a>
           </div>
-          <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="button button--wine" type="submit">Sair da conta</button></form>
         </div>
       </section>
       

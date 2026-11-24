@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redefinir senha | Estrela Modas</title>
+    <style>
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #faf7f2; color: #35292a; font: 16px Arial, sans-serif; }
+      main { width: min(420px, calc(100% - 40px)); padding: 28px; border: 1px solid #e8dece; border-radius: 16px; background: white; }
+      label { display: block; margin: 18px 0; }
+      input { box-sizing: border-box; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid #cfc3b1; border-radius: 8px; }
+      button { width: 100%; padding: 12px; border: 0; border-radius: 8px; background: #580d18; color: white; cursor: pointer; }
+      .error { color: #8c2832; }
+          a, a:hover, a:focus, a:active { text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Redefinir senha</h1>
+      {% if token_valido %}
+        <p>Cadastre uma nova senha para sua conta de administrador.</p>
+        {% for erro in erros %}<p class="error" role="alert">{{ erro }}</p>{% endfor %}
+        <form method="post">
+          {% csrf_token %}
+          <label>Nova senha
+            <input type="password" name="senha" autocomplete="new-password" required />
+          </label>
+          <label>Confirme a nova senha
+            <input type="password" name="confirmacao" autocomplete="new-password" required />
+          </label>
+          <button type="submit">Salvar nova senha</button>
+        </form>
+      {% else %}
+        <p class="error" role="alert">Este link é inválido ou expirou. Solicite uma nova redefinição.</p>
+        <a href="{% url 'login' %}">Voltar ao login</a>
+      {% endif %}
+    </main>
+  </body>
+</html>

@@ -1,11 +1,18 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import F, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 from decimal import Decimal
 
 from .forms import (
@@ -36,6 +43,78 @@ def login_page(request):
             return redirect('dashboard')
         erro_login = 'Usuário ou senha inválidos.'
     return render(request, 'estrela_modas/login.html', {'erro_login': erro_login})
+
+
+@require_http_methods(['GET', 'POST'])
+def recuperar_senha(request):
+    if request.method == 'GET':
+        return render(request, 'estrela_modas/recuperar_senha.html')
+
+    email = request.POST.get('email', '').strip()
+    usuarios_com_email = Usuario.objects.filter(email__iexact=email, is_active=True)
+    administrador = usuarios_com_email.filter(is_superuser=True).first()
+    mensagem = 'Se o endereço informado pertence a um administrador, o link de redefinição foi enviado.'
+    tipo_mensagem = 'info'
+
+    if administrador:
+        uid = urlsafe_base64_encode(force_bytes(administrador.pk))
+        token = default_token_generator.make_token(administrador)
+        caminho = reverse('redefinir_senha', kwargs={'uidb64': uid, 'token': token})
+        link = request.build_absolute_uri(caminho)
+        try:
+            send_mail(
+                'Redefinição de senha — Estrela Modas',
+                f'Olá, {administrador.nome}.\n\n'
+                f'Use este link para cadastrar uma nova senha:\n{link}\n\n'
+                'Se você não solicitou esta alteração, ignore esta mensagem.',
+                None,
+                [administrador.email],
+            )
+        except Exception:
+            mensagem = 'Não foi possível enviar o e-mail agora. Confira a configuração de e-mail e tente novamente.'
+            tipo_mensagem = 'error'
+        else:
+            mensagem = 'Se o endereço informado pertence a um administrador, o link de redefinição foi enviado.'
+            tipo_mensagem = 'success'
+    elif usuarios_com_email.exists():
+        mensagem = 'Funcionário: consulte o administrador da loja para redefinir sua senha.'
+
+    return render(request, 'estrela_modas/recuperar_senha.html', {
+        'mensagem': mensagem,
+        'tipo_mensagem': tipo_mensagem,
+    })
+
+
+def redefinir_senha(request, uidb64, token):
+    administrador = None
+    try:
+        pk = force_str(urlsafe_base64_decode(uidb64))
+        administrador = Usuario.objects.get(pk=pk, is_superuser=True, is_active=True)
+    except (TypeError, ValueError, OverflowError, UnicodeDecodeError, Usuario.DoesNotExist):
+        pass
+
+    token_valido = administrador is not None and default_token_generator.check_token(administrador, token)
+    erros = []
+    if request.method == 'POST' and token_valido:
+        senha = request.POST.get('senha', '')
+        confirmacao = request.POST.get('confirmacao', '')
+        if senha != confirmacao:
+            erros.append('As senhas informadas não são iguais.')
+        else:
+            try:
+                validate_password(senha, administrador)
+            except ValidationError as exc:
+                erros.extend(exc.messages)
+            else:
+                administrador.set_password(senha)
+                administrador.save(update_fields=['password'])
+                messages.success(request, 'Senha redefinida. Entre com sua nova senha.')
+                return redirect('login')
+
+    return render(request, 'estrela_modas/redefinir_senha.html', {
+        'token_valido': token_valido,
+        'erros': erros,
+    })
 
 
 @require_POST

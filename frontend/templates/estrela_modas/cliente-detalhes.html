@@ -254,6 +254,11 @@
       }
 
       .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        text-decoration: none;
         width: 100%;
         min-height: 48px;
         border: 1px solid #c5a063;
@@ -875,7 +880,7 @@
       .screen--login { display: block; width: min(100%, 460px); min-height: auto; padding: 0; border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 16px; background: #fffdfa; box-shadow: 0 16px 60px rgb(88 13 24 / 7%); }
       .login-panel { max-width: none; padding: 40px 32px; }
       .login-panel .title { font-size: 42px; }
-      .forgot-password { align-self: flex-end; border: 0; background: none; color: var(--wine); padding: 4px 0; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
+      .forgot-password { align-self: flex-end; border: 0; background: none; color: var(--wine); padding: 4px 0; font-size: 12px; text-decoration: none; text-underline-offset: 4px; }
       .recovery-dialog { width: min(420px, calc(100% - 40px)); margin: auto; padding: 32px; border: 1px solid var(--gold); border-radius: 14px; color: var(--text); background: #fffdfa; box-shadow: 0 20px 70px rgb(32 5 12 / 20%); }
       .recovery-dialog::backdrop { background: rgb(32 5 12 / 55%); }
       .recovery-dialog h2 { margin-top: 0; color: var(--wine); font: 600 30px 'Cormorant Garamond', Georgia, serif; }
@@ -1235,6 +1240,7 @@
           width: 100%;
         }
       }
+          a, a:hover, a:focus, a:active { text-decoration: none; }
     </style>
   </head>
   <body>
@@ -1253,8 +1259,9 @@
               <p class="subtitle">Cadastro, compras, débitos e créditos.</p>
             </div>
           </div>
-          <div class="avatar" data-nome-perfil aria-label="Perfil">{{ cliente.nome_cliente|first|upper }}</div>
+          <div class="avatar" data-nome-perfil data-login-perfil="{{ request.user.login }}" aria-label="Perfil">{{ request.user.login|first|upper }}</div>
         </header>
+        <a class="button button--outline" href="{% url 'clientes' %}" style="display:inline-flex;width:auto;min-height:36px;margin:0 0 16px;padding:8px 14px;align-items:center;">← Voltar</a>
         <div class="content">
           <div class="grid-2 detail-summary">
             <article class="card stat">
@@ -1292,7 +1299,6 @@
               <button class="button" type="submit">Salvar alterações</button>
               <a class="button button--outline" href="{% url 'nova_venda' %}">Nova venda</a>
               <a class="button button--outline" href="{% url 'debitos' %}">Consultar débitos</a>
-              <a class="button button--outline" href="{% url 'clientes' %}">Voltar</a>
             </div>
           </form>
 

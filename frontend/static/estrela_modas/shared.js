@@ -116,8 +116,11 @@ function atualizarPerfil() {
   try {
     nomePerfil = window.sessionStorage.getItem("estrelaNomePerfil") || ""
   } catch {
-    // Sem armazenamento, exibe a inicial padrão.
+    // O nome do usuário autenticado ainda pode vir renderizado pelo Django.
   }
+  nomePerfil =
+    document.querySelector("[data-login-perfil]")?.dataset.loginPerfil ||
+    nomePerfil
 
   const inicialPerfil = obterInicialPerfil(nomePerfil)
   document.querySelectorAll("[data-nome-perfil]").forEach((elemento) => {
@@ -180,6 +183,9 @@ function iniciarMenu() {
         }
         .menu-backdrop {
           display: block !important;
+        }
+        .menu-backdrop[hidden] {
+          display: none !important;
         }
       }
       @media (min-width: 1024px) {

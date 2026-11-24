@@ -29,7 +29,7 @@ load_dotenv(BASE_DIR / 'backend' / '.env')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-estrela-modas-local-only')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() in {'True', '1', 'yes'}
+DEBUG = os.environ.get('DEBUG', 'True').lower() in {'true', '1', 'yes'}
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -151,4 +151,22 @@ STATICFILES_DIRS = [
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+MAILERS = {
+    'default': {
+        'BACKEND': os.environ.get(
+            'EMAIL_BACKEND',
+            'django.core.mail.backends.smtp.EmailBackend',
+        ),
+        'OPTIONS': {
+            'host': os.environ.get('EMAIL_HOST', 'smtp.gmail.com'),
+            'port': int(os.environ.get('EMAIL_PORT', '587')),
+            'username': os.environ.get('EMAIL_HOST_USER', ''),
+            'password': os.environ.get('EMAIL_HOST_PASSWORD', ''),
+            'use_tls': os.environ.get('EMAIL_USE_TLS', 'True').lower() in {'true', '1', 'yes'},
+        },
+    },
+}
+DEFAULT_FROM_EMAIL = os.environ.get(
+    'DEFAULT_FROM_EMAIL',
+    os.environ.get('EMAIL_HOST_USER', 'noreply@estrelamodas.local'),
+)

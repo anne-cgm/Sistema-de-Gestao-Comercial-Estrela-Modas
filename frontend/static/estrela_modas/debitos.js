@@ -19,41 +19,6 @@ export default function iniciarDebitos() {
   // Marca a opção de clientes como ativa no menu.
   iniciarTela('clientes')
 
-  // Elementos responsáveis pelo menu lateral.
-  const menu = document.querySelector('[data-menu]')
-  const fundo = document.querySelector('[data-fundo-menu]')
-  const alternar = document.querySelector('[data-alternar-menu]')
-  const fechar = document.querySelector('[data-fechar-menu]')
-
-  // Fecha o menu e restaura o estado da página.
-  function fecharMenu() {
-    menu?.classList.remove('is-open')
-
-    if (fundo) fundo.hidden = true
-
-    document.body.classList.remove('menu-sobreposto')
-    alternar?.setAttribute('aria-expanded', 'false')
-  }
-
-  // Abre o menu lateral.
-  alternar?.addEventListener('click', () => {
-    menu?.classList.add('is-open')
-
-    if (fundo) fundo.hidden = false
-
-    document.body.classList.add('menu-sobreposto')
-    alternar.setAttribute('aria-expanded', 'true')
-  })
-
-  // Fecha o menu pelo botão ou pelo fundo escuro.
-  fechar?.addEventListener('click', fecharMenu)
-  fundo?.addEventListener('click', fecharMenu)
-
-  // Também permite fechar o menu pressionando Esc.
-  document.addEventListener('keydown', evento => {
-    if (evento.key === 'Escape') fecharMenu()
-  })
-
   // Os dados de dívidas, pagamentos e saldos são carregados
   // diretamente pelo Django no HTML.
   // O formulário de pagamento também é processado pela view.

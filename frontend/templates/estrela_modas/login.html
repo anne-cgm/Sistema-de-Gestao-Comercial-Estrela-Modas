@@ -254,6 +254,11 @@
       }
 
       .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        text-decoration: none;
         width: 100%;
         min-height: 48px;
         border: 1px solid #c5a063;
@@ -858,7 +863,7 @@
       .screen--login { display: block; width: min(100%, 460px); min-height: auto; padding: 0; border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 16px; background: #fffdfa; box-shadow: 0 16px 60px rgb(88 13 24 / 7%); }
       .login-panel { max-width: none; padding: 40px 32px; }
       .login-panel .title { font-size: 42px; }
-      .forgot-password { align-self: flex-end; border: 0; background: none; color: var(--wine); padding: 4px 0; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
+      .forgot-password { align-self: flex-end; border: 0; background: none; color: var(--wine); padding: 4px 0; font-size: 12px; text-decoration: none; text-underline-offset: 4px; cursor: pointer; }
       .recovery-dialog { width: min(420px, calc(100% - 40px)); margin: auto; padding: 32px; border: 1px solid var(--gold); border-radius: 14px; color: var(--text); background: #fffdfa; box-shadow: 0 20px 70px rgb(32 5 12 / 20%); }
       .recovery-dialog::backdrop { background: rgb(32 5 12 / 55%); }
       .recovery-dialog h2 { margin-top: 0; color: var(--wine); font: 600 30px 'Cormorant Garamond', Georgia, serif; }
@@ -1173,7 +1178,8 @@
         .phone.menu-fechado { grid-template-columns: minmax(0, 1fr); }
         .phone.menu-fechado:has(.nav) .screen { grid-column: 1; }
       }
-     </style>
+           a, a:hover, a:focus, a:active { text-decoration: none; }
+    </style>
   </head>
   <body>
     <main class="phone">
@@ -1201,15 +1207,12 @@
                     <!-- Mensagem de erro retornada pelo login -->
           <p class="form-error" data-erro-login role="alert" hidden></p>
 
-          <!-- Recuperação de senha: funcionalidade futura -->
-          <button
+          <a
             class="forgot-password"
-            type="button"
-            data-abrir-recuperacao
-            aria-haspopup="dialog"
+            href="{% url 'recuperar_senha' %}"
           >
             Esqueci a senha
-          </button>
+          </a>
 
           <button class="button" id="btnEntrar" type="submit">
             Entrar
@@ -1220,60 +1223,6 @@
       </section>
     </main>
 
-    <!-- Janela de recuperação de senha -->
-    <!-- FUTURO: integrar com o sistema de recuperação de senha do Django. -->
-    <dialog
-      class="recovery-dialog"
-      data-recuperar-senha
-      aria-labelledby="titulo-recuperacao"
-      aria-describedby="orientacao-recuperacao"
-    >
-      <h2 id="titulo-recuperacao">Esqueceu sua senha?</h2>
-
-      <p id="orientacao-recuperacao">
-        Informe o e-mail cadastrado. A ação disponível depende das permissões do perfil.
-      </p>
-
-      <form class="recovery-form" data-formulario-recuperacao>
-        <label>
-          <span class="form-label">E-mail do usuário</span>
-          <input
-            class="input"
-            type="email"
-            name="email"
-            placeholder="nome@estrelamodas.com.br"
-            autocomplete="email"
-            required
-          />
-        </label>
-
-        <p
-          class="recovery-result"
-          data-resultado-recuperacao
-          role="status"
-          hidden
-        ></p>
-
-        <div class="recovery-actions">
-          <button
-            class="button"
-            type="submit"
-            data-enviar-recuperacao
-          >
-            Continuar
-          </button>
-
-          <button
-            class="recovery-cancel"
-            type="button"
-            data-fechar-recuperacao
-          >
-            Cancelar
-          </button>
-        </div>
-      </form>
-    </dialog>
-    
     <script type="module" src="{% static 'estrela_modas/login.js' %}"></script>
   </body>
 </html>
