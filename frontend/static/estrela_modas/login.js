@@ -1,4 +1,6 @@
 
+import "./shared.js"
+
 export default function iniciarLogin() {
   // FORMULÁRIO DE LOGIN
   const formulario = document.querySelector('[data-login-form]')

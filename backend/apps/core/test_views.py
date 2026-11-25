@@ -1,3 +1,4 @@
+from datetime import datetime, timezone as datetime_timezone
 from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.http import response
@@ -58,6 +59,18 @@ class DebitosViewTests(TestCase):
             1
         )
 
+    def test_pagina_nova_venda_preseleciona_cliente_da_url(self):
+        response = self.client.get(
+            reverse('nova_venda'),
+            {'cliente': self.cliente.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context['form']['cliente'].value(),
+            str(self.cliente.pk),
+        )
+
     def test_registra_pagamento_parcial(self):
         # Simula o usuário preenchendo e enviando o formulário de pagamento parcial para a venda fiada. O método post envia os dados do formulário para a URL da página de débitos.
         response = self.client.post(self.url, {
@@ -76,6 +89,51 @@ class DebitosViewTests(TestCase):
             self.venda_fiada.saldo_devedor,
             Decimal('60.00')
         )
+
+    def test_historico_de_recebimentos_exibe_valores_da_divida(self):
+        primeiro_pagamento = PagamentoDebito.objects.create(
+            venda=self.venda_fiada,
+            valor=Decimal('40.00'),
+        )
+        segundo_pagamento = PagamentoDebito.objects.create(
+            venda=self.venda_fiada,
+            valor=Decimal('10.00'),
+        )
+        PagamentoDebito.objects.filter(pk=primeiro_pagamento.pk).update(
+            data_pagamento=datetime(2026, 1, 2, 12, tzinfo=datetime_timezone.utc),
+        )
+        PagamentoDebito.objects.filter(pk=segundo_pagamento.pk).update(
+            data_pagamento=datetime(2026, 1, 1, 12, tzinfo=datetime_timezone.utc),
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        pagamentos = response.context['pagamentos_recentes']
+        self.assertEqual(len(pagamentos), 2)
+        self.assertEqual(
+            [pagamento.pk for pagamento in pagamentos],
+            [segundo_pagamento.pk, primeiro_pagamento.pk],
+        )
+        pagamentos_por_id = {pagamento.pk: pagamento for pagamento in pagamentos}
+        primeiro = pagamentos_por_id[primeiro_pagamento.pk]
+        segundo = pagamentos_por_id[segundo_pagamento.pk]
+        self.assertEqual(primeiro.venda.valor_total, Decimal('100.00'))
+        self.assertEqual(primeiro.valor, Decimal('40.00'))
+        self.assertEqual(primeiro.total_pago_venda, Decimal('40.00'))
+        self.assertEqual(primeiro.saldo_restante, Decimal('60.00'))
+        self.assertEqual(segundo.venda.valor_total, Decimal('100.00'))
+        self.assertEqual(segundo.valor, Decimal('10.00'))
+        self.assertEqual(segundo.total_pago_venda, Decimal('50.00'))
+        self.assertEqual(segundo.saldo_restante, Decimal('50.00'))
+
+        self.assertContains(response, 'Valor original da dívida: R$ 100,00')
+        self.assertContains(response, 'Total pago até agora: R$ 40,00')
+        self.assertContains(response, 'Saldo restante: R$ 60,00')
+        self.assertContains(response, 'Total pago até agora: R$ 50,00')
+        self.assertContains(response, 'Saldo restante: R$ 50,00')
+        self.assertContains(response, 'Este recebimento: R$ 40,00')
+        self.assertContains(response, 'Este recebimento: R$ 10,00')
 
     def test_nao_registra_pagamento_maior_que_saldo(self):
         # Simula o envio de um formulário de pagamento com valor maior que o saldo devedor da venda fiada. O método post envia os dados do formulário para a URL da página de débitos.

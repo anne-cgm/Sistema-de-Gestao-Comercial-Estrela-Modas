@@ -1,6 +1,9 @@
 from decimal import Decimal
 
 from django import forms
+from django.db.models import DecimalField, F, Sum, Value
+from django.db.models.functions import Coalesce
+from django.utils import timezone
 
 from apps.vendas.models import Venda
 from .models import Cliente, PagamentoDebito
@@ -9,50 +12,26 @@ from .models import Cliente, PagamentoDebito
 class ClienteForm(forms.ModelForm):
     class Meta:
         model = Cliente
-        fields = ['nome_cliente', 'cpf_cliente', 'telefone', 'endereco_completo', 'limite_credito']
+        fields = ['nome_cliente', 'telefone']
         labels = {
             'nome_cliente': 'Nome completo',
-            'cpf_cliente': 'CPF (somente números)',
             'telefone': 'Telefone',
-            'endereco_completo': 'Endereço',
-            'limite_credito': 'Limite para compras fiado',
         }
         widgets = {
             'nome_cliente': forms.TextInput(attrs={
                 'class': 'input',
                 'placeholder': 'Nome e sobrenome',
+                'required': 'True'
             }),
-            'cpf_cliente': forms.TextInput(attrs={'class': 'input', 'inputmode': 'numeric', 'maxlength': '11'}),
             'telefone': forms.TextInput(attrs={
                 'class': 'input',
                 'placeholder': '(00) 00000 - 0000',
                 'inputmode': 'tel',
+                'required': 'True'
             }),
-            'endereco_completo': forms.Textarea(attrs={'class': 'input', 'rows': 2}),
-            'limite_credito': forms.NumberInput(attrs={'class': 'input', 'min': '0', 'step': '0.01'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['cpf_cliente'].required = False
-        self.fields['endereco_completo'].required = False
-        self.fields['limite_credito'].required = False
-        self.fields['limite_credito'].initial = Decimal('0.00')
-
-    def clean_cpf_cliente(self):
-        cpf = self.cleaned_data.get('cpf_cliente')
-        if cpf is None or not str(cpf).strip():
-            return None
-        cpf = str(cpf).strip()
-        if not cpf.isdigit() or len(cpf) != 11:
-            raise forms.ValidationError('Informe os 11 números do CPF, sem pontuação.')
-        return cpf
-
-    def clean_limite_credito(self):
-        limite = self.cleaned_data.get('limite_credito')
-        return limite if limite is not None else Decimal('0.00')
-
-
+# Associa pagamentos diretamente à venda, permitindo o cálculo correto do saldo devedor e da situação do débito.
 class PagamentoDebitoForm(forms.ModelForm):
     class Meta:
         model = PagamentoDebito
@@ -77,17 +56,31 @@ class PagamentoDebitoForm(forms.ModelForm):
         self.fields['venda'].queryset = (
             Venda.objects
             .filter(forma_pagamento=Venda.FormaPagamento.FIADO)
+            .annotate(
+                total_pago_calculado=Coalesce(
+                    Sum('pagamentos__valor'),
+                    Value(Decimal('0.00')),
+                    output_field=DecimalField(max_digits=12, decimal_places=2),
+                )
+            )
+            .filter(total_pago_calculado__lt=F('valor_total'))
             .select_related('cliente')
             .order_by('-data_venda')
         )
         self.fields['venda'].empty_label = 'Selecione uma dívida'
+
+        # Define como cada venda aparecerá no campo de seleção, incluindo o nome do cliente, a data da venda e o saldo devedor.
         self.fields['venda'].label_from_instance = self.label_from_instance
 
     def label_from_instance(self, venda):
         cliente = venda.cliente.nome_cliente if venda.cliente else 'Cliente não informado'
+        data_venda_local = timezone.localtime(
+            venda.data_venda,
+            timezone.get_default_timezone(),
+        )
         return (
             f'Venda #{venda.id} - {cliente} - '
-            f'{venda.data_venda:%d/%m/%Y %H:%M} - '
+            f'{data_venda_local:%d/%m/%Y %H:%M} - '
             f'Saldo: R$ {venda.saldo_devedor:.2f}'
         )
 
