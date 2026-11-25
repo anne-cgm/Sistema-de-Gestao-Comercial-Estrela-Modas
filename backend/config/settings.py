@@ -49,8 +49,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'usuarios.apps.UsuariosConfig',
-    'estrela_modas.apps.EstrelaModasConfig',
+    'apps.core.apps.CoreConfig',
+    'apps.usuarios.apps.UsuariosConfig',
+    'apps.dashboard.apps.DashboardConfig',
+    'apps.produtos.apps.ProdutosConfig',
+    'apps.clientes.apps.ClientesConfig',
+    'apps.vendas.apps.VendasConfig',
+    'apps.estoque.apps.EstoqueConfig',
+    'apps.trocas.apps.TrocasConfig',
 ]
 
 AUTH_USER_MODEL = 'usuarios.Usuario'
