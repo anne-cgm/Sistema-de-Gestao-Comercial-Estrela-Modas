@@ -1,5 +1,9 @@
+import qrcode
+from io import BytesIO
+from django.core.files import File
 from django.core.validators import MinValueValidator
 from django.db import models
+
 
 
 class Produto(models.Model):
@@ -12,6 +16,8 @@ class Produto(models.Model):
     preco_venda = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     quantidade_estoque = models.PositiveIntegerField(default=0)
     estoque_minimo = models.PositiveIntegerField(default=0)
+    qr_code = models.ImageField(upload_to='qrcodes/', blank=True, null=True)  # <-- Adicione esta linha!
+    ativo = models.BooleanField(default=True)
     ativo = models.BooleanField(default=True)
     criado_em = models.DateTimeField(auto_now_add=True)
 
@@ -27,3 +33,12 @@ class Produto(models.Model):
     @property
     def estoque_baixo(self):
         return self.quantidade_estoque <= self.estoque_minimo
+
+    def save(self, *args, **kwargs):
+        
+        if not self.qr_code and self.sku:
+            qr = qrcode.make(self.sku)
+            buffer = BytesIO()
+            qr.save(buffer, format='PNG')
+            self.qr_code.save(f'qr_{self.sku}.png', File(buffer), save=False)
+        super().save(*args, **kwargs)

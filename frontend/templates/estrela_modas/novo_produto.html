@@ -1168,27 +1168,82 @@
           </div>
           <div class="avatar" data-nome-perfil data-login-perfil="{{ request.user.login }}" aria-label="Perfil">{{ request.user.login|first|upper }}</div>
         </header>
-        <form class="content stack" data-product-form>
-          <p class="count">Dados principais</p>
-          <label><span class="form-label">Nome do produto</span><input class="input" value="Camiseta Masculina Básica" /></label>
-          <label><span class="form-label">SKU Pai</span><input class="input" value="CAM-MAS-BAS" /></label>
-          <div class="grid-2">
-            <label><span class="form-label">Categoria</span><input class="input" value="Masculino" /></label>
-            <label><span class="form-label">Subcategoria</span><input class="input" value="Partes de Cima" /></label>
-          </div>
-          <div class="grid-2">
-            <label><span class="form-label">Tipo de peça</span><input class="input" value="Camiseta" /></label>
-            <label><span class="form-label">Material</span><input class="input" value="100% Algodão" /></label>
-          </div>
-          <p class="count">Precificação</p>
-          <div class="grid-2">
-            <label><span class="form-label">Custo</span><input class="input" value="R$ 48,00" /></label>
-            <label><span class="form-label">Venda</span><input class="input" value="R$ 79,90" /></label>
-          </div>
-          <p class="count">Variações</p>
-          <div class="badge">M · Preto · SKU CAM-MAS-BAS-M-PT</div>
-          <button class="button" type="button" data-save-product>Salvar produto</button>
-        </form>
+        <form method="post" class="content stack">
+  {% csrf_token %}
+
+  {% if form.errors %}
+    <div class="alert">
+      <p class="form-error">Por favor, corrija os erros abaixo antes de salvar.</p>
+    </div>
+  {% endif %}
+
+  <p class="count">Dados principais</p>
+
+  <label>
+    <span class="form-label">{{ form.nome_produto.label }}</span>
+    {{ form.nome_produto }}
+    {{ form.nome_produto.errors }}
+  </label>
+
+  <label>
+    <span class="form-label">{{ form.sku.label }}</span>
+    {{ form.sku }}
+    {{ form.sku.errors }}
+  </label>
+
+  <div class="grid-2">
+    <label>
+      <span class="form-label">{{ form.categoria.label }}</span>
+      {{ form.categoria }}
+      {{ form.categoria.errors }}
+    </label>
+
+    <label>
+      <span class="form-label">{{ form.tamanho.label }}</span>
+      {{ form.tamanho }}
+      {{ form.tamanho.errors }}
+    </label>
+  </div>
+
+  <label>
+    <span class="form-label">{{ form.cor.label }}</span>
+    {{ form.cor }}
+    {{ form.cor.errors }}
+  </label>
+
+  <p class="count">Precificação e Estoque</p>
+
+  <div class="grid-2">
+    <label>
+      <span class="form-label">{{ form.preco_custo.label }}</span>
+      {{ form.preco_custo }}
+      {{ form.preco_custo.errors }}
+    </label>
+
+    <label>
+      <span class="form-label">{{ form.preco_venda.label }}</span>
+      {{ form.preco_venda }}
+      {{ form.preco_venda.errors }}
+    </label>
+  </div>
+
+  <div class="grid-2">
+    <label>
+      <span class="form-label">{{ form.quantidade_estoque.label }}</span>
+      {{ form.quantidade_estoque }}
+      {{ form.quantidade_estoque.errors }}
+    </label>
+
+    <label>
+      <span class="form-label">{{ form.estoque_minimo.label }}</span>
+      {{ form.estoque_minimo }}
+      {{ form.estoque_minimo.errors }}
+    </label>
+  </div>
+
+  <button class="button" type="submit">Salvar produto</button>
+</form>
+
       </section>
       <button class="menu-backdrop" type="button" data-fundo-menu aria-label="Fechar menu" tabindex="-1" hidden></button>
       <nav class="nav" id="menu-principal" data-menu aria-label="Navegação principal">
