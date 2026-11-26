@@ -89,6 +89,43 @@ export function iniciarTela(abaAtiva) {
   })
 }
 
+export function iniciarValidacaoObrigatoriaEmPortugues() {
+  if (typeof document === "undefined") return
+
+  document.addEventListener("invalid", (evento) => {
+    const campo = evento.target
+    if (
+      typeof campo?.matches !== "function" ||
+      !campo.matches("input[required], select[required], textarea[required]") ||
+      !campo.validity.valueMissing
+    ) {
+      return
+    }
+
+    campo.setCustomValidity("Este campo é obrigatório.")
+    campo.dataset.mensagemObrigatoria = "sim"
+  }, true)
+
+  const limparMensagemObrigatoria = (evento) => {
+    const campo = evento.target
+    if (
+      campo?.dataset?.mensagemObrigatoria !== "sim"
+    ) {
+      return
+    }
+
+    campo.setCustomValidity("")
+    delete campo.dataset.mensagemObrigatoria
+  }
+
+  document.addEventListener("input", limparMensagemObrigatoria)
+  document.addEventListener("change", limparMensagemObrigatoria)
+}
+
+if (typeof document !== "undefined") {
+  iniciarValidacaoObrigatoriaEmPortugues()
+}
+
 export function formatarNomePerfil(usuario) {
   return usuario
     .trim()

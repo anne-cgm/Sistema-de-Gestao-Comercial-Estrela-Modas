@@ -5,8 +5,8 @@ from .models import Cliente, PagamentoDebito
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('nome_cliente', 'cpf_cliente', 'telefone')
-    search_fields = ('nome_cliente', 'cpf_cliente', 'telefone')
+    list_display = ('nome_cliente', 'telefone')
+    search_fields = ('nome_cliente', 'telefone')
 
 
 @admin.register(PagamentoDebito)

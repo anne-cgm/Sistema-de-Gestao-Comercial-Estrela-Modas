@@ -95,6 +95,33 @@ class PagamentoDebitoFormTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('venda', form.errors)
 
+    def test_lista_de_dividas_omite_venda_fiada_quitada(self):
+        form_com_debito_aberto = PagamentoDebitoForm()
+        self.assertIn(
+            self.venda_fiada,
+            form_com_debito_aberto.fields['venda'].queryset,
+        )
+        self.assertNotIn(
+            self.venda_pix,
+            form_com_debito_aberto.fields['venda'].queryset,
+        )
+
+        PagamentoDebito.objects.create(
+            venda=self.venda_fiada,
+            valor=Decimal('100.00'),
+        )
+
+        form = PagamentoDebitoForm()
+
+        self.assertNotIn(
+            self.venda_fiada,
+            form.fields['venda'].queryset,
+        )
+        self.assertNotIn(
+            self.venda_pix,
+            form.fields['venda'].queryset,
+        )
+
     def test_rejeita_pagamento_maior_que_saldo(self):
         # Simula um pagamento anterior de R$ 70.00 
         PagamentoDebito.objects.create(
