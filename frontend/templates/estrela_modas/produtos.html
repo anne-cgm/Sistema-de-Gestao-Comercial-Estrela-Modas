@@ -1167,17 +1167,51 @@
         </header>
         <div class="content stack">
           <label>
-            <span class="form-label">Buscar produto</span>
-            <form method="get">
-              <input
-                class="search"
-                type="search"
-                name="q"
-                value="{{ termo_busca }}"
-                placeholder="Nome ou SKU..."
-                data-busca-produto
-              />
-            </form>
+           <form method="get" class="stack">
+  <label>
+    <span class="form-label">Buscar produto</span>
+    <input
+      class="search"
+      type="search"
+      name="q"
+      value="{{ termo_busca }}"
+      placeholder="Nome ou SKU..."
+      data-busca-produto
+    />
+  </label>
+
+  <!-- Filtros de Categoria e Tamanho -->
+  <div class="grid-2" style="gap: 10px;">
+    <select name="categoria" class="select" onchange="this.form.submit()">
+      <option value="">Todas categorias</option>
+      {% for cat in categorias %}
+        <option value="{{ cat }}" {% if categoria_selecionada == cat %}selected{% endif %}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="tamanho" class="select" onchange="this.form.submit()">
+      <option value="">Todos tamanhos</option>
+      {% for tam in tamanhos %}
+        <option value="{{ tam }}" {% if tamanho_selecionado == tam %}selected{% endif %}>{{ tam }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- Filtro de Estoque Baixo e Limpar -->
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); cursor: pointer;">
+      <input type="checkbox" name="estoque_baixo" value="1" {% if estoque_baixo == '1' %}checked{% endif %} onchange="this.form.submit()">
+      Apenas estoque baixo
+    </label>
+
+    {% if termo_busca or categoria_selecionada or tamanho_selecionado or estoque_baixo %}
+      <a href="{% url 'produtos' %}" style="font-size: 11px; color: var(--pink); font-weight: 600; text-decoration: none;">
+        Limpar filtros
+      </a>
+    {% endif %}
+  </div>
+</form>
+
           </label>
           <a class="button" href="{% url 'novo_produto' %}">＋ Cadastrar produto</a>
           <p class="count">{{ produtos.count }} produto{{ produtos.count|pluralize }} cadastrado{{ produtos.count|pluralize }}</p>
@@ -1188,7 +1222,18 @@
                 data-produto
                 data-nome-produto="{{ produto.nome_produto }}"
               >
-                <div class="thumb"></div>
+                {% if produto.qr_code %}
+                <a href="{{ produto.qr_code.url }}" target="_blank" title="Clique para ampliar ou imprimir" style="flex: 0 0 auto;">
+                <img
+                src="{{ produto.qr_code.url }}"
+                alt="QR {{ produto.sku }}"
+                style="width: 110px; height: 110px; object-fit: contain; background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 6px; display: block;"
+                />
+                </a>
+                {% else %}
+                <div class="thumb" style="width: 110px; height: 110px;"></div>
+                {% endif %}
+
                 <div class="row-main">
                   <p class="row-title">{{ produto.nome_produto }}</p>
                   <p class="row-sub">{{ produto.sku }}{% if produto.tamanho %} · {{ produto.tamanho }}{% endif %}{% if produto.cor %} · {{ produto.cor }}{% endif %}</p>
@@ -1223,3 +1268,6 @@
     <script type="module" src="{% static 'estrela_modas/produtos.js' %}"></script>
   </body>
 </html>
+
+
+

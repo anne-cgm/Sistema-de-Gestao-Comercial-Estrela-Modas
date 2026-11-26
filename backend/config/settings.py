@@ -179,3 +179,8 @@ DEFAULT_FROM_EMAIL = os.environ.get(
     'DEFAULT_FROM_EMAIL',
     os.environ.get('EMAIL_HOST_USER', 'noreply@estrelamodas.local'),
 )
+
+import os
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
