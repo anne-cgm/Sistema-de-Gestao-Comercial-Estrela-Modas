@@ -6,6 +6,8 @@ import { produtoComEstoqueBaixo } from '../frontend/static/estrela_modas/estoque
 import iniciarLogin, { validarLogin } from '../frontend/static/estrela_modas/login.js'
 import { calcularTotalVenda, formatarMoeda } from '../frontend/static/estrela_modas/nova_venda.js'
 import { buscarProduto } from '../frontend/static/estrela_modas/produtos.js'
+import { iniciarValidacaoObrigatoriaEmPortugues } from '../frontend/static/estrela_modas/shared.js'
+import iniciarDetalhesCliente from '../frontend/static/estrela_modas/cliente-detalhes.js'
 
 test('validarLogin aceita usuário e senha preenchidos', () => {
   assert.equal(validarLogin('kamila', '123456'), true)
@@ -15,6 +17,96 @@ test('validarLogin rejeita campos vazios', () => {
   assert.equal(validarLogin('   ', '123456'), false)
   assert.equal(validarLogin('kamila', '   '), false)
   assert.equal(validarLogin('', ''), false)
+})
+
+test('mensagens nativas de campos obrigatórios aparecem em português', () => {
+  const listeners = {}
+  const documentoAnterior = globalThis.document
+  globalThis.document = {
+    addEventListener(tipo, manipulador) {
+      listeners[tipo] = manipulador
+    },
+  }
+
+  try {
+    iniciarValidacaoObrigatoriaEmPortugues()
+    const campo = {
+      dataset: {},
+      validity: { valueMissing: true },
+      matches: () => true,
+      setCustomValidity(mensagem) {
+        this.mensagem = mensagem
+      },
+    }
+
+    listeners.invalid({ target: campo })
+    assert.equal(campo.mensagem, 'Este campo é obrigatório.')
+    assert.equal(campo.dataset.mensagemObrigatoria, 'sim')
+
+    listeners.input({ target: campo })
+    assert.equal(campo.mensagem, '')
+    assert.equal(campo.dataset.mensagemObrigatoria, undefined)
+  } finally {
+    if (documentoAnterior === undefined) {
+      delete globalThis.document
+    } else {
+      globalThis.document = documentoAnterior
+    }
+  }
+})
+
+test('diálogo de exclusão do cliente abre e pode ser cancelado', () => {
+  const criarBotao = () => ({
+    manipuladores: {},
+    addEventListener(tipo, manipulador) {
+      this.manipuladores[tipo] = manipulador
+    },
+    click() {
+      this.manipuladores.click()
+    },
+  })
+  const botaoAbrir = criarBotao()
+  const botaoCancelar = criarBotao()
+  const dialogo = {
+    aberto: false,
+    showModal() {
+      this.aberto = true
+    },
+    close() {
+      this.aberto = false
+    },
+    querySelector() {
+      return botaoCancelar
+    },
+  }
+  const documentoAnterior = globalThis.document
+  globalThis.document = {
+    querySelector() {
+      return null
+    },
+    querySelectorAll() {
+      return []
+    },
+  }
+  globalThis.document.querySelector = seletor => ({
+    '[data-dialogo-excluir]': dialogo,
+    '[data-abrir-dialogo-excluir]': botaoAbrir,
+  })[seletor] ?? null
+
+  try {
+    iniciarDetalhesCliente()
+    botaoAbrir.click()
+    assert.equal(dialogo.aberto, true)
+
+    botaoCancelar.click()
+    assert.equal(dialogo.aberto, false)
+  } finally {
+    if (documentoAnterior === undefined) {
+      delete globalThis.document
+    } else {
+      globalThis.document = documentoAnterior
+    }
+  }
 })
 
 test('o diálogo percorre as etapas visuais sem validar ou alterar dados', () => {

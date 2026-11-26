@@ -8,10 +8,7 @@ from django.apps import apps as django_apps
 
 class Cliente(models.Model):
     nome_cliente = models.CharField(max_length=160)
-    cpf_cliente = models.CharField(max_length=11, blank=True, unique=True, null=True)
     telefone = models.CharField(max_length=24, blank=True)
-    endereco_completo = models.TextField(blank=True)
-    limite_credito = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)])
     criado_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -36,7 +33,7 @@ class Cliente(models.Model):
             Decimal('0.00')
         )
 
-
+# Associa pagamentos diretamente à venda, permitindo o cálculo correto do saldo devedor e da situação do débito.
 class PagamentoDebito(models.Model):
     venda = models.ForeignKey(
         'vendas.Venda',

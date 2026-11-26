@@ -1408,11 +1408,20 @@
                   <p class="row-sub">
                     Recebido em: {{ pagamento.data_pagamento|date:'d/m/Y H:i' }}
                   </p>
+                  <p class="row-sub">
+                    Valor original da dívida: R$ {{ pagamento.venda.valor_total|floatformat:2 }}
+                  </p>
+                  <p class="row-sub">
+                    Total pago até agora: R$ {{ pagamento.total_pago_venda|floatformat:2 }}
+                  </p>
+                  <p class="row-sub">
+                    Saldo restante: R$ {{ pagamento.saldo_restante|floatformat:2 }}
+                  </p>
                   {% if pagamento.observacoes %}
                     <p class="row-sub">Observações: {{ pagamento.observacoes }}</p>
                   {% endif %}
                 </div>
-                <p class="row-value">R$ {{ pagamento.valor|floatformat:2 }}</p>
+                <p class="row-value">Este recebimento: R$ {{ pagamento.valor|floatformat:2 }}</p>
               </article>
             {% empty %}
               <p class="card debt-empty">Nenhum pagamento registrado.</p>

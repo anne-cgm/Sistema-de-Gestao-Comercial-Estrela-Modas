@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import redirect, render
 
-from apps.clientes.models import Cliente
 from apps.estoque.models import MovimentacaoEstoque
 from apps.produtos.models import Produto
 from .forms import ItemVendaFormSet, VendaForm
@@ -14,7 +13,10 @@ from .models import ItemVenda, Venda
 
 @login_required
 def nova_venda(request):
-    form = VendaForm(request.POST or None)
+    form = VendaForm(
+        request.POST or None,
+        initial={'cliente': request.GET.get('cliente')},
+    )
     itens_formset = ItemVendaFormSet(request.POST or None, prefix='itens')
     if request.method == 'POST' and form.is_valid() and itens_formset.is_valid():
         dados = form.cleaned_data
@@ -48,10 +50,6 @@ def nova_venda(request):
                     else:
                         total = subtotal - dados['desconto_aplicado']
                         cliente = dados['cliente']
-                        if dados['forma_pagamento'] == Venda.FormaPagamento.FIADO:
-                            cliente = Cliente.objects.select_for_update().get(pk=cliente.pk)
-                            if cliente.limite_credito <= 0 or cliente.saldo_devedor + total > cliente.limite_credito:
-                                form.add_error('cliente', 'O valor ultrapassa o limite de crédito disponível do cliente.')
                         if not form.errors:
                             venda = Venda.objects.create(
                                 cliente=cliente,
