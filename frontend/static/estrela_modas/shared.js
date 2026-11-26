@@ -384,10 +384,40 @@ export function exibirMensagem(mensagem) {
   window.setTimeout(() => aviso.remove(), 2200)
 }
 
+function iniciarLinksVoltar() {
+  let veioDoMesmoSite = false
+  try {
+    veioDoMesmoSite = Boolean(
+      document.referrer && new URL(document.referrer).origin === window.location.origin,
+    )
+  } catch {
+    veioDoMesmoSite = false
+  }
+
+  if (!veioDoMesmoSite) return
+
+  document.querySelectorAll('[data-voltar-historico]').forEach(link => {
+    link.addEventListener('click', evento => {
+      if (
+        evento.defaultPrevented ||
+        evento.button !== 0 ||
+        evento.metaKey ||
+        evento.ctrlKey ||
+        evento.shiftKey ||
+        evento.altKey
+      ) return
+
+      evento.preventDefault()
+      window.history.back()
+    })
+  })
+}
+
 if (typeof document !== "undefined") {
   const iniciarMenusPadrao = () => {
     const menu = document.querySelector("[data-menu]")
     if (menu) iniciarMenu()
+    iniciarLinksVoltar()
   }
 
   if (document.readyState === "loading") {

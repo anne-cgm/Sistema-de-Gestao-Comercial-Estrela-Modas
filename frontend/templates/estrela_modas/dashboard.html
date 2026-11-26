@@ -904,6 +904,9 @@
         background: #fff;
       }
       .period-tab {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         min-height: 34px;
         padding: 6px 13px;
         border: 0;
@@ -912,6 +915,8 @@
         color: var(--muted);
         font-size: 12px;
         font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
         transition: background-color 150ms ease, color 150ms ease;
       }
       .period-tab.is-active {
@@ -980,6 +985,10 @@
         border: 1px solid #efe7da;
         border-radius: 10px;
         background: linear-gradient(180deg, #fdfbf7 0%, #f7f0e4 100%);
+      }
+      .sales-chart--hourly {
+        overflow-x: auto;
+        grid-template-columns: repeat(24, minmax(36px, 1fr));
       }
       .chart-col {
         display: flex;
@@ -1191,22 +1200,24 @@
 
           <h2 class="summary-title">Visão geral do negócio</h2>
             
-            <!-- FUTURO: implementar filtros por período no dashboard.js -->
     <div class="period-tabs" role="group" aria-label="Período do dashboard">
-      <button class="period-tab" type="button"
-              data-periodo-painel="hoje" aria-pressed="false">
+      <a class="period-tab{% if periodo == 'hoje' %} is-active{% endif %}"
+         href="{% url 'dashboard' %}?periodo=hoje"
+         aria-current="{% if periodo == 'hoje' %}true{% else %}false{% endif %}">
         Hoje
-      </button>
+      </a>
 
-      <button class="period-tab is-active" type="button"
-              data-periodo-painel="semana" aria-pressed="true">
+      <a class="period-tab{% if periodo == 'semana' %} is-active{% endif %}"
+         href="{% url 'dashboard' %}?periodo=semana"
+         aria-current="{% if periodo == 'semana' %}true{% else %}false{% endif %}">
         7 dias
-      </button>
+      </a>
 
-      <button class="period-tab" type="button"
-              data-periodo-painel="mes" aria-pressed="false">
+      <a class="period-tab{% if periodo == 'mes' %} is-active{% endif %}"
+         href="{% url 'dashboard' %}?periodo=mes"
+         aria-current="{% if periodo == 'mes' %}true{% else %}false{% endif %}">
         Este mês
-      </button>
+      </a>
     </div>
   </div>
 
@@ -1219,38 +1230,36 @@
 
       <p class="stat-value">
         <strong data-kpi-faturamento>
-          R$ {{ total_vendas_hoje|floatformat:2 }}
+          R$ {{ total_vendas_periodo|floatformat:2 }}
         </strong>
       </p>
 
       <p class="stat-sub" data-kpi-faturamento-detalhe>
-        {{ quantidade_vendas_hoje }} venda{{ quantidade_vendas_hoje|pluralize }} hoje
+        {{ quantidade_vendas_periodo }} venda{{ quantidade_vendas_periodo|pluralize }} {{ rotulo_periodo }}
       </p>
     </article>
 
-    <!-- FUTURO: calcular lucro estimado na views.py -->
     <article class="card stat">
       <p class="stat-label">Lucro estimado</p>
 
       <p class="stat-value">
-        <strong data-kpi-lucro>--</strong>
+        <strong data-kpi-lucro>R$ {{ lucro_estimado|floatformat:2 }}</strong>
       </p>
 
       <p class="stat-sub" data-kpi-lucro-detalhe>
-        Aguardando implementação do cálculo
+        estimativa com o custo atual dos produtos
       </p>
     </article>
 
-    <!-- FUTURO: calcular ticket médio na views.py -->
     <article class="card stat">
       <p class="stat-label">Ticket médio</p>
 
       <p class="stat-value">
-        <strong data-kpi-ticket>--</strong>
+        <strong>R$ {{ ticket_medio|floatformat:2 }}</strong>
       </p>
 
       <p class="stat-sub" data-kpi-ticket-detalhe>
-        Aguardando implementação do cálculo
+        por venda {{ rotulo_periodo }}
       </p>
     </article>
 
@@ -1272,7 +1281,6 @@
   <!-- GRÁFICOS E INFORMAÇÕES FINANCEIRAS -->
   <div class="dashboard-grid dashboard-grid--main">
 
-    <!-- FUTURO: implementar consulta de vendas agrupadas por dia na views.py -->
     <article class="card panel-card">
       <div class="panel-head">
         <div>
@@ -1280,78 +1288,30 @@
           <h3 class="panel-title">Desempenho de vendas</h3>
         </div>
 
-        <span class="panel-tag" data-grafico-pico>
-          Pico de vendas: --
+        <span class="panel-tag">
+          {{ resumo_pico }}
+          {% if resumo_menor %}<br>{{ resumo_menor }}{% endif %}
         </span>
       </div>
 
-      <!-- Estrutura reservada para o gráfico -->
-      <div class="sales-chart" data-grafico-barras
-           aria-label="Gráfico de barras de vendas">
-
-        <div class="chart-col">
-          <span class="chart-amount">--</span>
-          <div class="chart-track">
-            <div class="chart-bar" style="height: 0%"></div>
+      <div class="sales-chart{% if periodo == 'hoje' %} sales-chart--hourly{% endif %}" data-grafico-barras
+           aria-label="Gráfico de vendas{% if periodo == 'hoje' %} por horário do dia{% else %} no período selecionado{% endif %}"
+           style="--colunas-grafico: {{ vendas_por_intervalo|length }}">
+        {% for item in vendas_por_intervalo %}
+          <div class="chart-col{% if item.destaque %} is-peak{% endif %}">
+            <span class="chart-amount">R$ {{ item.total|floatformat:0 }}</span>
+            <div class="chart-track">
+              <div class="chart-bar" style="height: {{ item.altura }}%"></div>
+            </div>
+            <span class="chart-label">{{ item.rotulo }}</span>
           </div>
-          <span class="chart-label">Seg</span>
-        </div>
-
-        <div class="chart-col">
-          <span class="chart-amount">--</span>
-          <div class="chart-track">
-            <div class="chart-bar" style="height: 0%"></div>
-          </div>
-          <span class="chart-label">Ter</span>
-        </div>
-
-        <div class="chart-col">
-          <span class="chart-amount">--</span>
-          <div class="chart-track">
-            <div class="chart-bar" style="height: 0%"></div>
-          </div>
-          <span class="chart-label">Qua</span>
-        </div>
-
-        <div class="chart-col">
-          <span class="chart-amount">--</span>
-          <div class="chart-track">
-            <div class="chart-bar" style="height: 0%"></div>
-          </div>
-          <span class="chart-label">Qui</span>
-        </div>
-
-        <div class="chart-col">
-          <span class="chart-amount">--</span>
-          <div class="chart-track">
-            <div class="chart-bar" style="height: 0%"></div>
-          </div>
-          <span class="chart-label">Sex</span>
-        </div>
-
-        <div class="chart-col">
-          <span class="chart-amount">--</span>
-          <div class="chart-track">
-            <div class="chart-bar" style="height: 0%"></div>
-          </div>
-          <span class="chart-label">Sáb</span>
-        </div>
-
-        <div class="chart-col">
-          <span class="chart-amount">--</span>
-          <div class="chart-track">
-            <div class="chart-bar" style="height: 0%"></div>
-          </div>
-          <span class="chart-label">Dom</span>
-        </div>
-
+        {% endfor %}
       </div>
 
-      <!-- FUTURO: implementar meta comercial e percentual atingido -->
       <div class="goal-box">
         <div class="goal-header">
           <span>Meta comercial</span>
-          <strong data-meta-percentual>--</strong>
+          <strong>Não cadastrada</strong>
         </div>
 
         <div class="goal-track">
@@ -1359,12 +1319,11 @@
         </div>
 
         <p class="goal-sub" data-meta-resumo>
-          Meta e faturamento do período aguardando implementação
+          Defina uma meta para acompanhar o resultado do período.
         </p>
       </div>
     </article>
 
-    <!-- FUTURO: calcular valores por meio de pagamento na views.py -->
     <article class="card panel-card">
       <div class="panel-head">
         <div>
@@ -1379,17 +1338,30 @@
       </div>
 
       <div class="payment-stats" data-lista-pagamentos>
-        <p class="row-sub">
-          Os dados de recebimentos por modalidade serão exibidos aqui.
-        </p>
+        {% for item in pagamentos_periodo %}
+          <div class="meter-item">
+            <div class="meter-head">
+              <span class="meter-name">{{ item.metodo }}</span>
+              <span class="meter-values"><strong>R$ {{ item.total|floatformat:2 }}</strong> · {{ item.percentual }}%</span>
+            </div>
+            <div class="meter-track">
+              <div class="meter-fill" style="width: {{ item.percentual }}%"></div>
+            </div>
+          </div>
+        {% empty %}
+          <p class="row-sub">Nenhum recebimento no período selecionado.</p>
+        {% endfor %}
       </div>
 
-      <!-- FUTURO: calcular saldo total de fiado e quantidade de clientes devedores -->
       <div class="alert">
         <div>
           <p class="row-title">Fiado pendente</p>
           <p class="row-sub" data-fiado-detalhe>
-            Dados de débitos aguardando integração
+            {% if saldo_fiado_pendente %}
+              R$ {{ saldo_fiado_pendente|floatformat:2 }} em aberto para {{ clientes_com_debito }} cliente{{ clientes_com_debito|pluralize }}
+            {% else %}
+              Não há débitos em aberto.
+            {% endif %}
           </p>
         </div>
 
@@ -1430,7 +1402,7 @@
               </p>
 
               <p class="row-sub">
-                {{ item.unidades }} unidade{{ item.unidades|pluralize }} vendida{{ item.unidades|pluralize }} no mês
+                {{ item.unidades }} unidade{{ item.unidades|pluralize }} vendida{{ item.unidades|pluralize }} {{ rotulo_periodo }}
               </p>
             </div>
 
