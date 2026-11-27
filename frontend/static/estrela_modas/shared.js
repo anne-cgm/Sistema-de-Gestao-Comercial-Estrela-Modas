@@ -22,27 +22,45 @@ const permissaoPorTela = {
   produtos: "produtos",
   "novo_produto": "produtos",
   estoque: "estoque",
-  compras: "estoque",
+  compras: "compras",
   "nova-venda": "vendas",
   clientes: "clientes",
   novo_cliente: "clientes",
   "cliente-detalhes": "clientes",
-  debitos: "clientes",
-  trocas: "clientes",
+  debitos: "debitos",
+  trocas: "trocas",
+  despesas: "despesas",
   relatorios: "relatorios",
   usuarios: "usuarios",
+}
+
+const permissaoPorCaminho = {
+  "/dashboard/": "dashboard",
+  "/produtos/": "produtos",
+  "/produtos/novo/": "produtos",
+  "/estoque/": "estoque",
+  "/compras/": "compras",
+  "/vendas/nova/": "vendas",
+  "/clientes/": "clientes",
+  "/clientes/novo/": "clientes",
+  "/debitos/": "debitos",
+  "/trocas/": "trocas",
+  "/despesas/": "despesas",
+  "/relatorios/": "relatorios",
+  "/usuarios/": "usuarios",
 }
 
 export function podeAcessarTela(tela, sessao) {
   if (!tela || tela === "login" || tela === "mais") return true
   if (sessao?.perfil === "administrador") return true
   const permissao = permissaoPorTela[tela]
-  return !permissao || Boolean(sessao?.permissoes?.includes(permissao))
+  return Boolean(permissao && sessao?.permissoes?.includes(permissao))
 }
 
 export function obterSessaoAcesso(armazenamento = globalThis.sessionStorage) {
   try {
-    const perfil = armazenamento?.getItem("estrelaPerfil") || "administrador"
+    // Sem resposta do servidor, aplica o menor acesso possível até confirmar a sessão.
+    const perfil = armazenamento?.getItem("estrelaPerfil") || "funcionario"
     const permissoes = JSON.parse(
       armazenamento?.getItem("estrelaPermissoes") || "[]",
     )
@@ -51,19 +69,24 @@ export function obterSessaoAcesso(armazenamento = globalThis.sessionStorage) {
       permissoes: Array.isArray(permissoes) ? permissoes : [],
     }
   } catch {
-    return { perfil: "administrador", permissoes: [] }
+    return { perfil: "funcionario", permissoes: [] }
   }
 }
 
 export function navegarParaTela(tela) {
   const caminho = caminhosDasTelas[tela]
   if (!caminho) return
+  if (!podeAcessarTela(tela, obterSessaoAcesso())) {
+    exibirMensagem("Seu perfil não tem acesso a esta página.")
+    return
+  }
   window.location.href = caminho
 }
 
 export function iniciarTela(abaAtiva) {
   atualizarPerfil()
   iniciarMenu()
+  sincronizarPermissoesDaSessao()
 
   document.querySelectorAll("[data-screen]").forEach((elemento) => {
     elemento.addEventListener("click", (evento) => {
@@ -87,6 +110,50 @@ export function iniciarTela(abaAtiva) {
       // O login também pode ser aberto quando o armazenamento estiver bloqueado.
     }
   })
+}
+
+// Consulta o acesso real no Django e oculta atalhos que o funcionário não pode abrir.
+async function sincronizarPermissoesDaSessao() {
+  try {
+    const resposta = await fetch("/api/acesso-atual/", {
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+    })
+    if (!resposta.ok) return
+
+    const sessao = await resposta.json()
+    if (!Array.isArray(sessao.permissoes)) return
+
+    try {
+      window.sessionStorage.setItem("estrelaPerfil", sessao.perfil)
+      window.sessionStorage.setItem("estrelaPermissoes", JSON.stringify(sessao.permissoes))
+    } catch {
+      // O servidor continua protegendo as páginas quando o armazenamento está bloqueado.
+    }
+
+    const acesso = new Set(sessao.permissoes)
+    document.querySelectorAll("a[href], [data-screen]").forEach(elemento => {
+      let permissao = permissaoPorTela[elemento.dataset.screen]
+      if (!permissao && elemento.matches("a[href]")) {
+        const caminho = new URL(elemento.href, window.location.origin).pathname
+        permissao = permissaoPorCaminho[caminho]
+          || (caminho.startsWith("/clientes/") ? "clientes" : null)
+      }
+      if (!permissao) return
+
+      const permitido = sessao.perfil === "administrador" || acesso.has(permissao)
+      elemento.hidden = !permitido
+      if (!permitido) {
+        elemento.style.setProperty("display", "none", "important")
+        elemento.setAttribute("aria-hidden", "true")
+      } else {
+        elemento.style.removeProperty("display")
+        elemento.removeAttribute("aria-hidden")
+      }
+    })
+  } catch {
+    // Em caso de falha de rede, as views do servidor continuam sendo a barreira de acesso.
+  }
 }
 
 export function iniciarValidacaoObrigatoriaEmPortugues() {
@@ -384,10 +451,40 @@ export function exibirMensagem(mensagem) {
   window.setTimeout(() => aviso.remove(), 2200)
 }
 
+function iniciarLinksVoltar() {
+  let veioDoMesmoSite = false
+  try {
+    veioDoMesmoSite = Boolean(
+      document.referrer && new URL(document.referrer).origin === window.location.origin,
+    )
+  } catch {
+    veioDoMesmoSite = false
+  }
+
+  if (!veioDoMesmoSite) return
+
+  document.querySelectorAll('[data-voltar-historico]').forEach(link => {
+    link.addEventListener('click', evento => {
+      if (
+        evento.defaultPrevented ||
+        evento.button !== 0 ||
+        evento.metaKey ||
+        evento.ctrlKey ||
+        evento.shiftKey ||
+        evento.altKey
+      ) return
+
+      evento.preventDefault()
+      window.history.back()
+    })
+  })
+}
+
 if (typeof document !== "undefined") {
   const iniciarMenusPadrao = () => {
     const menu = document.querySelector("[data-menu]")
     if (menu) iniciarMenu()
+    iniciarLinksVoltar()
   }
 
   if (document.readyState === "loading") {

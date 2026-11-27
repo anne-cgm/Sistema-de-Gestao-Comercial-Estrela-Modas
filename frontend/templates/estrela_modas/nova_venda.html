@@ -6,6 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nova Venda | Estrela Modas</title>
     <style>
+      .feedback-message { display:flex; align-items:flex-start; gap:13px; margin:0 0 14px; padding:15px 16px; border:1px solid #d7e5d2; border-radius:12px; background:linear-gradient(120deg,#f2f7ee,#fffdf8); box-shadow:0 5px 16px rgb(55 83 49 / 6%); }
+      .feedback-message__icon { display:grid; width:38px; height:38px; flex:0 0 auto; place-items:center; border-radius:50%; background:#e2efdc; color:#426b45; font-size:18px; font-weight:700; }
+      .feedback-message__body { min-width:0; }
+      .feedback-message strong { color:#35583a; font-size:13px; }
+      .feedback-message p { margin:3px 0 0; color:#5e6e5b; font-size:12px; line-height:1.55; }
+      .feedback-message--error { border-color:#ebc9c4; background:#fff3f0; }
+      .feedback-message--error .feedback-message__icon { background:#f8e2dd; color:#8c2832; }
+      .feedback-message--error strong { color:#7c2029; }
+      .feedback-message--error p { color:#765b59; }
+      .feedback-message--warning { border-color:#ead9b6; background:#fff9ec; }
+      .feedback-message--warning .feedback-message__icon { background:#f8edcf; color:#866323; }
+    </style>
+    <style>
       @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
       :root {
@@ -1204,7 +1217,10 @@
         <form class="content stack" method="post" data-form-venda>
           {% csrf_token %}
           {% for message in messages %}
-            <p class="card" role="status" style="padding:12px 16px;">{{ message }}</p>
+            <div class="feedback-message feedback-message--{{ message.tags|default:'info' }}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}" aria-live="polite">
+              <span class="feedback-message__icon" aria-hidden="true">{% if message.tags == 'error' %}×{% elif message.tags == 'warning' %}!{% else %}✓{% endif %}</span>
+              <div class="feedback-message__body"><strong>{% if message.tags == 'error' %}Não foi possível concluir{% elif message.tags == 'warning' %}Atenção{% else %}Tudo certo{% endif %}</strong><p>{{ message }}</p></div>
+            </div>
           {% endfor %}
 
           <label>

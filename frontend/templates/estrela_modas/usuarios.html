@@ -1163,24 +1163,63 @@
         margin-bottom: 20px;
         padding: 20px;
       }
+      .user-form[hidden] { display: none; }
       .user-form-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
       }
+      .recovery-code-panel {
+        display: grid;
+        gap: 10px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #fbf8f1;
+        padding: 13px;
+      }
+      .recovery-code-panel[hidden],
+      .recovery-code-result[hidden] { display: none; }
+      .recovery-code-status,
+      .recovery-code-help { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+      .recovery-code-result { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+      .recovery-code-result input { font-family: ui-monospace, Consolas, monospace; font-weight: 700; letter-spacing: .08em; }
+      .recovery-code-result .button { width: auto; min-height: 44px; padding: 9px 12px; }
       .permission-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px 14px;
+        grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+        gap: 7px;
+      }
+      .permission-feedback {
+        margin: 0;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: #fbf6ec;
+        padding: 8px 11px;
+        color: var(--wine);
+        font-size: 11px;
+      }
+      .permission-feedback[data-tipo="erro"] {
+        border-color: #ebc9c4;
+        background: #fff3f0;
+        color: #7c2029;
       }
       .permission-option {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 7px;
+        min-height: 38px;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        background: #fff;
+        padding: 6px 9px;
         color: var(--text);
-        font-size: 12px;
+        font-size: 11px;
+        cursor: pointer;
       }
       .permission-option input {
+        width: 15px;
+        height: 15px;
+        flex: 0 0 auto;
         accent-color: var(--wine);
       }
       .password-note {
@@ -1227,9 +1266,9 @@
       }
       .employee-permissions-body {
         display: grid;
-        gap: 16px;
+        gap: 10px;
         border-top: 1px solid var(--border);
-        padding: 18px 20px 20px;
+        padding: 12px 16px 16px;
       }
       .employee-permissions-actions {
         display: flex;
@@ -1246,6 +1285,12 @@
       .user-form-actions .button {
         width: auto;
       }
+      .user-form-actions [hidden] { display: none; }
+      .button--danger {
+        border: 1px solid #a84343;
+        background: #fff3f0;
+        color: #7c2029;
+      }
       .user-card {
         padding: 0;
         overflow: hidden;
@@ -1253,11 +1298,11 @@
       .user-profile-trigger {
         display: flex;
         width: 100%;
-        align-items: flex-start;
+        align-items: center;
         gap: 12px;
         border: 0;
         background: transparent;
-        padding: 16px;
+        padding: 12px 16px;
         color: inherit;
         text-align: left;
       }
@@ -1269,7 +1314,21 @@
         align-self: center;
         color: var(--wine);
         font-size: 22px;
+        transition: transform 150ms ease;
       }
+      .user-profile-trigger[aria-expanded="true"] .chevron { transform: rotate(90deg); }
+      .user-profile-details {
+        display: grid;
+        gap: 8px;
+        border-top: 1px solid var(--border);
+        background: #fdfbf7;
+        padding: 12px 16px 16px 62px;
+      }
+      .user-profile-details[hidden] { display: none; }
+      .user-detail-row { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 8px; font-size: 11px; line-height: 1.5; }
+      .user-detail-label { color: var(--muted); font-weight: 600; }
+      .user-detail-value { min-width: 0; color: var(--text); overflow-wrap: anywhere; }
+      .user-profile-details .button { justify-self: start; width: auto; min-height: 34px; margin-top: 4px; padding: 7px 12px; font-size: 11px; }
       .user-card-meta {
         display: flex;
         flex-wrap: wrap;
@@ -1297,6 +1356,16 @@
         font-size: 12px;
         font-weight: 600;
       }
+      .user-message[data-tipo="erro"] {
+        border-left-color: #a84343;
+        background: #fff3f0;
+        color: #7c2029;
+      }
+      .user-message[data-tipo="sucesso"] {
+        border-left-color: #547b4d;
+        background: #f2f7ee;
+        color: #35583a;
+      }
       .users-empty {
         padding: 20px;
         color: var(--muted);
@@ -1304,9 +1373,11 @@
         text-align: center;
       }
       @media (max-width: 639px) {
-        .user-form-grid,
-        .permission-grid {
+        .user-form-grid {
           grid-template-columns: 1fr;
+        }
+        .permission-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
         .users-toolbar {
           align-items: stretch;
@@ -1331,7 +1402,7 @@
         <header class="header">
           <div class="header-main">
             <div style="display:flex;flex:0 0 auto;flex-direction:column;align-items:center;gap:8px;">
-              <a href="{% url 'mais_opcoes' %}" style="display:inline-flex;width:72px;min-height:28px;margin:0;padding:4px 8px;align-items:center;justify-content:center;border:1px solid #d6b16d;border-radius:8px;background:#fff8fa;color:#580d18;text-decoration:none;font-size:11px;font-weight:700;white-space:nowrap;">← Voltar</a>
+              <a href="{% url 'mais_opcoes' %}" data-voltar-historico style="display:inline-flex;width:72px;min-height:28px;margin:0;padding:4px 8px;align-items:center;justify-content:center;border:1px solid #d6b16d;border-radius:8px;background:#fff8fa;color:#580d18;text-decoration:none;font-size:11px;font-weight:700;white-space:nowrap;">← Voltar</a>
               <button class="menu-toggle" type="button" data-alternar-menu aria-controls="menu-principal" aria-expanded="false" aria-label="Abrir menu">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
                 <path d="M4 7h16M4 12h16M4 17h16" />
@@ -1370,7 +1441,10 @@
               <span class="employee-permissions-toggle">Configurar</span>
             </summary>
             <div class="employee-permissions-body">
-              <div class="permission-grid" data-lista-permissoes-funcionarios></div>
+              <div class="permission-grid"
+                   data-lista-permissoes-funcionarios
+                   data-url="{% url 'api_permissoes_funcionarios' %}"></div>
+              <p class="permission-feedback" data-feedback-permissoes role="status" aria-live="polite" hidden></p>
               <div class="employee-permissions-actions">
                 <button class="button" type="button" data-salvar-permissoes-funcionarios>Salvar permissões</button>
               </div>
@@ -1385,19 +1459,20 @@
             <button class="button" type="button" data-novo-usuario>＋ Novo usuário</button>
           </div>
 
-          <p class="card user-message" role="note">
-            Código de recuperação: o espaço para exibi-lo já está previsto no perfil do usuário.
-            A geração e o armazenamento ainda não foram implementados.
-          </p>
-
-          <p class="card user-message" data-mensagem-usuario role="status" hidden></p>
+          <p class="card user-message" data-mensagem-usuario role="status" aria-live="polite" hidden></p>
 
           <form class="card user-form" data-formulario-usuario hidden>
+            {% csrf_token %}
             <div>
               <p class="eyebrow">Dados e acesso</p>
               <h2 class="summary-title" data-titulo-perfil-usuario>Perfil do usuário</h2>
             </div>
             <div class="user-form-grid">
+              <label>
+                <span class="form-label">Login</span>
+                <input class="input" name="login" placeholder="Ex.: anne" maxlength="100" pattern="[A-Za-z0-9._-]+" autocomplete="username" data-login-usuario required />
+                <span class="password-note">Use letras sem acento, números, ponto, hífen ou sublinhado.</span>
+              </label>
               <label>
                 <span class="form-label">Nome</span>
                 <input class="input" name="nome" placeholder="Nome do usuário" required />
@@ -1430,20 +1505,26 @@
                 <span class="form-label">Confirmar nova senha</span>
                 <input class="input" type="password" name="confirmarSenha" minlength="6" placeholder="Digite a senha novamente" autocomplete="new-password" />
               </label>
-              <label>
-                <span class="form-label">Código de recuperação</span>
-                <input class="input" type="text" value="Ainda não disponível" disabled />
-                <span class="password-note">Este campo é apenas um espaço reservado. O código ainda não é gerado nem salvo.</span>
-              </label>
             </div>
 
+            <section class="recovery-code-panel" data-painel-codigo hidden aria-label="Código de recuperação">
+              <p class="recovery-code-status" data-status-codigo role="status" aria-live="polite"></p>
+              <p class="recovery-code-help">O código expira em 24 horas e só é mostrado uma vez. Se for perdido, gere outro para substituir o anterior.</p>
+              <button class="button button--outline button--small" type="button" data-gerar-codigo>Gerar código</button>
+              <div class="recovery-code-result" data-codigo-gerado hidden>
+                <input class="input" type="text" aria-label="Novo código de recuperação" data-valor-codigo readonly />
+                <button class="button" type="button" data-copiar-codigo>Copiar</button>
+              </div>
+            </section>
+
             <div class="user-form-actions">
+              <button class="button button--danger" type="button" data-excluir-usuario hidden>Excluir usuário</button>
               <button class="button button--outline" type="button" data-cancelar-usuario>Cancelar</button>
               <button class="button" type="submit">Salvar usuário</button>
             </div>
           </form>
 
-          <div class="list" data-lista-usuarios>
+          <div class="list" data-lista-usuarios data-url="{% url 'api_usuarios' %}">
             <p class="card users-empty">Carregando usuários...</p>
           </div>
         </div>
@@ -1461,6 +1542,6 @@
         <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="nav-link nav-exit" type="submit" data-sair style="width:100%;border-right:0;border-bottom:0;border-left:0;background:transparent;text-align:left;">Sair da sessão</button></form>
       </nav>
     </main>
-    <script type="module" src="{% static 'estrela_modas/shared.js' %}"></script>
+    <script type="module" src="{% static 'estrela_modas/usuarios.js' %}"></script>
   </body>
 </html>

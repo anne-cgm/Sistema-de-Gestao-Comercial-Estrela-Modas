@@ -6,6 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clientes com Débitos | Estrela Modas</title>
     <style>
+      .feedback-message { display:flex; align-items:flex-start; gap:13px; margin:0 0 14px; padding:15px 16px; border:1px solid #d7e5d2; border-radius:12px; background:linear-gradient(120deg,#f2f7ee,#fffdf8); box-shadow:0 5px 16px rgb(55 83 49 / 6%); }
+      .feedback-message__icon { display:grid; width:38px; height:38px; flex:0 0 auto; place-items:center; border-radius:50%; background:#e2efdc; color:#426b45; font-size:18px; font-weight:700; }
+      .feedback-message__body { min-width:0; }
+      .feedback-message strong { color:#35583a; font-size:13px; }
+      .feedback-message p { margin:3px 0 0; color:#5e6e5b; font-size:12px; line-height:1.55; }
+      .feedback-message--error { border-color:#ebc9c4; background:#fff3f0; }
+      .feedback-message--error .feedback-message__icon { background:#f8e2dd; color:#8c2832; }
+      .feedback-message--error strong { color:#7c2029; }
+      .feedback-message--error p { color:#765b59; }
+      .feedback-message--warning { border-color:#ead9b6; background:#fff9ec; }
+      .feedback-message--warning .feedback-message__icon { background:#f8edcf; color:#866323; }
+    </style>
+    <style>
       @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
       :root {
@@ -1293,7 +1306,7 @@
         <header class="header">
           <div class="header-main">
             <div style="display:flex;flex:0 0 auto;flex-direction:column;align-items:center;gap:8px;">
-              <a href="{% url 'clientes' %}" style="display:inline-flex;width:72px;min-height:28px;margin:0;padding:4px 8px;align-items:center;justify-content:center;border:1px solid #d6b16d;border-radius:8px;background:#fff8fa;color:#580d18;text-decoration:none;font-size:11px;font-weight:700;white-space:nowrap;">← Voltar</a>
+              <a href="{% url 'clientes' %}" data-voltar-historico style="display:inline-flex;width:72px;min-height:28px;margin:0;padding:4px 8px;align-items:center;justify-content:center;border:1px solid #d6b16d;border-radius:8px;background:#fff8fa;color:#580d18;text-decoration:none;font-size:11px;font-weight:700;white-space:nowrap;">← Voltar</a>
               <button class="menu-toggle" type="button" data-alternar-menu aria-controls="menu-principal" aria-expanded="false" aria-label="Abrir menu">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
                 <path d="M4 7h16M4 12h16M4 17h16" />
@@ -1325,7 +1338,10 @@
           </div>
 
           {% for message in messages %}
-            <p class="card debt-message" role="status">{{ message }}</p>
+            <div class="feedback-message feedback-message--{{ message.tags|default:'info' }}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}" aria-live="polite">
+              <span class="feedback-message__icon" aria-hidden="true">{% if message.tags == 'error' %}×{% elif message.tags == 'warning' %}!{% else %}✓{% endif %}</span>
+              <div class="feedback-message__body"><strong>{% if message.tags == 'error' %}Não foi possível concluir{% elif message.tags == 'warning' %}Atenção{% else %}Tudo certo{% endif %}</strong><p>{{ message }}</p></div>
+            </div>
           {% endfor %}
 
           <h2 class="section-title">Clientes com pendências</h2>

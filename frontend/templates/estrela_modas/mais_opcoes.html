@@ -661,6 +661,16 @@
           max-width: calc(100vw - 80px);
         }
       }
+      .access-feedback {
+        margin: 0 0 14px;
+        border: 1px solid #ebc9c4;
+        border-radius: 10px;
+        background: #fff3f0;
+        padding: 12px 14px;
+        color: #7c2029;
+        font-size: 12px;
+        line-height: 1.5;
+      }
 
       .nav-brand {
         display: none;
@@ -1181,6 +1191,9 @@
           <div class="avatar" data-nome-perfil data-login-perfil="{{ request.user.login }}" aria-label="Perfil">{{ request.user.login|first|upper }}</div>
         </header>
         <div class="content">
+          {% for message in messages %}
+            <p class="access-feedback" role="alert">{{ message }}</p>
+          {% endfor %}
           <p class="count" style="margin-bottom: 14px">Gerencie outras áreas da loja</p>
           <div class="list">
             <a class="menu-item" href="{% url 'compras' %}"><span class="menu-icon"></span><span class="row-main"><span class="row-title">Compras</span><span class="row-sub" style="display: block">Registrar mercadorias e entradas</span></span><span class="chevron">›</span></a>

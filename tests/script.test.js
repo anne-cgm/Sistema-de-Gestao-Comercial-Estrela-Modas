@@ -109,7 +109,7 @@ test('diálogo de exclusão do cliente abre e pode ser cancelado', () => {
   }
 })
 
-test('o diálogo percorre as etapas visuais sem validar ou alterar dados', () => {
+test('o diálogo avança entre etapas e rejeita senhas diferentes', () => {
   const criarBotao = (dataset = {}) => ({
     dataset,
     addEventListener(evento, manipulador) {
@@ -212,21 +212,17 @@ test('o diálogo percorre as etapas visuais sem validar ou alterar dados', () =>
     campoEmail.value = 'teste@example.com'
     formularioEmail.submit()
     assert.equal(etapaCodigo.hidden, false)
-    assert.match(resultado.textContent, /não foi consultada/)
+    assert.match(resultado.textContent, /código de recuperação/)
 
     campoCodigo.value = '123456'
     formularioCodigo.submit()
     assert.equal(etapaSenha.hidden, false)
-    assert.match(resultado.textContent, /não foi validado/)
+    assert.match(resultado.textContent, /nova senha/)
 
     campoNovaSenha.value = 'Senha123'
     campoConfirmacao.value = 'SenhaDiferente'
     formularioSenha.submit()
     assert.match(resultado.textContent, /não são iguais/)
-
-    campoConfirmacao.value = campoNovaSenha.value
-    formularioSenha.submit()
-    assert.match(resultado.textContent, /senha não foi alterada/)
 
     botaoFechar.click()
     assert.equal(dialogo.open, false)

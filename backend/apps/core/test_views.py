@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from apps.clientes.models import Cliente
 from apps.clientes.models import PagamentoDebito
+from apps.usuarios.models import ConfiguracaoPermissoesFuncionarios
 from apps.vendas.models import Venda
 
 class DebitosViewTests(TestCase):
@@ -20,6 +21,9 @@ class DebitosViewTests(TestCase):
             nome='Usuário de teste',
             email='teste@email.com',
             password='senha-teste-123'
+        )
+        ConfiguracaoPermissoesFuncionarios.objects.create(
+            permissoes=['debitos', 'vendas'],
         )
 
         self.client.force_login(self.user)
