@@ -11,6 +11,7 @@ from django.utils import timezone
 from apps.clientes.models import Cliente, PagamentoDebito
 from apps.core.models import Despesa
 from apps.produtos.models import Produto
+from apps.usuarios.models import ConfiguracaoPermissoesFuncionarios
 from apps.vendas.models import ItemVenda, Venda
 
 
@@ -24,6 +25,9 @@ class DashboardViewTests(TestCase):
             nome='Usuário do dashboard',
             email='dashboard@example.com',
             password='senha-de-teste',
+        )
+        ConfiguracaoPermissoesFuncionarios.objects.create(
+            permissoes=['dashboard'],
         )
         self.client.force_login(self.usuario)
         self.url = reverse('dashboard')

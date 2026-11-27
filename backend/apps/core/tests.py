@@ -3,6 +3,9 @@ from django.contrib.staticfiles import finders
 from django.test import TestCase
 from django.urls import reverse
 
+from apps.usuarios.models import ConfiguracaoPermissoesFuncionarios
+from apps.usuarios.permissoes import PAGINAS_PERMITIDAS
+
 
 # Classe de teste para verificar o redirecionamento e renderização de páginas
 class PageRoutingTests(TestCase):
@@ -14,6 +17,9 @@ class PageRoutingTests(TestCase):
             nome='Usuário de teste',
             email='teste@email.com',
             password='senha-teste-123'
+        )
+        ConfiguracaoPermissoesFuncionarios.objects.create(
+            permissoes=[pagina['chave'] for pagina in PAGINAS_PERMITIDAS],
         )
     # Testa se a página inicial redireciona usuários não autenticados para a página de login.
     def test_home_redirects_anonymous_to_login(self):

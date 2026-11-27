@@ -8,6 +8,7 @@ from django.urls import reverse
 
 from apps.estoque.models import Compra, ItemCompra, MovimentacaoEstoque
 from apps.produtos.models import Produto
+from apps.usuarios.models import ConfiguracaoPermissoesFuncionarios
 
 
 class ComprasViewTests(TestCase):
@@ -20,6 +21,9 @@ class ComprasViewTests(TestCase):
             nome='Funcionária de teste',
             email='compras@example.com',
             password='senha-de-teste',
+        )
+        ConfiguracaoPermissoesFuncionarios.objects.create(
+            permissoes=['compras'],
         )
         self.client.force_login(self.usuario)
         self.url = reverse('compras')

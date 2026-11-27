@@ -337,6 +337,18 @@
         margin-top: 28px;
       }
 
+      .feedback-message { display:flex; align-items:flex-start; gap:13px; margin:0 0 14px; padding:15px 16px; border:1px solid #d7e5d2; border-radius:12px; background:linear-gradient(120deg,#f2f7ee,#fffdf8); box-shadow:0 5px 16px rgb(55 83 49 / 6%); }
+      .feedback-message__icon { display:grid; width:38px; height:38px; flex:0 0 auto; place-items:center; border-radius:50%; background:#e2efdc; color:#426b45; font-size:18px; font-weight:700; }
+      .feedback-message__body { min-width:0; }
+      .feedback-message strong { color:#35583a; font-size:13px; }
+      .feedback-message p { margin:3px 0 0; color:#5e6e5b; font-size:12px; line-height:1.55; }
+      .feedback-message--error { border-color:#ebc9c4; background:#fff3f0; }
+      .feedback-message--error .feedback-message__icon { background:#f8e2dd; color:#8c2832; }
+      .feedback-message--error strong { color:#7c2029; }
+      .feedback-message--error p { color:#765b59; }
+      .feedback-message--warning { border-color:#ead9b6; background:#fff9ec; }
+      .feedback-message--warning .feedback-message__icon { background:#f8edcf; color:#866323; }
+
       .login-note {
         margin: 24px 20px 0;
         color: var(--muted);
@@ -1193,6 +1205,13 @@
             </div>
           </header>
 
+          {% for message in messages %}
+            <div class="feedback-message feedback-message--{{ message.tags|default:'info' }}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}" aria-live="polite">
+              <span class="feedback-message__icon" aria-hidden="true">{% if message.tags == 'error' %}×{% elif message.tags == 'warning' %}!{% else %}✓{% endif %}</span>
+              <div class="feedback-message__body"><strong>{% if message.tags == 'error' %}Não foi possível concluir{% elif message.tags == 'warning' %}Atenção{% else %}Tudo certo{% endif %}</strong><p>{{ message }}</p></div>
+            </div>
+          {% endfor %}
+
           <form class="content stack login-form" method="post" data-login-form>
           {% csrf_token %}
           {% if erro_login %}<p class="form-error" role="alert">{{ erro_login }}</p>{% endif %}
@@ -1212,9 +1231,9 @@
         </div>
       </section>
     </main>
-      <dialog class="recovery-dialog" data-recuperar-senha aria-labelledby="titulo-recuperacao" aria-describedby="orientacao-recuperacao">
+      <dialog class="recovery-dialog" data-recuperar-senha data-url="{% url 'api_recuperar_senha_com_codigo' %}" aria-labelledby="titulo-recuperacao" aria-describedby="orientacao-recuperacao">
       <h2 id="titulo-recuperacao">Esqueceu sua senha?</h2>
-      <p id="orientacao-recuperacao">Fluxo em prévia: o e-mail e o código ainda não são consultados nem validados.</p>
+      <p id="orientacao-recuperacao">Use seu e-mail e o código de recuperação fornecido pelo administrador.</p>
       <p class="recovery-result" data-resultado-recuperacao role="status" hidden></p>
       <section data-etapa-email-recuperacao>
         <form class="recovery-form" data-formulario-email-recuperacao>
@@ -1222,9 +1241,9 @@
             <span class="form-label">E-mail do usuário</span>
             <input class="input" type="email" name="email" placeholder="nome@estrelamodas.com.br" autocomplete="email" required />
           </label>
-          <button class="button" type="submit">Pré-visualizar etapa do código</button>
+            <button class="button" type="submit">Continuar</button>
         </form>
-        <p class="recovery-preview">O e-mail será consultado no banco quando a integração com o servidor estiver pronta.</p>
+        <p class="recovery-preview">Se você esqueceu o código, peça ao administrador para gerar um novo.</p>
       </section>
       <section data-etapa-codigo-recuperacao hidden>
         <form class="recovery-form" data-formulario-codigo-recuperacao>
@@ -1233,11 +1252,11 @@
             <input class="input" type="text" name="codigo" placeholder="Digite o código" autocomplete="one-time-code" required />
           </label>
           <div class="recovery-actions">
-            <button class="button" type="submit">Pré-visualizar redefinição</button>
+            <button class="button" type="submit">Continuar</button>
             <button class="recovery-cancel" type="button" data-voltar-etapa-recuperacao="email">Voltar</button>
           </div>
         </form>
-        <p class="recovery-preview">O código será comparado com o código associado à conta após a integração.</p>
+        <p class="recovery-preview">O código é de uso único e expira em 24 horas.</p>
       </section>
       <section data-etapa-senha-recuperacao hidden>
         <form class="recovery-form" data-formulario-senha-recuperacao>
@@ -1250,11 +1269,11 @@
             <input class="input" type="password" name="confirmarSenha" minlength="6" autocomplete="new-password" required />
           </label>
           <div class="recovery-actions">
-            <button class="button" type="submit">Concluir prévia</button>
+            <button class="button" type="submit">Redefinir senha</button>
             <button class="recovery-cancel" type="button" data-voltar-etapa-recuperacao="codigo">Voltar</button>
           </div>
         </form>
-        <p class="recovery-preview">A senha só poderá ser alterada quando a redefinição estiver conectada ao servidor.</p>
+        <p class="recovery-preview">Depois de redefinir, entre com sua nova senha.</p>
       </section>
       <button class="recovery-cancel" type="button" data-fechar-recuperacao>Cancelar</button>
     </dialog>

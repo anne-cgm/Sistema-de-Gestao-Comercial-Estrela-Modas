@@ -355,6 +355,59 @@
         gap: 8px;
       }
 
+      .compra-feedback {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        margin: 0;
+        padding: 15px 16px;
+        border: 1px solid #d7e5d2;
+        border-radius: 12px;
+        background: linear-gradient(120deg, #f2f7ee, #fffdf8);
+        box-shadow: 0 5px 16px rgb(55 83 49 / 6%);
+      }
+
+      .compra-feedback__icon {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 50%;
+        background: #e2efdc;
+        color: #426b45;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .compra-feedback strong { color: #35583a; font-size: 13px; }
+      .compra-feedback p { margin: 3px 0 0; color: #5e6e5b; font-size: 12px; line-height: 1.55; }
+      .compra-feedback--error { border-color: #ebc9c4; background: #fff3f0; }
+      .compra-feedback--error .compra-feedback__icon { background: #f8e2dd; color: #8c2832; }
+      .compra-feedback--error strong { color: #7c2029; }
+      .compra-feedback--error p { color: #765b59; }
+      .compra-feedback--warning { border-color: #ead9b6; background: #fff9ec; }
+      .compra-feedback--warning .compra-feedback__icon { background: #f8edcf; color: #866323; }
+
+      .field-hint {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .errorlist {
+        margin: 6px 0 0;
+        padding: 10px 12px 10px 30px;
+        border: 1px solid #ebc9c4;
+        border-radius: 9px;
+        background: #fff3f0;
+        color: #7c2029;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
       .count {
         margin: 0;
         color: var(--muted);
@@ -1199,7 +1252,17 @@
         <form class="content stack" data-formulario-compra method="post">
 
           {% csrf_token %}
-          {% for message in messages %}<p class="card">{{ message }}</p>{% endfor %}
+          {% for message in messages %}
+            <div class="compra-feedback compra-feedback--{{ message.tags|default:'info' }}"
+                 role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}"
+                 aria-live="{% if message.tags == 'error' %}assertive{% else %}polite{% endif %}">
+              <span class="compra-feedback__icon" aria-hidden="true">{% if message.tags == 'error' %}×{% elif message.tags == 'warning' %}!{% else %}✓{% endif %}</span>
+              <div>
+                <strong>{% if message.tags == 'error' %}Não foi possível concluir{% elif message.tags == 'warning' %}Atenção{% else %}Tudo certo{% endif %}</strong>
+                <p>{{ message }}</p>
+              </div>
+            </div>
+          {% endfor %}
           
           <p class="count">Entrada de produto existente</p>
           <label>
@@ -1254,7 +1317,12 @@
             <strong data-valor-total-compra>R$ 0,00</strong>
           </article>
 
-          <label><span class="form-label">Fornecedor</span>{{ form.fornecedor_nome }}{{ form.fornecedor_nome.errors }}</label>
+          <label>
+            <span class="form-label">Fornecedor (opcional)</span>
+            {{ form.fornecedor_nome }}
+            <span class="field-hint">Se a compra foi feita diretamente pela loja, você pode deixar este campo em branco.</span>
+            {{ form.fornecedor_nome.errors }}
+          </label>
           <label><span class="form-label">Nota fiscal (opcional)</span>{{ form.numero_nota_fiscal }}{{ form.numero_nota_fiscal.errors }}</label>
           <button class="button" type="submit">Registrar compra</button>
           <button class="button button--wine" type="button" data-screen="novo_produto">O produto ainda não existe? Cadastrar produto</button>

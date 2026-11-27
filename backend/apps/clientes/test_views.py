@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from .forms import PagamentoDebitoForm
 from apps.vendas.models import Venda
+from apps.usuarios.models import ConfiguracaoPermissoesFuncionarios
 from .models import Cliente, PagamentoDebito
 
 
@@ -18,6 +19,9 @@ class ClienteDetalhesViewTests(TestCase):
             nome='Usuário de teste',
             email='teste@email.com',
             password='senha-teste-123',
+        )
+        ConfiguracaoPermissoesFuncionarios.objects.create(
+            permissoes=['clientes'],
         )
         self.client.force_login(user)
         self.cliente = Cliente.objects.create(

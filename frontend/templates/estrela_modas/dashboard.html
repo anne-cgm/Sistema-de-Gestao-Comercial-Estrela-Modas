@@ -355,6 +355,51 @@
         gap: 8px;
       }
 
+      .dashboard-empty {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 82px;
+        margin: 0;
+        padding: 16px;
+        border: 1px dashed #dfcfb3;
+        border-radius: 12px;
+        background: linear-gradient(120deg, #fbf7ef, #fffdf9);
+      }
+
+      .dashboard-empty__icon {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 auto;
+        place-items: center;
+        border: 1px solid #eadbbd;
+        border-radius: 50%;
+        background: #f6ecd8;
+        color: var(--wine);
+        font-size: 19px;
+      }
+
+      .dashboard-empty__copy {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .dashboard-empty__copy strong {
+        display: block;
+        margin-bottom: 2px;
+        color: var(--wine);
+        font-size: 13px;
+      }
+
+      .dashboard-empty--success .dashboard-empty__icon {
+        border-color: #d8e5d5;
+        background: #eef5eb;
+        color: #456c4a;
+      }
+
       .count {
         margin: 0;
         color: var(--muted);
@@ -895,6 +940,7 @@
       .dashboard-top .summary-title {
         margin: 4px 0 0;
       }
+      /* Filtros são links; o backend renderiza o período selecionado. */
       .period-tabs {
         display: inline-flex;
         gap: 4px;
@@ -975,6 +1021,7 @@
         text-decoration: none;
         white-space: nowrap;
       }
+      /* O gráfico recebe valores calculados pela view do dashboard. */
       .sales-chart {
         display: grid;
         grid-template-columns: repeat(var(--colunas-grafico, 7), minmax(0, 1fr));
@@ -988,7 +1035,7 @@
       }
       .sales-chart--hourly {
         overflow-x: auto;
-        grid-template-columns: repeat(24, minmax(36px, 1fr));
+        grid-template-columns: repeat(var(--colunas-grafico), minmax(48px, 1fr));
       }
       .chart-col {
         display: flex;
@@ -1032,37 +1079,26 @@
         font-size: 11px;
         font-weight: 600;
       }
-      .goal-box {
+      .expenses-box {
         padding: 14px;
         border: 1px solid var(--border);
         border-radius: 10px;
         background: #fcf9f3;
       }
-      .goal-header {
+      .expenses-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         font-size: 12px;
       }
-      .goal-header strong {
+      .expenses-header strong {
         color: var(--wine);
+        font-size: 16px;
       }
-      .goal-track {
-        height: 9px;
-        overflow: hidden;
-        border-radius: 999px;
-        background: #eadfce;
-      }
-      .goal-fill {
-        height: 100%;
-        border-radius: 999px;
-        background: linear-gradient(90deg, #8c2832 0%, #d6b16d 100%);
-        transition: width 220ms ease;
-      }
-      .goal-sub {
-        margin: 8px 0 0;
+      .expenses-detail {
+        margin: 0;
         color: var(--muted);
         font-size: 11px;
       }
@@ -1071,6 +1107,7 @@
         flex-direction: column;
         gap: 13px;
       }
+      /* Barras da participação de cada forma de pagamento. */
       .meter-item {
         display: flex;
         flex-direction: column;
@@ -1200,6 +1237,7 @@
 
           <h2 class="summary-title">Visão geral do negócio</h2>
             
+    <!-- Os links enviam o período por GET para a view do Django. -->
     <div class="period-tabs" role="group" aria-label="Período do dashboard">
       <a class="period-tab{% if periodo == 'hoje' %} is-active{% endif %}"
          href="{% url 'dashboard' %}?periodo=hoje"
@@ -1221,7 +1259,7 @@
     </div>
   </div>
 
-  <!-- INDICADORES PRINCIPAIS -->
+  <!-- Indicadores calculados pela view: faturamento, lucro estimado, ticket e estoque. -->
   <div class="grid-2 summary-grid">
 
     <!-- Dado já fornecido pela view do Django -->
@@ -1278,7 +1316,7 @@
 
   </div>
 
-  <!-- GRÁFICOS E INFORMAÇÕES FINANCEIRAS -->
+  <!-- Gráfico de vendas e resumos financeiros do período selecionado. -->
   <div class="dashboard-grid dashboard-grid--main">
 
     <article class="card panel-card">
@@ -1295,7 +1333,7 @@
       </div>
 
       <div class="sales-chart{% if periodo == 'hoje' %} sales-chart--hourly{% endif %}" data-grafico-barras
-           aria-label="Gráfico de vendas{% if periodo == 'hoje' %} por horário do dia{% else %} no período selecionado{% endif %}"
+           aria-label="Gráfico de vendas{% if periodo == 'hoje' %} por faixas de uma hora, das 09h às 19h{% else %} no período selecionado{% endif %}"
            style="--colunas-grafico: {{ vendas_por_intervalo|length }}">
         {% for item in vendas_por_intervalo %}
           <div class="chart-col{% if item.destaque %} is-peak{% endif %}">
@@ -1308,18 +1346,14 @@
         {% endfor %}
       </div>
 
-      <div class="goal-box">
-        <div class="goal-header">
-          <span>Meta comercial</span>
-          <strong>Não cadastrada</strong>
+      <!-- Mostra as despesas registradas no mesmo período do filtro. -->
+      <div class="expenses-box">
+        <div class="expenses-header">
+          <span>Despesas {{ rotulo_periodo }}</span>
+          <strong>R$ {{ total_despesas_periodo|floatformat:2 }}</strong>
         </div>
-
-        <div class="goal-track">
-          <div class="goal-fill" data-meta-barra style="width: 0%"></div>
-        </div>
-
-        <p class="goal-sub" data-meta-resumo>
-          Defina uma meta para acompanhar o resultado do período.
+        <p class="expenses-detail">
+          {{ quantidade_despesas_periodo }} despesa{{ quantidade_despesas_periodo|pluralize }} registrada{{ quantidade_despesas_periodo|pluralize }} no período.
         </p>
       </div>
     </article>
@@ -1337,6 +1371,7 @@
         </button>
       </div>
 
+      <!-- A view agrupa o faturamento pelas formas de pagamento das vendas. -->
       <div class="payment-stats" data-lista-pagamentos>
         {% for item in pagamentos_periodo %}
           <div class="meter-item">
@@ -1353,6 +1388,7 @@
         {% endfor %}
       </div>
 
+      <!-- Saldo atual das vendas fiadas, independente do filtro de período. -->
       <div class="alert">
         <div>
           <p class="row-title">Fiado pendente</p>
@@ -1374,7 +1410,7 @@
 
   </div>
 
-  <!-- MAIS VENDIDOS E OPERAÇÃO DIÁRIA -->
+  <!-- Lista de produtos vendidos no período e alertas atuais de estoque baixo. -->
   <div class="dashboard-grid dashboard-grid--split">
 
     <!-- Dados já fornecidos pela view do Django -->
@@ -1412,9 +1448,13 @@
           </div>
 
         {% empty %}
-          <p class="card">
-            As vendas registradas aparecerão aqui.
-          </p>
+          <div class="dashboard-empty" role="status">
+            <span class="dashboard-empty__icon" aria-hidden="true">♡</span>
+            <p class="dashboard-empty__copy">
+              <strong>Nenhuma venda por enquanto</strong>
+              As peças vendidas {{ rotulo_periodo }} aparecerão aqui.
+            </p>
+          </div>
         {% endfor %}
       </div>
     </article>
@@ -1455,13 +1495,17 @@
           </div>
 
         {% empty %}
-          <p class="card">
-            Nenhum produto abaixo do estoque mínimo.
-          </p>
+          <div class="dashboard-empty dashboard-empty--success" role="status">
+            <span class="dashboard-empty__icon" aria-hidden="true">✓</span>
+            <p class="dashboard-empty__copy">
+              <strong>Estoque em dia</strong>
+              Nenhum produto está abaixo do estoque mínimo.
+            </p>
+          </div>
         {% endfor %}
       </div>
 
-      <!-- ATALHOS: manter para integração com as respectivas telas -->
+      <!-- Atalhos navegam para os fluxos de venda, cadastro e reposição. -->
       <div class="quick-actions">
 
         <button class="button button--full" type="button"
@@ -1547,7 +1591,7 @@
 
 </main>
 
-<!-- JavaScript responsável pelo funcionamento do dashboard -->
+<!-- Inicializa menu e navegação; os filtros de período são processados no backend. -->
 <script type="module"
         src="{% static 'estrela_modas/dashboard.js' %}"></script>
 </body>

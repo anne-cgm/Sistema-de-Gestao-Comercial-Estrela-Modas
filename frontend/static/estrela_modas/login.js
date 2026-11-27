@@ -17,6 +17,8 @@ export default function iniciarLogin() {
   const formularioEmail = dialogoRecuperacao?.querySelector('[data-formulario-email-recuperacao]')
   const formularioCodigo = dialogoRecuperacao?.querySelector('[data-formulario-codigo-recuperacao]')
   const formularioSenha = dialogoRecuperacao?.querySelector('[data-formulario-senha-recuperacao]')
+  let emailRecuperacao = ''
+  let codigoRecuperacao = ''
 
   function exibirEtapa(etapa) {
     if (!etapaEmail || !etapaCodigo || !etapaSenha) return
@@ -59,17 +61,19 @@ export default function iniciarLogin() {
 
   formularioEmail?.addEventListener('submit', evento => {
     evento.preventDefault()
-    exibirResultado('A existência deste e-mail ainda não foi consultada. A próxima etapa é apenas uma prévia.')
+    emailRecuperacao = formularioEmail.elements.email.value.trim()
+    exibirResultado('Agora informe o código de recuperação que recebeu do administrador.')
     if (etapaCodigo) exibirEtapa(etapaCodigo)
   })
 
   formularioCodigo?.addEventListener('submit', evento => {
     evento.preventDefault()
-    exibirResultado('Este código não foi validado. A próxima etapa é apenas uma prévia.')
+    codigoRecuperacao = formularioCodigo.elements.codigo.value.trim()
+    exibirResultado('Informe e confirme sua nova senha para concluir a recuperação.')
     if (etapaSenha) exibirEtapa(etapaSenha)
   })
 
-  formularioSenha?.addEventListener('submit', evento => {
+  formularioSenha?.addEventListener('submit', async evento => {
     evento.preventDefault()
     const senha = formularioSenha.elements.novaSenha.value
     const confirmacao = formularioSenha.elements.confirmarSenha.value
@@ -79,7 +83,40 @@ export default function iniciarLogin() {
       return
     }
 
-    exibirResultado('Prévia concluída. A senha não foi alterada; esta etapa ainda não está conectada ao servidor.')
+    const botaoEnviar = formularioSenha.querySelector('[type="submit"]')
+    botaoEnviar.disabled = true
+
+    try {
+      const resposta = await fetch(dialogoRecuperacao.dataset.url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]')?.value,
+        },
+        body: JSON.stringify({
+          email: emailRecuperacao,
+          codigo: codigoRecuperacao,
+          senha,
+          confirmacao,
+        }),
+      })
+      const dados = await resposta.json()
+
+      if (!resposta.ok) {
+        throw new Error(dados.erro || 'Não foi possível redefinir a senha.')
+      }
+
+      exibirResultado(dados.mensagem)
+      formularioSenha.reset()
+      codigoRecuperacao = ''
+      window.setTimeout(() => dialogoRecuperacao.close(), 1800)
+    } catch (erro) {
+      exibirResultado(erro.message)
+    } finally {
+      botaoEnviar.disabled = false
+    }
   })
 
   dialogoRecuperacao?.querySelectorAll('[data-voltar-etapa-recuperacao]').forEach(botao => {
