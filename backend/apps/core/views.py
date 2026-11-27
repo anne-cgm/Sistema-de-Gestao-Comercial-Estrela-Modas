@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
 from apps.usuarios.models import Usuario
+from apps.usuarios.permissoes import exigir_permissao
 from .forms import DespesaForm
 from .models import Despesa
 
@@ -131,6 +132,7 @@ def mais_opcoes(request):
 
 
 @login_required
+@exigir_permissao('despesas')
 def despesas(request):
     form = DespesaForm(request.POST or None, initial={'data_despesa': timezone.localdate()})
     if request.method == 'POST' and form.is_valid():

@@ -103,9 +103,12 @@ if DATABASE_URL:
             default=DATABASE_URL,
             conn_max_age=600,
             conn_health_checks=True,
-            ssl_require=True,
         )
     }
+    # Neon/PostgreSQL exige SSL; SQLite temporário usado nos testes não aceita
+    # opções de SSL e por isso recebe uma configuração limpa.
+    if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
+        DATABASES['default'].setdefault('OPTIONS', {})['sslmode'] = 'require'
 else:
     DATABASES = {
         'default': {

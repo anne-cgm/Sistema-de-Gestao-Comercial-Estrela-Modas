@@ -5,11 +5,13 @@ from django.db.models import F, Q
 from django.shortcuts import redirect, render
 
 from apps.estoque.models import MovimentacaoEstoque
+from apps.usuarios.permissoes import exigir_permissao
 from .forms import ProdutoForm
 from .models import Produto
 
 
 @login_required
+@exigir_permissao('produtos')
 def produtos(request):
     busca = request.GET.get('q', '').strip()
     categoria = request.GET.get('categoria', '').strip()
@@ -44,6 +46,7 @@ def produtos(request):
 
 
 @login_required
+@exigir_permissao('produtos')
 def novo_produto(request):
     form = ProdutoForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():

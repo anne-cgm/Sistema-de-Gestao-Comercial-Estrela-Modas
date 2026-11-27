@@ -7,11 +7,13 @@ from django.shortcuts import redirect, render
 
 from apps.estoque.models import MovimentacaoEstoque
 from apps.produtos.models import Produto
+from apps.usuarios.permissoes import exigir_permissao
 from .forms import ItemVendaFormSet, VendaForm
 from .models import ItemVenda, Venda
 
 
 @login_required
+@exigir_permissao('vendas')
 def nova_venda(request):
     form = VendaForm(
         request.POST or None,

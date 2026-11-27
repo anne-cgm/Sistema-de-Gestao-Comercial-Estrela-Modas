@@ -5,6 +5,7 @@ from django.db.models import F, Q, Sum, Window
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from apps.usuarios.permissoes import exigir_permissao
 from apps.vendas.models import Venda
 from .forms import ClienteForm, PagamentoDebitoForm
 from .models import Cliente, PagamentoDebito
@@ -27,6 +28,7 @@ def _cliente_detalhes_context(cliente, form_error=''):
 
 
 @login_required
+@exigir_permissao('clientes')
 def clientes(request):
     form = ClienteForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -46,6 +48,7 @@ def clientes(request):
 
 
 @login_required
+@exigir_permissao('clientes')
 def cliente_detalhes(request, pk):
     cliente = get_object_or_404(
         Cliente.objects.prefetch_related(
@@ -79,6 +82,7 @@ def cliente_detalhes(request, pk):
 
 @login_required
 @require_POST
+@exigir_permissao('clientes')
 def excluir_cliente(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
     if cliente.saldo_devedor > 0:
@@ -99,6 +103,8 @@ def excluir_cliente(request, pk):
     return redirect('clientes')
 
 
+@login_required
+@exigir_permissao('clientes')
 def novo_cliente(request):
     form = ClienteForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -109,6 +115,7 @@ def novo_cliente(request):
 
 
 @login_required
+@exigir_permissao('debitos')
 def debitos(request):
     form = PagamentoDebitoForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():

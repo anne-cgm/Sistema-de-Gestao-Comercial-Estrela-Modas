@@ -31,6 +31,9 @@ class Usuario(AbstractUser):
     nome = models.CharField(max_length=255)
     login = models.CharField(max_length=100, unique=True)
     ativo = models.BooleanField(default=True)
+    # Guarda apenas o hash do código; o texto original é exibido uma única vez ao administrador.
+    codigo_recuperacao_hash = models.CharField(max_length=128, blank=True)
+    codigo_recuperacao_expira_em = models.DateTimeField(blank=True, null=True)
 
     USERNAME_FIELD = 'login'
     REQUIRED_FIELDS = ['nome', 'email']

@@ -6,11 +6,13 @@ from django.shortcuts import render
 from apps.estoque.models import MovimentacaoEstoque
 from apps.produtos.models import Produto
 from apps.vendas.models import Venda
+from apps.usuarios.permissoes import exigir_permissao
 from .forms import TrocaForm
 from .models import Troca
 
 
 @login_required
+@exigir_permissao('trocas')
 def trocas(request):
     form = TrocaForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():

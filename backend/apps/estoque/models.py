@@ -5,6 +5,9 @@ from apps.produtos.models import Produto
 
 
 class Compra(models.Model):
+    """Cabeçalho da compra que agrupa seus itens e dados opcionais do fornecedor."""
+
+    # Fornecedor e nota podem ficar vazios em compras feitas sem um fornecedor formal.
     fornecedor_nome = models.CharField(max_length=160, blank=True)
     numero_nota_fiscal = models.CharField(max_length=64, blank=True)
     data_chegada = models.DateTimeField(auto_now_add=True)
@@ -22,6 +25,9 @@ class Compra(models.Model):
 
 
 class ItemCompra(models.Model):
+    """Produto, quantidade e custo unitário que compõem uma compra."""
+
+    # O produto não pode ser removido enquanto existir registro de compra ligado a ele.
     compra = models.ForeignKey(Compra, related_name='itens', on_delete=models.CASCADE)
     produto = models.ForeignKey('produtos.Produto', related_name='itens_compra', on_delete=models.PROTECT)
     quantidade = models.PositiveIntegerField(validators=[MinValueValidator(1)])
@@ -29,6 +35,7 @@ class ItemCompra(models.Model):
 
     @property
     def subtotal(self):
+        """Calcula o custo total deste item sem persistir um valor duplicado."""
         return self.quantidade * self.preco_custo_unitario
 
     class Meta:
@@ -36,7 +43,10 @@ class ItemCompra(models.Model):
 
 
 class MovimentacaoEstoque(models.Model):
+    """Histórico de entradas e saídas de unidades de cada produto."""
+
     class Tipo(models.TextChoices):
+        # Os rótulos são exibidos no Django Admin; os valores são gravados no banco.
         ENTRADA = 'entrada', 'Entrada'
         SAIDA = 'saida', 'Saída'
 
